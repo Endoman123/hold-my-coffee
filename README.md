@@ -1,4 +1,4 @@
-#Hold My Coffee
+# Hold My Coffee
 
 “Hold My Coffee” is a top-down bullet hell. To win the game, players will try to defeat a large boss while managing to weave through heavy waves of its artillery. The entirety of the game takes place in one view. High score can be achieved by defeating the boss swiftly and with taking minimal damage.
 
