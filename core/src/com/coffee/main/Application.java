@@ -1,33 +1,38 @@
 package com.coffee.main;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class Application extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
+/**
+ * The main application class.
+ * This contains the global {@link SpriteBatch}, {@link Viewport}, and entity {@link Engine} that we use throughout the game,
+ * as well as the main game loop.
+ */
+public class Application extends Game {
+	private SpriteBatch batch;
+	private Viewport viewport;
+	private PooledEngine engine;
 	
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		batch = new SpriteBatch(5120);
+		viewport = new ScreenViewport();
+		engine = new PooledEngine();
 	}
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+		if (getScreen() != null)
+			getScreen().render(Math.min(Gdx.graphics.getDeltaTime(), 1/60F));
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
 	}
 }
