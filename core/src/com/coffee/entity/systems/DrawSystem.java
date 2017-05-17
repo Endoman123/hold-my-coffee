@@ -7,6 +7,7 @@ import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.coffee.entity.components.GUIComponent;
 import com.coffee.entity.components.SpriteComponent;
 import com.coffee.main.Application;
+import com.coffee.util.Mapper;
 
 import java.util.Comparator;
 
@@ -19,8 +20,8 @@ public class DrawSystem extends SortedIteratingSystem {
     final Application PARENT;
 
     //this should be in a static mapper class that didn't exist at the time of writing
-    ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    ComponentMapper<GUIComponent> GUIMapper = ComponentMapper.getFor(GUIComponent.class);
+    ComponentMapper<SpriteComponent> spriteMapper = Mapper.SPRITE;
+    ComponentMapper<GUIComponent> GUIMapper = Mapper.GUI;
 
     public DrawSystem(Application application) {
         super(Family.one(SpriteComponent.class, GUIComponent.class).get(), new ZComparator());

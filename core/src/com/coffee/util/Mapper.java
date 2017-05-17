@@ -2,8 +2,7 @@ package com.coffee.util;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
-import com.coffee.entity.components.MovementComponent;
-import com.coffee.entity.components.TransformComponent;
+import com.coffee.entity.components.*;
 
 /**
  * Class containing a {@link com.badlogic.ashley.core.ComponentMapper} for every {@link Component}
@@ -14,4 +13,6 @@ import com.coffee.entity.components.TransformComponent;
 public class Mapper {
     public static final ComponentMapper<TransformComponent> TRANSFORM = ComponentMapper.getFor(TransformComponent.class);
     public static final ComponentMapper<MovementComponent> MOVEMENT = ComponentMapper.getFor(MovementComponent.class);
+    public static final ComponentMapper<SpriteComponent> SPRITE = ComponentMapper.getFor(SpriteComponent.class);
+    public static final ComponentMapper<GUIComponent> GUI = ComponentMapper.getFor(GUIComponent.class);
 }
