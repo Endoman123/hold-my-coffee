@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.coffee.main.screen.ViewportTest;
+import com.coffee.main.screen.DrawSystemTest;
 
 /**
  * The main application class.
@@ -26,7 +26,7 @@ public class Application extends Game {
 		viewport = new ScreenViewport();
 		engine = new PooledEngine();
 
-		setScreen(new ViewportTest(this));
+		setScreen(new DrawSystemTest(this));
 	}
 
 	@Override
