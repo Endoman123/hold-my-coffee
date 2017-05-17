@@ -1,4 +1,4 @@
-package com.coffee.main;
+package com.coffee.util;
 
 /**
  * @author Phillip O'Reggio

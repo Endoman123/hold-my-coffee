@@ -1,7 +1,8 @@
-package com.coffee.main;
+package com.coffee.entity.components;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.coffee.util.GUIHandler;
 
 /**
  * Component containing a canvas and GUIHandler that allows an entity to contain a displayable

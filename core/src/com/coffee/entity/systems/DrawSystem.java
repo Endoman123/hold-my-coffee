@@ -1,9 +1,12 @@
-package com.coffee.main;
+package com.coffee.entity.systems;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
+import com.coffee.entity.components.GUIComponent;
+import com.coffee.entity.components.SpriteComponent;
+import com.coffee.main.Application;
 
 import java.util.Comparator;
 
