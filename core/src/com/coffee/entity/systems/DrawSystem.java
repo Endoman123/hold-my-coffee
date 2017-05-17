@@ -14,6 +14,7 @@ import java.util.Comparator;
 /**
  * Sorts all the entities with sprite components by z-order, then draws all of them.
  * Next, GUI elements are drawn so that they are always on top of sprites.
+ *
  * @author Phillip O'Reggio
  */
 public class DrawSystem extends SortedIteratingSystem {

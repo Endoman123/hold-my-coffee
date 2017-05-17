@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.coffee.main.screen.ViewportTest;
 
 /**
  * The main application class.
@@ -24,6 +25,8 @@ public class Application extends Game {
 		batch = new SpriteBatch(5120);
 		viewport = new ScreenViewport();
 		engine = new PooledEngine();
+
+		setScreen(new ViewportTest(this));
 	}
 
 	@Override
@@ -39,5 +42,13 @@ public class Application extends Game {
 
 	public Batch getBatch() {
 		return batch;
+	}
+
+	public Viewport getViewport() {
+		return viewport;
+	}
+
+	public PooledEngine getEngine() {
+		return engine;
 	}
 }
