@@ -4,9 +4,11 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.main.screen.DrawSystemTest;
 
@@ -19,11 +21,18 @@ public class Application extends Game {
 	private SpriteBatch batch;
 	private Viewport viewport;
 	private PooledEngine engine;
+	private InputMultiplexer inputMultiplexer;
 	
 	@Override
 	public void create () {
+		// All the behind-the-scenes GDX stuff
+		// Except for fullscreen mode, but you get the idea.
+		Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
+		Gdx.graphics.setFullscreenMode(mode);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+
 		batch = new SpriteBatch(5120);
-		viewport = new ScreenViewport();
+		viewport = new FitViewport(720, 1280);
 		engine = new PooledEngine();
 
 		setScreen(new DrawSystemTest(this));
@@ -50,5 +59,9 @@ public class Application extends Game {
 
 	public PooledEngine getEngine() {
 		return engine;
+	}
+
+	public InputMultiplexer getInputMultiplexer() {
+		return inputMultiplexer;
 	}
 }

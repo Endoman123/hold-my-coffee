@@ -15,4 +15,5 @@ public class Mapper {
     public static final ComponentMapper<MovementComponent> MOVEMENT = ComponentMapper.getFor(MovementComponent.class);
     public static final ComponentMapper<SpriteComponent> SPRITE = ComponentMapper.getFor(SpriteComponent.class);
     public static final ComponentMapper<GUIComponent> GUI = ComponentMapper.getFor(GUIComponent.class);
+    public static final ComponentMapper<SpawnerComponent> SPAWNER = ComponentMapper.getFor(SpawnerComponent.class);
 }

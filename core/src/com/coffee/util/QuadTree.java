@@ -65,7 +65,8 @@ public class QuadTree {
     }
 
     private Array<Entity> retreive() {
-
+        // TODO implement
+        return null;
     }
 
     private void draw() {
