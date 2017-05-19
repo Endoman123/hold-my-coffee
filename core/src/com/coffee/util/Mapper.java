@@ -16,4 +16,5 @@ public class Mapper {
     public static final ComponentMapper<ColliderComponent> COLLIDER = ComponentMapper.getFor(ColliderComponent.class);
     public static final ComponentMapper<SpriteComponent> SPRITE = ComponentMapper.getFor(SpriteComponent.class);
     public static final ComponentMapper<GUIComponent> GUI = ComponentMapper.getFor(GUIComponent.class);
+    public static final ComponentMapper<SpawnerComponent> SPAWNER = ComponentMapper.getFor(SpawnerComponent.class);
 }

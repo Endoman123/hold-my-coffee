@@ -4,6 +4,10 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.GUIComponent;
 import com.coffee.entity.components.SpriteComponent;
 import com.coffee.main.Application;
@@ -18,15 +22,27 @@ import java.util.Comparator;
  * @author Phillip O'Reggio
  */
 public class DrawSystem extends SortedIteratingSystem {
-    final Application PARENT;
+    private final Batch BATCH;
+    private final Viewport VIEWPORT;
 
     //this should be in a static mapper class that didn't exist at the time of writing
     ComponentMapper<SpriteComponent> spriteMapper = Mapper.SPRITE;
     ComponentMapper<GUIComponent> GUIMapper = Mapper.GUI;
 
-    public DrawSystem(Application application) {
+    public DrawSystem(Application app) {
         super(Family.one(SpriteComponent.class, GUIComponent.class).get(), new ZComparator());
-        PARENT = application;
+        BATCH = app.getBatch();
+        VIEWPORT = app.getViewport();
+    }
+
+    public void update(float deltaTime) {
+        VIEWPORT.getCamera().update();
+        BATCH.setProjectionMatrix(VIEWPORT.getCamera().combined);
+
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        super.update(deltaTime);
     }
 
     @Override
@@ -35,35 +51,30 @@ public class DrawSystem extends SortedIteratingSystem {
             GUIMapper.get(e).HANDLER.update(deltaTime);
             GUIMapper.get(e).CANVAS.draw();
         } else if (Mapper.TRANSFORM.has(e)) {
-            PARENT.getBatch().begin();
+            BATCH.begin();
             for (int i = 0; i < spriteMapper.get(e).sprites.size; i++) {
                 spriteMapper.get(e).sprites.get(i).setPosition(Mapper.TRANSFORM.get(e).POSITION.x, Mapper.TRANSFORM.get(e).POSITION.y);
                 spriteMapper.get(e).sprites.get(i).setRotation((float) Mapper.TRANSFORM.get(e).rotation);
-                spriteMapper.get(e).sprites.get(i).draw(PARENT.getBatch());
+                spriteMapper.get(e).sprites.get(i).draw(BATCH);
             }
-            PARENT.getBatch().end();
+            BATCH.end();
         }
     }
 
     public static class ZComparator implements Comparator<Entity> {
         @Override
         public int compare(Entity o1, Entity o2) {
-            //this should be in a static mapper class that didn't exist at the time of writing
-            ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-            ComponentMapper<GUIComponent> GUIMapper = ComponentMapper.getFor(GUIComponent.class);
-            //---
-
             int z1, z2;
-            //GUI elements; if there, they should have a greater z index than sprites always
-            if (GUIMapper.has(o1) && GUIMapper.has(o2))
+            // GUI elements; if there, they should have a greater z index than sprites always
+            if (Mapper.GUI.has(o1) && Mapper.GUI.has(o2))
                 return 0;
-            else if (GUIMapper.has(o1) && !GUIMapper.has(o2))
+            else if (Mapper.GUI.has(o1) && !Mapper.GUI.has(o2))
                 return 1;
-            else if (!GUIMapper.has(o1) && GUIMapper.has(o2))
+            else if (!Mapper.GUI.has(o1) && Mapper.GUI.has(o2))
                 return -1;
 
-            z1 = spriteMapper.get(o1).zIndex;
-            z2 = spriteMapper.get(o2).zIndex;
+            z1 = Mapper.SPRITE.get(o1).zIndex;
+            z2 = Mapper.SPRITE.get(o2).zIndex;
             if (z1 < z2)
                 return -1;
             else if (z1 > z2)

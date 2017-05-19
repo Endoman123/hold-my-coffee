@@ -26,7 +26,7 @@ public class ViewportTest extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.12F, 0.12F, 0.12F, 1);
+        Gdx.gl.glClearColor(0.0F, 0.0F, 0.0F, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.setProjectionMatrix(viewport.getCamera().combined);
