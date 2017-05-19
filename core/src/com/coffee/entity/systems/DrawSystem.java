@@ -31,16 +31,14 @@ public class DrawSystem extends SortedIteratingSystem {
 
     @Override
     public void processEntity(Entity e, float deltaTime) {
-        int tempX = 0, tempY = 0, tempRotation = 0; //replace with whatever it actually is
-
         if (GUIMapper.has(e)) {
             GUIMapper.get(e).HANDLER.update(deltaTime);
             GUIMapper.get(e).CANVAS.draw();
-        } else if (true/*PositionMapper.has(e)*/) {
+        } else if (Mapper.TRANSFORM.has(e)) {
             PARENT.getBatch().begin();
             for (int i = 0; i < spriteMapper.get(e).sprites.size; i++) {
-                spriteMapper.get(e).sprites.get(i).setPosition(tempX, tempY);
-                spriteMapper.get(e).sprites.get(i).setRotation(tempRotation);
+                spriteMapper.get(e).sprites.get(i).setPosition(Mapper.TRANSFORM.get(e).POSITION.x, Mapper.TRANSFORM.get(e).POSITION.y);
+                spriteMapper.get(e).sprites.get(i).setRotation((float) Mapper.TRANSFORM.get(e).rotation);
                 spriteMapper.get(e).sprites.get(i).draw(PARENT.getBatch());
             }
             PARENT.getBatch().end();

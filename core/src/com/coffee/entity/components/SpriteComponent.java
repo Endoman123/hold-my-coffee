@@ -12,6 +12,15 @@ import com.badlogic.gdx.utils.Array;
 public class SpriteComponent implements Component {
     public Array<Sprite> sprites;
     public int zIndex;
+
+    public SpriteComponent(Array<Sprite> s) {
+        sprites = s;
+    }
+
+    public SpriteComponent(Sprite[] s, int z) {
+        sprites = new Array<Sprite>(s);
+        zIndex = z;
+    }
 }
 
 
