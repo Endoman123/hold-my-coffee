@@ -13,6 +13,7 @@ import com.coffee.entity.components.*;
 public class Mapper {
     public static final ComponentMapper<TransformComponent> TRANSFORM = ComponentMapper.getFor(TransformComponent.class);
     public static final ComponentMapper<MovementComponent> MOVEMENT = ComponentMapper.getFor(MovementComponent.class);
+    public static final ComponentMapper<ColliderComponent> COLLIDER = ComponentMapper.getFor(ColliderComponent.class);
     public static final ComponentMapper<SpriteComponent> SPRITE = ComponentMapper.getFor(SpriteComponent.class);
     public static final ComponentMapper<GUIComponent> GUI = ComponentMapper.getFor(GUIComponent.class);
 }
