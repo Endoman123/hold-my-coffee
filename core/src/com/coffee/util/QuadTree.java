@@ -10,8 +10,6 @@ import com.badlogic.gdx.utils.Array;
  * @author Phillip O'Reggio
  */
 public class QuadTree {
-    private ShapeRenderer DEBUG;
-
     private final int MAX_LEVELS = 5;
     private final int MAX_POLYGONS = 10;
 
@@ -22,10 +20,9 @@ public class QuadTree {
     private QuadTree[] nodes;
 
     public QuadTree(int pLevel, Rectangle boundary) {
-        DEBUG = new ShapeRenderer();
-
         bounds = boundary;
         level = pLevel;
+        polygons = new Array<Polygon>();
         nodes = new QuadTree[4]; //qpu aligns itself
     }
 
@@ -50,22 +47,21 @@ public class QuadTree {
         nodes[1] = new QuadTree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
         nodes[2] = new QuadTree(level + 1, new Rectangle(x, y, subWidth, subHeight));
         nodes[3] = new QuadTree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
-
     }
 
     private int getIndex(Polygon polygon) {
         float verticalMid = bounds.getX() + (bounds.getWidth() / 2f);
         float horizontalMid = bounds.getY() + (bounds.getHeight() / 2f);
 
-        boolean inTopQuandrant = (polygon.getY() > horizontalMid && polygon.getY() + polygon.getBoundingRectangle().getHeight() > horizontalMid);
+        boolean inTopQuadrant = (polygon.getY() > horizontalMid && polygon.getY() + polygon.getBoundingRectangle().getHeight() > horizontalMid);
         boolean inBottomQuadrant = (polygon.getY() < horizontalMid && polygon.getY() + polygon.getBoundingRectangle().getHeight() < horizontalMid);
         if (polygon.getX() > verticalMid && polygon.getX() + polygon.getBoundingRectangle().getWidth() > verticalMid) { //right side
-            if (inTopQuandrant)
+            if (inTopQuadrant)
                 return 0;
             else if (inBottomQuadrant)
                 return 3;
         } else if (polygon.getX() < verticalMid && polygon.getX() + polygon.getBoundingRectangle().getWidth() < verticalMid) { //left side
-            if (inTopQuandrant)
+            if (inTopQuadrant)
                 return 1;
             else if (inBottomQuadrant)
                 return 2;
@@ -75,11 +71,12 @@ public class QuadTree {
 
     }
 
-    private void insert(Polygon polygon) {
+    public void insert(Polygon polygon) {
         if (nodes[0] != null) { //if it has sub nodes
             int index = getIndex(polygon);
             if (index != -1)
                 nodes[index].insert(polygon);
+            return;
         }
 
         polygons.add(polygon);
@@ -107,18 +104,21 @@ public class QuadTree {
     }
 
     /**
-     * Debug method
-     * @param quadTree that is being drawn
+     * Debug draw method
      */
-    private void draw(QuadTree quadTree) {
+    public void draw(ShapeRenderer DEBUG) {
         if (nodes[0] != null) {
             for (int i = 0; i < nodes.length; i++)
-                draw(nodes[i]);
+                nodes[i].draw(DEBUG);
         } else {
             DEBUG.begin();
             DEBUG.setColor(Color.CYAN);
             DEBUG.rect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
             DEBUG.end();
         }
+    }
+
+    public String toString() {
+        return "Level: " + level + " Polygons : " + polygons.size;
     }
 }

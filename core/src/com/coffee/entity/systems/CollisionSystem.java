@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.coffee.entity.components.ColliderComponent;
 import com.coffee.entity.components.TransformComponent;
+import com.coffee.util.Mapper;
 import com.coffee.util.QuadTree;
 
 /**
@@ -18,6 +19,9 @@ public class CollisionSystem extends IteratingSystem {
     }
 
     public void processEntity(Entity entity, float deltaTime) {
+        ColliderComponent curCollider = Mapper.COLLIDER.get(entity);
+        TransformComponent curTrans = Mapper.TRANSFORM.get(entity);
 
+        curCollider.body.setPosition(curTrans.POSITION.x, curTrans.POSITION.y);
     }
 }

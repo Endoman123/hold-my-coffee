@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.coffee.main.screen.DrawSystemTest;
+import com.coffee.main.screen.CollisionTest;
 
 /**
  * The main application class.
@@ -33,9 +33,10 @@ public class Application extends Game {
 
 		batch = new SpriteBatch(5120);
 		viewport = new FitViewport(720, 1280);
+		//viewport = new ScalingViewport(Scaling.stretch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
 		engine = new PooledEngine();
 
-		setScreen(new DrawSystemTest(this));
+		setScreen(new CollisionTest(this));
 	}
 
 	@Override
