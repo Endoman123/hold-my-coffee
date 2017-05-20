@@ -6,7 +6,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
@@ -37,6 +39,8 @@ public class EntityBuilder {
     public static void init(Application a) {
         if (_inst == null) {
             _inst = new EntityBuilder(a);
+
+            System.out.println("Initialized EntityBuilder");
         }
     }
 
@@ -62,7 +66,26 @@ public class EntityBuilder {
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
-        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+        final PlayerComponent PLAYER = new PlayerComponent();
+        final ColliderComponent COLLIDER;
+        final InputComponent INPUT;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(48, 48);
+        TRANSFORM.ORIGIN.set(24, 24);
+
+        // Initialize MovmementComponent
+        MOVEMENT.moveSpeed = 5;
+
+        // Initialize SpriteComponent
+        Sprite main = new Sprite(new Texture("badlogic.jpg"));
+        main.setSize(48, 48);
+        main.setOrigin(24, 24);
+
+        SPRITE.SPRITES.add(main);
+
+        // Initialize ColliderComponent
+        COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
 
@@ -78,29 +101,59 @@ public class EntityBuilder {
 
             }
         });
-        final InputComponent INPUT;
+        COLLIDER.body.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.body.setOrigin(8, 8);
+        COLLIDER.solid = true;
 
         // Initialize InputComponent
         InputProcessor ip = new InputAdapter() {
             @Override
-            // Handle all movement here.
             public boolean keyDown(int keycode) {
                 switch (keycode) {
                     case Input.Keys.W:
                     case Input.Keys.UP:
-                        MOVEMENT.MOVEMENT_NORMAL.add(0, -1);
+                        PLAYER.up = 1;
                         break;
                     case Input.Keys.A:
                     case Input.Keys.LEFT:
-                        MOVEMENT.MOVEMENT_NORMAL.add(-1, 0);
+                        PLAYER.left = 1;
                         break;
                     case Input.Keys.S:
                     case Input.Keys.DOWN:
-                        MOVEMENT.MOVEMENT_NORMAL.add(0, 1);
+                        PLAYER.down = 1;
                         break;
                     case Input.Keys.D:
                     case Input.Keys.RIGHT:
-                        MOVEMENT.MOVEMENT_NORMAL.add(1, 0);
+                        PLAYER.right = 1;
+                        break;
+                    default:
+                        return false;
+                }
+                return true;
+            }
+
+            public boolean keyUp(int keycode) {
+                switch (keycode) {
+                    case Input.Keys.W:
+                    case Input.Keys.UP:
+                        PLAYER.up = 0;
+                        break;
+                    case Input.Keys.A:
+                    case Input.Keys.LEFT:
+                        PLAYER.left = 0;
+                        break;
+                    case Input.Keys.S:
+                    case Input.Keys.DOWN:
+                        PLAYER.down = 0;
+                        break;
+                    case Input.Keys.D:
+                    case Input.Keys.RIGHT:
+                        PLAYER.right = 0;
                         break;
                     default:
                         return false;
@@ -113,7 +166,7 @@ public class EntityBuilder {
 
         INPUT = new InputComponent(ip);
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT);
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER);
     }
 
 
