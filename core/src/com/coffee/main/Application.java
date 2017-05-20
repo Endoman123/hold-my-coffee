@@ -33,7 +33,6 @@ public class Application extends Game {
 
 		batch = new SpriteBatch(5120);
 		viewport = new FitViewport(720, 1280);
-		//viewport = new ScalingViewport(Scaling.stretch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
 		engine = new PooledEngine();
 
 		setScreen(new CollisionTest(this));
@@ -64,5 +63,11 @@ public class Application extends Game {
 
 	public InputMultiplexer getInputMultiplexer() {
 		return inputMultiplexer;
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		super.resize(width, height);
+		viewport.update(width, height, true);
 	}
 }

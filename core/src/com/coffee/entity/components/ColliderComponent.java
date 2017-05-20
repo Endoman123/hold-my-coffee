@@ -11,14 +11,14 @@ import com.coffee.util.CollisionHandler;
  */
 public class ColliderComponent implements Component {
     public Polygon body;
-    public CollisionHandler handler;
+    public final CollisionHandler HANDLER;
     public boolean solid;
     public Array<Entity> collidingWith;
 
     /**
      * Creates component with  a polygonal square body of size 32.
      */
-    public ColliderComponent() {
+    public ColliderComponent(CollisionHandler handler) {
         body = new Polygon(new float[]{
                 0,0,
                 32, 0,
@@ -27,23 +27,6 @@ public class ColliderComponent implements Component {
         });
         solid = true;
         collidingWith = new Array<Entity>();
-        handler = new CollisionHandler() {
-
-            @Override
-            public void enterCollision(Entity entity) {
-                System.out.println("enter");
-            }
-
-            @Override
-            public void whileCollision(Entity entity) {
-                System.out.println("while");
-            }
-
-            @Override
-            public void exitCollision(Entity entity) {
-                System.out.println("exit");
-
-            }
-        };
+        HANDLER = handler;
     }
 }

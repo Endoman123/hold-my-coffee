@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
+import com.coffee.util.CollisionHandler;
 
 import java.awt.*;
 
@@ -61,7 +62,22 @@ public class EntityBuilder {
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
-        final ColliderComponent COLLIDER = new ColliderComponent();
+        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+
+            }
+        });
         final InputComponent INPUT;
 
         // Initialize InputComponent

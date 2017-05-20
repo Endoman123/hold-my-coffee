@@ -52,10 +52,10 @@ public class DrawSystem extends SortedIteratingSystem {
             GUIMapper.get(e).CANVAS.draw();
         } else if (Mapper.TRANSFORM.has(e)) {
             BATCH.begin();
-            for (int i = 0; i < spriteMapper.get(e).sprites.size; i++) {
-                spriteMapper.get(e).sprites.get(i).setPosition(Mapper.TRANSFORM.get(e).POSITION.x, Mapper.TRANSFORM.get(e).POSITION.y);
-                spriteMapper.get(e).sprites.get(i).setRotation((float) Mapper.TRANSFORM.get(e).rotation);
-                spriteMapper.get(e).sprites.get(i).draw(BATCH);
+            for (int i = 0; i < spriteMapper.get(e).SPRITES.size; i++) {
+                spriteMapper.get(e).SPRITES.get(i).setPosition(Mapper.TRANSFORM.get(e).POSITION.x, Mapper.TRANSFORM.get(e).POSITION.y);
+                spriteMapper.get(e).SPRITES.get(i).setRotation((float) Mapper.TRANSFORM.get(e).rotation);
+                spriteMapper.get(e).SPRITES.get(i).draw(BATCH);
             }
             BATCH.end();
         }

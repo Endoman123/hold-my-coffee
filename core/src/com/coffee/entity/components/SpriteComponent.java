@@ -14,15 +14,15 @@ import java.util.ArrayList;
  * @author Phillip O'Reggio
  */
 public class SpriteComponent implements Component {
-    public Array<Sprite> sprites;
+    public final Array<Sprite> SPRITES;
     public int zIndex;
 
     public SpriteComponent(Array<Sprite> s) {
-        sprites = s;
+        SPRITES = s;
     }
 
     public SpriteComponent(Sprite[] s, int z) {
-        sprites = new Array<Sprite>(s);
+        SPRITES = new Array<Sprite>(s);
         zIndex = z;
     }
 
