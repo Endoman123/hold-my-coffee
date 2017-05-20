@@ -38,7 +38,7 @@ public class CollisionTest extends ScreenAdapter {
         ENGINE.addSystem(new CollisionSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem());
 
-        // Assemble 50 some entities for testing
+        // Assemble some entities for testing
         for (int i = 0 ; i < 500; i++) {
             final Entity E = new Entity();
             final TransformComponent TRANSFORM = new TransformComponent();

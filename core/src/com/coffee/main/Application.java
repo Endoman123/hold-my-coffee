@@ -2,10 +2,7 @@ package com.coffee.main;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.PooledEngine;
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -29,7 +26,30 @@ public class Application extends Game {
 		// Except for fullscreen mode, but you get the idea.
 		Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
 		Gdx.graphics.setFullscreenMode(mode);
+		inputMultiplexer = new InputMultiplexer();
 		Gdx.input.setInputProcessor(inputMultiplexer);
+
+		inputMultiplexer.addProcessor(new InputAdapter() {
+			@Override
+			public boolean keyDown(int keycode) {
+				switch(keycode) {
+					case Input.Keys.F11:
+						if (Gdx.graphics.isFullscreen())
+							Gdx.graphics.setWindowedMode(576, 1024);
+						else {
+							Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
+							Gdx.graphics.setFullscreenMode(mode);
+						}
+						break;
+					case Input.Keys.ESCAPE:
+						Gdx.app.exit();
+						break;
+					default:
+						return false;
+				}
+				return true;
+			}
+		});
 
 		batch = new SpriteBatch(5120);
 		viewport = new FitViewport(720, 1280);
