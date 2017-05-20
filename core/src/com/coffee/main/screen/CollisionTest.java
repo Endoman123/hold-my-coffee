@@ -35,7 +35,7 @@ public class CollisionTest extends ScreenAdapter {
         // Initialize Engine
         ENGINE = new PooledEngine();
         ENGINE.addSystem(new DrawSystem(app));
-        ENGINE.addSystem(new CollisionSystem(VIEWPORT));
+        ENGINE.addSystem(new CollisionSystem(VIEWPORT, true));
         ENGINE.addSystem(new MovementSystem());
 
         // Assemble some entities for testing

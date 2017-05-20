@@ -3,11 +3,15 @@ package com.coffee.main;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.coffee.entity.EntityBuilder;
 import com.coffee.main.screen.CollisionTest;
+import com.coffee.main.screen.DrawSystemTest;
+import com.coffee.main.screen.PlayerTest;
+import com.coffee.main.screen.ViewportTest;
 
 /**
  * The main application class.
@@ -19,30 +23,54 @@ public class Application extends Game {
 	private Viewport viewport;
 	private PooledEngine engine;
 	private InputMultiplexer inputMultiplexer;
-	
+	private Array<Screen> testScreens;
+	private int curTest = 0;
+
 	@Override
 	public void create () {
-		// All the behind-the-scenes GDX stuff
-		// Except for fullscreen mode, but you get the idea.
-		Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
-		Gdx.graphics.setFullscreenMode(mode);
-		inputMultiplexer = new InputMultiplexer();
-		Gdx.input.setInputProcessor(inputMultiplexer);
+		System.out.println("Created");
 
+		Gdx.graphics.setWindowedMode(450, 800);
+
+		// Initialize global stuff before all the Screen stuff
+		batch = new SpriteBatch(5120);
+		viewport = new FitViewport(720, 1280);
+		engine = new PooledEngine();
+		inputMultiplexer = new InputMultiplexer();
+
+		// An input listener to exit the game and toggle fullscreen
 		inputMultiplexer.addProcessor(new InputAdapter() {
 			@Override
 			public boolean keyDown(int keycode) {
 				switch(keycode) {
 					case Input.Keys.F11:
+						Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
 						if (Gdx.graphics.isFullscreen())
-							Gdx.graphics.setWindowedMode(576, 1024);
+							Gdx.graphics.setWindowedMode(450, 800);
 						else {
-							Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
 							Gdx.graphics.setFullscreenMode(mode);
 						}
 						break;
 					case Input.Keys.ESCAPE:
 						Gdx.app.exit();
+						break;
+					case Input.Keys.LEFT_BRACKET:
+						if (testScreens != null) {
+							curTest--;
+							if (curTest < 0)
+								curTest = testScreens.size - 1;
+
+							setScreen(testScreens.get(curTest));
+						}
+						break;
+					case Input.Keys.RIGHT_BRACKET:
+						if (testScreens != null) {
+							curTest++;
+							if (curTest >= testScreens.size)
+								curTest = 0;
+
+							setScreen(testScreens.get(curTest));
+						}
 						break;
 					default:
 						return false;
@@ -51,11 +79,23 @@ public class Application extends Game {
 			}
 		});
 
-		batch = new SpriteBatch(5120);
-		viewport = new FitViewport(720, 1280);
-		engine = new PooledEngine();
+		Gdx.input.setInputProcessor(inputMultiplexer);
 
-		setScreen(new CollisionTest(this));
+		System.out.println("Initializing EntityBuilder");
+		EntityBuilder.init(this);
+
+		// Screen stuff
+		testScreens = new Array<Screen>();
+
+		testScreens.addAll(
+				new CollisionTest(this),
+				new DrawSystemTest(this),
+				new PlayerTest(this),
+				new ViewportTest(this)
+		);
+
+		// Set the screen beforehand
+		setScreen(testScreens.get(curTest));
 	}
 
 	@Override
@@ -69,7 +109,7 @@ public class Application extends Game {
 		batch.dispose();
 	}
 
-	public Batch getBatch() {
+	public SpriteBatch getBatch() {
 		return batch;
 	}
 
