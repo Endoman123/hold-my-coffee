@@ -6,11 +6,10 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.GUIComponent;
 import com.coffee.entity.components.SpriteComponent;
-import com.coffee.main.Application;
 import com.coffee.util.Mapper;
 
 import java.util.Comparator;
@@ -22,17 +21,17 @@ import java.util.Comparator;
  * @author Phillip O'Reggio
  */
 public class DrawSystem extends SortedIteratingSystem {
-    private final Batch BATCH;
+    private final SpriteBatch BATCH;
     private final Viewport VIEWPORT;
 
     //this should be in a static mapper class that didn't exist at the time of writing
     ComponentMapper<SpriteComponent> spriteMapper = Mapper.SPRITE;
     ComponentMapper<GUIComponent> GUIMapper = Mapper.GUI;
 
-    public DrawSystem(Application app) {
+    public DrawSystem(SpriteBatch batch, Viewport viewport) {
         super(Family.one(SpriteComponent.class, GUIComponent.class).get(), new ZComparator());
-        BATCH = app.getBatch();
-        VIEWPORT = app.getViewport();
+        BATCH = batch;
+        VIEWPORT = viewport;
     }
 
     public void update(float deltaTime) {

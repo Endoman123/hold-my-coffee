@@ -1,18 +1,22 @@
 package com.coffee.main.screen;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.ColliderComponent;
 import com.coffee.entity.components.MovementComponent;
 import com.coffee.entity.components.SpriteComponent;
 import com.coffee.entity.components.TransformComponent;
 import com.coffee.entity.systems.CollisionSystem;
+import com.coffee.entity.systems.DebugDrawSystem;
 import com.coffee.entity.systems.DrawSystem;
 import com.coffee.entity.systems.MovementSystem;
 import com.coffee.main.Application;
@@ -25,21 +29,27 @@ import com.coffee.util.Mapper;
 public class CollisionTest extends ScreenAdapter {
     private final Viewport VIEWPORT;
     private final PooledEngine ENGINE;
+    private final SpriteBatch BATCH;
+    private final ShapeRenderer SHAPE_RENDERER;
 
     private float curTime;
     private final float END_TIME = .2f;
 
-    public CollisionTest(Application app) {
-        VIEWPORT = app.getViewport();
+    public CollisionTest() {
+        Application app = (Application) Gdx.app.getApplicationListener();
 
-        // Initialize Engine
+        VIEWPORT = app.getViewport();
+        BATCH = app.getBatch();
         ENGINE = new PooledEngine();
-        ENGINE.addSystem(new DrawSystem(app));
-        ENGINE.addSystem(new CollisionSystem(VIEWPORT, true));
+        SHAPE_RENDERER = app.getShapeRenderer();
+
+        ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
+        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        ENGINE.addSystem(new CollisionSystem(SHAPE_RENDERER, VIEWPORT, true));
         ENGINE.addSystem(new MovementSystem());
 
         // Assemble some entities for testing
-        for (int i = 0 ; i < 500; i++) {
+        for (int i = 0 ; i < 1000; i++) {
             final Entity E = new Entity();
             final TransformComponent TRANSFORM = new TransformComponent();
             final MovementComponent MOVEMENT = new MovementComponent();
@@ -84,6 +94,11 @@ public class CollisionTest extends ScreenAdapter {
     }
 
     @Override
+    public void show() {
+
+    }
+
+    @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.12F, 0.12F, 0.12F, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -108,5 +123,14 @@ public class CollisionTest extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         VIEWPORT.update(width, height, true);
+    }
+
+    @Override
+    public void dispose() {
+        ENGINE.removeAllEntities();
+
+        for (EntitySystem s : ENGINE.getSystems()) {
+            ENGINE.removeSystem(s);
+        }
     }
 }

@@ -1,9 +1,9 @@
 package com.coffee.main;
 
 import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -12,6 +12,7 @@ import com.coffee.main.screen.CollisionTest;
 import com.coffee.main.screen.DrawSystemTest;
 import com.coffee.main.screen.PlayerTest;
 import com.coffee.main.screen.ViewportTest;
+import com.coffee.util.Assets;
 
 /**
  * The main application class.
@@ -20,11 +21,13 @@ import com.coffee.main.screen.ViewportTest;
  */
 public class Application extends Game {
 	private SpriteBatch batch;
+	private ShapeRenderer shapeRenderer;
 	private Viewport viewport;
-	private PooledEngine engine;
 	private InputMultiplexer inputMultiplexer;
 	private Array<Screen> testScreens;
 	private int curTest = 0;
+
+	private boolean assetsLoaded = false;
 
 	@Override
 	public void create () {
@@ -35,13 +38,14 @@ public class Application extends Game {
 		// Initialize global stuff before all the Screen stuff
 		batch = new SpriteBatch(5120);
 		viewport = new FitViewport(720, 1280);
-		engine = new PooledEngine();
 		inputMultiplexer = new InputMultiplexer();
+		shapeRenderer = new ShapeRenderer();
 
 		// An input listener to exit the game and toggle fullscreen
 		inputMultiplexer.addProcessor(new InputAdapter() {
 			@Override
 			public boolean keyDown(int keycode) {
+				int s = curTest;
 				switch(keycode) {
 					case Input.Keys.F11:
 						Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
@@ -59,8 +63,6 @@ public class Application extends Game {
 							curTest--;
 							if (curTest < 0)
 								curTest = testScreens.size - 1;
-
-							setScreen(testScreens.get(curTest));
 						}
 						break;
 					case Input.Keys.RIGHT_BRACKET:
@@ -68,13 +70,16 @@ public class Application extends Game {
 							curTest++;
 							if (curTest >= testScreens.size)
 								curTest = 0;
-
-							setScreen(testScreens.get(curTest));
 						}
 						break;
 					default:
 						return false;
 				}
+
+				if (s != curTest) {
+					setScreen(testScreens.get(curTest));
+				}
+
 				return true;
 			}
 		});
@@ -86,20 +91,36 @@ public class Application extends Game {
 
 		// Screen stuff
 		testScreens = new Array<Screen>();
-
-		testScreens.addAll(
-				new CollisionTest(this),
-				new DrawSystemTest(this),
-				new PlayerTest(this),
-				new ViewportTest(this)
-		);
-
-		// Set the screen beforehand
-		setScreen(testScreens.get(curTest));
 	}
 
 	@Override
 	public void render () {
+		// Asset loading is quite the complicated conundrum dont'cha think?
+		if (!assetsLoaded) {
+			assetsLoaded = Assets.MANAGER.update();
+
+			if (assetsLoaded) {
+				EntityBuilder.getAssets();
+
+				if (testScreens.size == 0) {
+					testScreens.addAll(
+							new CollisionTest(),
+							new DrawSystemTest(),
+							new PlayerTest(),
+							new ViewportTest()
+					);
+
+					// Set the screen beforehand
+					setScreen(testScreens.get(curTest));
+				}
+			}
+
+			System.out.println(assetsLoaded ?
+					"Assets loaded!" :
+					"Loading assets... " + Assets.MANAGER.getProgress() * 100 + "%"
+			);
+		}
+
 		if (getScreen() != null)
 			getScreen().render(Math.min(Gdx.graphics.getDeltaTime(), 1/60F));
 	}
@@ -113,12 +134,12 @@ public class Application extends Game {
 		return batch;
 	}
 
-	public Viewport getViewport() {
-		return viewport;
+	public ShapeRenderer getShapeRenderer() {
+		return shapeRenderer;
 	}
 
-	public PooledEngine getEngine() {
-		return engine;
+	public Viewport getViewport() {
+		return viewport;
 	}
 
 	public InputMultiplexer getInputMultiplexer() {

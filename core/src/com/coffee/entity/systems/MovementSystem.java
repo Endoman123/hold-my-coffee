@@ -4,7 +4,9 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.MovementComponent;
 import com.coffee.entity.components.TransformComponent;
 import com.coffee.util.Mapper;
@@ -16,8 +18,34 @@ import com.coffee.util.Mapper;
  * @author Jared Tulayan
  */
 public class MovementSystem extends IteratingSystem {
+    private final Viewport VIEWPORT;
+    private final ShapeRenderer DEBUG;
+    public boolean doDebug = false;
+
+    /**
+     * Calls {@link MovementSystem#MovementSystem(Viewport)}
+     * with the {@link Viewport} as null
+     */
     public MovementSystem() {
+        this(null);
+    }
+
+    /**
+     * Constructs this {@link EntitySystem} with the specified {@link Viewport} for
+     * rendering the transform.
+     *
+     * @param viewport the {@code Viewport} whose camera to use to transform the
+     *                 projection matrix of the {@code ShapeRenderer}
+     */
+    public MovementSystem(Viewport viewport) {
         super(Family.all(TransformComponent.class, MovementComponent.class).get());
+        VIEWPORT = viewport;
+
+        if (VIEWPORT != null) {
+            DEBUG = new ShapeRenderer();
+            doDebug = true;
+        } else
+            DEBUG = null;
     }
 
     @Override

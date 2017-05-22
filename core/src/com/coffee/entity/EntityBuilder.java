@@ -1,17 +1,17 @@
 package com.coffee.entity;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
+import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
 
 import java.awt.*;
@@ -25,9 +25,9 @@ public class EntityBuilder {
     // I will throw a hissy fit otherwise.
     // - Game
     private static Viewport viewport;
-    private static PooledEngine engine;
     private static Batch batch;
     private static InputMultiplexer inputMultiplexer;
+    private static TextureAtlas goAtlas;
 
     private static EntityBuilder _inst;
 
@@ -44,6 +44,14 @@ public class EntityBuilder {
         }
     }
 
+    public static void getAssets() {
+        goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
+
+        if (goAtlas == null) {
+            System.out.println("Atlas == null");
+        }
+    }
+
     /**
      * Initializes the constants in the class.
      *
@@ -51,7 +59,6 @@ public class EntityBuilder {
      */
     public EntityBuilder(Application app) {
         viewport = app.getViewport();
-        engine = app.getEngine();
         batch = app.getBatch();
         inputMultiplexer = app.getInputMultiplexer();
     }
@@ -70,19 +77,18 @@ public class EntityBuilder {
         final ColliderComponent COLLIDER;
         final InputComponent INPUT;
 
-        // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(48, 48);
-        TRANSFORM.ORIGIN.set(24, 24);
-
         // Initialize MovmementComponent
         MOVEMENT.moveSpeed = 5;
 
         // Initialize SpriteComponent
-        Sprite main = new Sprite(new Texture("badlogic.jpg"));
-        main.setSize(48, 48);
-        main.setOrigin(24, 24);
+        Sprite main = goAtlas.createSprite("player");
+        main.setOrigin(main.getWidth() / 2, main.getHeight() / 2);
 
         SPRITE.SPRITES.add(main);
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
 
         // Initialize ColliderComponent
         COLLIDER = new ColliderComponent(new CollisionHandler() {
@@ -131,6 +137,10 @@ public class EntityBuilder {
                     case Input.Keys.RIGHT:
                         PLAYER.right = 1;
                         break;
+                    case Input.Keys.SPACE:
+                    case Input.Keys.SHIFT_LEFT:
+                        PLAYER.shoot = true;
+                        break;
                     default:
                         return false;
                 }
@@ -154,6 +164,10 @@ public class EntityBuilder {
                     case Input.Keys.D:
                     case Input.Keys.RIGHT:
                         PLAYER.right = 0;
+                        break;
+                    case Input.Keys.SPACE:
+                    case Input.Keys.SHIFT_LEFT:
+                        PLAYER.shoot = false;
                         break;
                     default:
                         return false;

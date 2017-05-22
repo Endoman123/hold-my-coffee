@@ -4,24 +4,29 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.main.Application;
 
 /**
- * Quick test to see if viewport works.
+ * Quick test to see if VIEWPORT works.
  * @author Jared Tulayan
  */
 public class ViewportTest extends ScreenAdapter {
+    private final SpriteBatch BATCH;
+    private final Viewport VIEWPORT;
+    private final Texture TEX;
 
-    Batch batch;
-    Viewport viewport;
-    Texture tex;
+    public ViewportTest() {
+        Application app = (Application) Gdx.app.getApplicationListener();
 
-    public ViewportTest(Application parent) {
-        batch = parent.getBatch();
-        viewport = parent.getViewport();
-        tex = new Texture("badlogic.jpg");
+        BATCH = app.getBatch();
+        VIEWPORT = app.getViewport();
+        TEX = new Texture("badlogic.jpg");
+    }
+
+    public void show() {
+
     }
 
     @Override
@@ -29,14 +34,19 @@ public class ViewportTest extends ScreenAdapter {
         Gdx.gl.glClearColor(0.0F, 0.0F, 0.0F, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-        batch.begin();
-        batch.draw(tex, 0, 0);
-        batch.end();
+        BATCH.setProjectionMatrix(VIEWPORT.getCamera().combined);
+        BATCH.begin();
+        BATCH.draw(TEX, 0, 0);
+        BATCH.end();
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
+        VIEWPORT.update(width, height, true);
+    }
+
+    @Override
+    public void dispose() {
+        TEX.dispose();
     }
 }

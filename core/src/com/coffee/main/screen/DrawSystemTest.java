@@ -1,63 +1,93 @@
 package com.coffee.main.screen;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.SpriteComponent;
 import com.coffee.entity.components.TransformComponent;
 import com.coffee.entity.systems.DrawSystem;
 import com.coffee.main.Application;
-import com.coffee.util.Mapper;
 
 /**
  * @author Phillip O'Reggio
  */
 public class DrawSystemTest extends ScreenAdapter {
-    Application PARENT;
-    Batch batch;
-    Viewport viewport;
-    private Entity itemEntity, itemEntity2, itemEntity3, GUIEntity;
-    private PooledEngine engine;
-    private DrawSystem drawSystem;
+    private final SpriteBatch BATCH;
+    private final Viewport VIEWPORT;
+    private Entity GUIEntity;
+    private final PooledEngine ENGINE;
 
-    public DrawSystemTest(Application parent) {
-        PARENT = parent;
-        batch = parent.getBatch();
-        viewport = parent.getViewport();
-        engine = new PooledEngine();
-        drawSystem = new DrawSystem(parent);
-        itemEntity = new Entity();
-        itemEntity2 = new Entity();
-        itemEntity3 = new Entity();
+    public DrawSystemTest() {
+        Application app = (Application) Gdx.app.getApplicationListener();
+
+        BATCH = app.getBatch();
+        VIEWPORT = app.getViewport();
+        ENGINE = new PooledEngine();
+
+        final Entity
+                E1 = new Entity(),
+                E2 = new Entity(),
+                E3 = new Entity();
+
         GUIEntity = new Entity();
 
-        itemEntity.add(new SpriteComponent(new Sprite[]{new Sprite(new Texture("goodlogic.png"))}, 0));
-        itemEntity.add(new TransformComponent());
-        itemEntity2.add(new SpriteComponent(new Sprite[]{new Sprite(new Texture("badlogic.jpg"))}, 1));
-        itemEntity2.add(new TransformComponent());
-        Mapper.TRANSFORM.get(itemEntity2).POSITION.add(new Vector2(30, 30));
-        itemEntity3.add(new SpriteComponent(new Sprite[]{new Sprite(new Texture("goodlogic.png"))}, 2));
-        itemEntity3.add(new TransformComponent());
-        Mapper.TRANSFORM.get(itemEntity3).POSITION.add(new Vector2(50, 50));
+        ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
 
-        engine.addSystem(drawSystem);
-        engine.addEntity(itemEntity);
-        engine.addEntity(itemEntity2);
-        engine.addEntity(itemEntity3);
+        final TransformComponent
+                T1 = new TransformComponent(),
+                T2 = new TransformComponent(),
+                T3 = new TransformComponent();
+
+        final SpriteComponent
+                SC1 = new SpriteComponent(),
+                SC2 = new SpriteComponent(),
+                SC3 = new SpriteComponent();
+
+        final Sprite
+                GOOD = new Sprite(new Texture("goodlogic.png")),
+                BAD = new Sprite(new Texture("badlogic.jpg"));
+
+        T2.POSITION.add(30, 30);
+        T3.POSITION.add(50, 50);
+
+        SC1.SPRITES.add(GOOD);
+        SC2.SPRITES.add(BAD);
+        SC3.SPRITES.add(GOOD);
+
+        SC2.zIndex = 1;
+        SC3.zIndex = 2;
+
+        ENGINE.addEntity(E1.add(T1).add(SC1));
+        ENGINE.addEntity(E2.add(T2).add(SC2));
+        ENGINE.addEntity(E3.add(T3).add(SC3));
+    }
+
+    public void show() {
+
     }
 
     @Override
     public void render(float delta) {
-        drawSystem.update(delta);
+        ENGINE.update(delta);
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
+        VIEWPORT.update(width, height, true);
+    }
+
+    @Override
+    public void dispose() {
+        ENGINE.removeAllEntities();
+
+        for (EntitySystem s : ENGINE.getSystems()) {
+            ENGINE.removeSystem(s);
+        }
     }
 }
