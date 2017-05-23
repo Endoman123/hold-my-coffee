@@ -40,7 +40,7 @@ public class PlayerSystem extends IteratingSystem {
         player.shootTimer = MathUtils.clamp(player.shootTimer - player.bulletsPerSecond * deltaTime, 0, 1);
 
         // Any invalid moves the player tries to take, we should combat ASAP.
-        if (player.up == 1 && transform.POSITION.y + move.moveSpeed * deltaTime > GAME_SIZE.height - 500)
+        if (player.up == 1 && transform.POSITION.y + move.moveSpeed * deltaTime > GAME_SIZE.height * 2 / 3)
             player.up = 0;
         if (player.left == 1 && transform.POSITION.x + move.moveSpeed * deltaTime < 0)
             player.left = 0;

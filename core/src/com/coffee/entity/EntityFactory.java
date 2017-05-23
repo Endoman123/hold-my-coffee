@@ -49,10 +49,6 @@ public class EntityFactory {
 
     public static void getAssets() {
         goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
-
-        if (goAtlas == null) {
-            System.out.println("Atlas == null");
-        }
     }
 
     /**

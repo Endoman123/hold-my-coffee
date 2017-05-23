@@ -35,14 +35,4 @@ public class HealthComponent implements Component {
         health = maxHealth;
         INVINCIBILITY_DURATION = duration;
     }
-
-    /**
-     * Deals damage by subtracting the damage value from health. Afterwards, it toggles isInvincible to true.
-     * @param damage amount subtracted from health.
-     */
-    public void dealDamage(int damage) {
-        health -= damage;
-        isInvicible = true;
-    }
-
 }

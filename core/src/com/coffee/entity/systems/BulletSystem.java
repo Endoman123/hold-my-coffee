@@ -26,11 +26,9 @@ public class BulletSystem extends IteratingSystem {
     protected void processEntity(Entity entity, float deltaTime) {
         TransformComponent transform = Mapper.TRANSFORM.get(entity);
 
-        // I want to do damage to myself.
         if (transform.POSITION.x < -transform.SIZE.width || transform.POSITION.y < -transform.SIZE.height ||
             transform.POSITION.x > MAP_SIZE.width || transform.POSITION.y > MAP_SIZE.height) {
             getEngine().removeEntity(entity);
-            System.out.println("damage to myself");
         }
     }
 }

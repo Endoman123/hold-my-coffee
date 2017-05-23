@@ -18,14 +18,16 @@ public class HealthSystem extends IteratingSystem {
     }
 
     public void processEntity(Entity entity, float deltaTime) {
-        HealthComponent currentHealth = Mapper.HEALTH.get(entity);
-        if (currentHealth.isInvicible) { //increment invincibility
-            currentHealth.invincibilityTimer = MathUtils.clamp(0f, currentHealth.INVINCIBILITY_DURATION,
-                    currentHealth.invincibilityTimer + deltaTime);
-            if (currentHealth.invincibilityTimer >= currentHealth.INVINCIBILITY_DURATION) {
-                currentHealth.invincibilityTimer = 0;
-                currentHealth.isInvicible = false;
-            }
+        HealthComponent health = Mapper.HEALTH.get(entity);
+
+        if (health.invincibilityTimer > 0) { //increment invincibility
+            health.invincibilityTimer = MathUtils.clamp(
+                    health.invincibilityTimer - deltaTime,
+                    0,
+                    health.INVINCIBILITY_DURATION
+            );
         }
+
+        health.isInvicible = health.invincibilityTimer > 0;
     }
 }

@@ -57,8 +57,11 @@ public class CollisionTest extends ScreenAdapter {
             final ColliderComponent COLLIDER;
             final SpriteComponent SPRITE = new SpriteComponent();
 
-            TRANSFORM.SIZE.setSize(16, 16);
-            TRANSFORM.POSITION.set((float) (Math.random() * 720 - 31), (float) (Math.random() * 1280 - 31));
+            TRANSFORM.SIZE.setSize(8, 8);
+            TRANSFORM.POSITION.set(
+                    (float) (Math.random() * VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width + 1),
+                    (float) (Math.random() * VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height + 1)
+            );
             MOVEMENT.moveSpeed = 2.5;
             MOVEMENT.MOVEMENT_NORMAL.set(1, 0).setToRandomDirection();
 
