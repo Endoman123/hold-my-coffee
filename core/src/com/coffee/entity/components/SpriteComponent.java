@@ -17,8 +17,8 @@ public class SpriteComponent implements Component {
     public final Array<Sprite> SPRITES;
     public int zIndex;
 
-    public SpriteComponent(Array<Sprite> s) {
-        SPRITES = s;
+    public SpriteComponent(Sprite[] s) {
+        SPRITES = new Array<Sprite>(s);
     }
 
     public SpriteComponent(Sprite[] s, int z) {
@@ -27,7 +27,7 @@ public class SpriteComponent implements Component {
     }
 
     public SpriteComponent() {
-        this(new Array<Sprite>());
+        this(new Sprite[]{});
     }
 }
 

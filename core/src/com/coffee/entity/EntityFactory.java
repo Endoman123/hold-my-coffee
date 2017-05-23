@@ -8,7 +8,8 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
@@ -243,10 +244,13 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
 
-
-    public static Entity createHealthUp() {
-        final Entity E;
+    /**
+     * Creates a health power up that restores the player's health to max.
+     */
+    public static Entity createHealthPowerUp() {
+        final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
+        final SpriteComponent SPRITE = new SpriteComponent(new Sprite[] {goAtlas.createSprite("BulletBall")});
         final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
@@ -263,11 +267,93 @@ public class EntityFactory {
             public void exitCollision(Entity entity) {
             }
         });
-        final SpriteComponent SPRITE;
 
-        //Set up TransformComponent
+        //Set up Collider Component
+        COLLIDER.body = new Polygon(new float[] {
+                0, 0,
+                16, 0,
+                16, 16,
+                0, 16
+        });
+        COLLIDER.solid = false;
 
-        return null;
+        return E.add(TRANSFORM).add(SPRITE).add(COLLIDER);
+    }
+
+    /**
+     * Creates a fire rate power up that increases the player's fire rate. The effect of the power up starts to have
+     * diminishing returns after 20 bullets per second.
+     */
+    public static Entity createFireRatePowerUp() {
+        final Entity E = new Entity();
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final SpriteComponent SPRITE = new SpriteComponent(new Sprite[] {goAtlas.createSprite("BulletBall")});
+        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+                PlayerComponent player = Mapper.PLAYER.get(entity);
+                if (player != null) {
+                    player.bulletsPerSecond += 2 * MathUtils.clamp(player.bulletsPerSecond / 20, 0, 1);
+                }
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+            }
+        });
+
+        //Set up Collider Component
+        COLLIDER.body = new Polygon(new float[] {
+                0, 0,
+                16, 0,
+                16, 16,
+                0, 16
+        });
+        COLLIDER.solid = false;
+
+        return E.add(TRANSFORM).add(SPRITE).add(COLLIDER);
+    }
+
+    /**
+     * Creates a speed power up that increases the player's speed. The effects of the power up starts to have diminshing
+     * returns after 10.
+     */
+    public static Entity createSpeedPowerUp() {
+        final Entity E = new Entity();
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final SpriteComponent SPRITE = new SpriteComponent(new Sprite[] {goAtlas.createSprite("BulletBall")});
+        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+                MovementComponent move = Mapper.MOVEMENT.get(entity);
+                if (move != null) {
+                    move.moveSpeed += 1 * MathUtils.clamp(move.moveSpeed / 10, 0, 1);
+                }
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+            }
+        });
+
+        //Set up Collider Component
+        COLLIDER.body = new Polygon(new float[] {
+                0, 0,
+                16, 0,
+                16, 16,
+                0, 16
+        });
+        COLLIDER.solid = false;
+
+        return E.add(TRANSFORM).add(SPRITE).add(COLLIDER);
 
     }
 }
