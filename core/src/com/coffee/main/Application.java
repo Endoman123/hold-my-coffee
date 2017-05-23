@@ -2,12 +2,13 @@ package com.coffee.main;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.coffee.entity.EntityBuilder;
+import com.coffee.entity.EntityFactory;
 import com.coffee.main.screen.CollisionTest;
 import com.coffee.main.screen.DrawSystemTest;
 import com.coffee.main.screen.PlayerTest;
@@ -86,8 +87,8 @@ public class Application extends Game {
 
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
-		System.out.println("Initializing EntityBuilder");
-		EntityBuilder.init(this);
+		System.out.println("Initializing EntityFactory");
+		EntityFactory.init(this);
 
 		// Screen stuff
 		testScreens = new Array<Screen>();
@@ -100,7 +101,7 @@ public class Application extends Game {
 			assetsLoaded = Assets.MANAGER.update();
 
 			if (assetsLoaded) {
-				EntityBuilder.getAssets();
+				EntityFactory.getAssets();
 
 				if (testScreens.size == 0) {
 					testScreens.addAll(
@@ -121,8 +122,12 @@ public class Application extends Game {
 			);
 		}
 
-		if (getScreen() != null)
-			getScreen().render(Math.min(Gdx.graphics.getDeltaTime(), 1/60F));
+		if (getScreen() != null) {
+			Gdx.gl.glClearColor(0, 0, 0, 1);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+			getScreen().render(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60F));
+		}
 	}
 	
 	@Override

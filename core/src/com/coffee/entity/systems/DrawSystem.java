@@ -4,8 +4,6 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.GUIComponent;
@@ -38,25 +36,24 @@ public class DrawSystem extends SortedIteratingSystem {
         VIEWPORT.getCamera().update();
         BATCH.setProjectionMatrix(VIEWPORT.getCamera().combined);
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        BATCH.begin();
         super.update(deltaTime);
+        BATCH.end();
     }
 
     @Override
     public void processEntity(Entity e, float deltaTime) {
         if (GUIMapper.has(e)) {
             GUIMapper.get(e).HANDLER.update(deltaTime);
+            BATCH.end();
             GUIMapper.get(e).CANVAS.draw();
-        } else if (Mapper.TRANSFORM.has(e)) {
             BATCH.begin();
+        } else if (Mapper.TRANSFORM.has(e)) {
             for (int i = 0; i < spriteMapper.get(e).SPRITES.size; i++) {
                 spriteMapper.get(e).SPRITES.get(i).setPosition(Mapper.TRANSFORM.get(e).POSITION.x, Mapper.TRANSFORM.get(e).POSITION.y);
                 spriteMapper.get(e).SPRITES.get(i).setRotation((float) Mapper.TRANSFORM.get(e).rotation);
                 spriteMapper.get(e).SPRITES.get(i).draw(BATCH);
             }
-            BATCH.end();
         }
     }
 
