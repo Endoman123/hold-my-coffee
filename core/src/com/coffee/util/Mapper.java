@@ -19,4 +19,6 @@ public class Mapper {
     public static final ComponentMapper<SpawnerComponent> SPAWNER = ComponentMapper.getFor(SpawnerComponent.class);
     public static final ComponentMapper<PlayerComponent> PLAYER = ComponentMapper.getFor(PlayerComponent.class);
     public static final ComponentMapper<InputComponent> INPUT = ComponentMapper.getFor(InputComponent.class);
+    public static final ComponentMapper<HealthComponent> HEALTH = ComponentMapper.getFor(HealthComponent.class);
+
 }

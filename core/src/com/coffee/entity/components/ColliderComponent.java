@@ -7,6 +7,9 @@ import com.badlogic.gdx.utils.Array;
 import com.coffee.util.CollisionHandler;
 
 /**
+ * {@link Component} that contains a {@link Polygon} for collison, and a {@link CollisionHandler} for handling
+ * the effects of a collision.
+ *
  * @author Phillip O'Reggio
  */
 public class ColliderComponent implements Component {
