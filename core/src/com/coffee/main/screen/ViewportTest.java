@@ -5,8 +5,10 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.main.Application;
+import com.coffee.util.Assets;
 
 /**
  * Quick test to see if VIEWPORT works.
@@ -19,10 +21,11 @@ public class ViewportTest extends ScreenAdapter {
 
     public ViewportTest() {
         Application app = (Application) Gdx.app.getApplicationListener();
+        final TextureAtlas ATLAS = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
 
         BATCH = app.getBatch();
         VIEWPORT = app.getViewport();
-        TEX = new Texture("badlogic.jpg");
+        TEX = ATLAS.createSprite("badlogic").getTexture();
     }
 
     public void show() {

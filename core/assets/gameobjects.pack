@@ -3,31 +3,45 @@ gameobjects.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
+badlogic
+  rotate: false
+  xy: 1, 255
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+goodlogic
+  rotate: false
+  xy: 1, 85
+  size: 300, 168
+  orig: 300, 168
+  offset: 0, 0
+  index: -1
 bullet_ball
   rotate: false
-  xy: 1, 1
+  xy: 1, 35
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
+bullet_large
+  rotate: false
+  xy: 1, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 player
   rotate: false
-  xy: 51, 12
+  xy: 259, 474
   size: 40, 37
   orig: 40, 37
   offset: 0, 0
   index: -1
 bullet
   rotate: false
-  xy: 93, 17
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: -1
-bullet_large
-  rotate: false
-  xy: 127, 17
-  size: 32, 32
-  orig: 32, 32
+  xy: 51, 69
+  size: 32, 14
+  orig: 32, 14
   offset: 0, 0
   index: -1

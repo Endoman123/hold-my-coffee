@@ -5,9 +5,9 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.ColliderComponent;
@@ -19,6 +19,7 @@ import com.coffee.entity.systems.DebugDrawSystem;
 import com.coffee.entity.systems.DrawSystem;
 import com.coffee.entity.systems.MovementSystem;
 import com.coffee.main.Application;
+import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
 import com.coffee.util.Mapper;
 
@@ -36,6 +37,7 @@ public class CollisionTest extends ScreenAdapter {
 
     public CollisionTest() {
         Application app = (Application) Gdx.app.getApplicationListener();
+        final TextureAtlas ATLAS = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
 
         VIEWPORT = app.getViewport();
         BATCH = app.getBatch();
@@ -84,7 +86,10 @@ public class CollisionTest extends ScreenAdapter {
             });
 
             COLLIDER.solid = true;
-            SPRITE.SPRITES.add(new Sprite(new Texture("goodlogic.png"), 16, 16));
+
+            Sprite main = ATLAS.createSprite("goodlogic");
+            main.setSize(16, 16);
+            SPRITE.SPRITES.add(main);
 
             E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE);
 

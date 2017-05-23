@@ -10,5 +10,5 @@ import com.badlogic.ashley.core.Component;
 public class PlayerComponent implements Component {
     public int up = 0, down = 0, left = 0, right = 0;
     public boolean shoot = false;
-    public double shootTimer, fireRate = 1;
+    public double shootTimer, bulletsPerSecond = 1;
 }

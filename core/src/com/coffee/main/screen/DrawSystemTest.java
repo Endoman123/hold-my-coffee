@@ -5,14 +5,15 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.SpriteComponent;
 import com.coffee.entity.components.TransformComponent;
 import com.coffee.entity.systems.DrawSystem;
 import com.coffee.main.Application;
+import com.coffee.util.Assets;
 
 /**
  * @author Phillip O'Reggio
@@ -25,6 +26,7 @@ public class DrawSystemTest extends ScreenAdapter {
 
     public DrawSystemTest() {
         Application app = (Application) Gdx.app.getApplicationListener();
+        final TextureAtlas ATLAS = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
 
         BATCH = app.getBatch();
         VIEWPORT = app.getViewport();
@@ -50,8 +52,8 @@ public class DrawSystemTest extends ScreenAdapter {
                 SC3 = new SpriteComponent();
 
         final Sprite
-                GOOD = new Sprite(new Texture("goodlogic.png")),
-                BAD = new Sprite(new Texture("badlogic.jpg"));
+                GOOD = ATLAS.createSprite("goodlogic"),
+                BAD = ATLAS.createSprite("badlogic");
 
         T2.POSITION.add(30, 30);
         T3.POSITION.add(50, 50);

@@ -35,9 +35,9 @@ public class PlayerSystem extends IteratingSystem {
         TransformComponent transform = Mapper.TRANSFORM.get(entity);
 
         // Update the shoot timer
-        // Since we can, we need to clamp the value of the timer between 0 and the value of the fireRate
+        // Since we can, we need to clamp the value of the timer between 0 and the value of the bulletsPerSecond
         // to avoid any overflow exceptions.
-        player.shootTimer = MathUtils.clamp(player.shootTimer - deltaTime, 0, player.fireRate);
+        player.shootTimer = MathUtils.clamp(player.shootTimer - player.bulletsPerSecond * deltaTime, 0, 1);
 
         // Any invalid moves the player tries to take, we should combat ASAP.
         if (player.up == 1 && transform.POSITION.y + move.moveSpeed * deltaTime > GAME_SIZE.height - 500)
@@ -51,9 +51,21 @@ public class PlayerSystem extends IteratingSystem {
 
         // Shoot if we can
         if (player.shoot && player.shootTimer == 0) {
-            getEngine().addEntity(EntityFactory.createPlayerBullet(transform.POSITION.x, transform.POSITION.y + 4, 90, entity));
-            player.shootTimer = player.fireRate;
-            System.out.println("ech");
+            getEngine().addEntity(EntityFactory.createPlayerBullet(
+                    transform.POSITION.x + transform.ORIGIN.x - 8,
+                    transform.POSITION.y + transform.SIZE.height + 10,
+                    90,
+                    entity
+            ));
+
+            getEngine().addEntity(EntityFactory.createPlayerBullet(
+                    transform.POSITION.x + transform.ORIGIN.x + 8,
+                    transform.POSITION.y + transform.SIZE.height + 10,
+                    90,
+                    entity
+            ));
+
+            player.shootTimer = 1;
         }
 
         // Update position
