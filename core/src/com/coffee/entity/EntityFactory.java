@@ -242,6 +242,7 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE);
     }
 
+
     public static Entity createHealthUp() {
         final Entity E;
         final TransformComponent TRANSFORM = new TransformComponent();
