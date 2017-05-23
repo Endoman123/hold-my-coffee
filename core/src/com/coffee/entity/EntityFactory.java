@@ -14,6 +14,7 @@ import com.coffee.entity.components.*;
 import com.coffee.main.Application;
 import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
+import com.coffee.util.Mapper;
 
 import java.awt.*;
 
@@ -25,6 +26,7 @@ public class EntityFactory {
     // Please never change these values once they have been initialized.
     // I will throw a hissy fit otherwise.
     // - Game
+    // gonna change viewport to null, fight me 1v1
     private static Viewport viewport;
     private static Batch batch;
     private static InputMultiplexer inputMultiplexer;
@@ -238,5 +240,32 @@ public class EntityFactory {
         COLLIDER.solid = false;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE);
+    }
+
+    public static Entity createHealthUp() {
+        final Entity E;
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+                if (Mapper.PLAYER.has(entity)) {
+                    Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
+                }
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+            }
+        });
+        final SpriteComponent SPRITE;
+
+        //Set up TransformComponent
+
+        return null;
+
     }
 }
