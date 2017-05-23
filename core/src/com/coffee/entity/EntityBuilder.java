@@ -22,7 +22,7 @@ import java.awt.*;
  */
 public class EntityBuilder {
     // Please never change these values once they have been initialized.
-    // I will throw a hissy fit otherwise.
+    // I will throw a hissy fit otherwise. NO!, gonna set em to null at runtime trolol XD rawr
     // - Game
     private static Viewport viewport;
     private static Batch batch;
@@ -181,6 +181,11 @@ public class EntityBuilder {
         INPUT = new InputComponent(ip);
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER);
+    }
+
+    //Powerups
+    public static Entity createHealthUp() {
+        final Entity E;
     }
 
 
