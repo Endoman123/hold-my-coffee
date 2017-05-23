@@ -32,7 +32,8 @@ public class PlayerTest extends ScreenAdapter {
         SHAPE_RENDERER = app.getShapeRenderer();
 
         ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
-        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        //ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        ENGINE.addSystem(new BulletSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
         ENGINE.addSystem(new CollisionSystem(app.getShapeRenderer(), VIEWPORT, true));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));

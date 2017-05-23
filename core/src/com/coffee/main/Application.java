@@ -42,6 +42,8 @@ public class Application extends Game {
 		inputMultiplexer = new InputMultiplexer();
 		shapeRenderer = new ShapeRenderer();
 
+		shapeRenderer.setAutoShapeType(true);
+
 		// An input listener to exit the game and toggle fullscreen
 		inputMultiplexer.addProcessor(new InputAdapter() {
 			@Override

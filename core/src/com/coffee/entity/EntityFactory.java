@@ -183,7 +183,7 @@ public class EntityFactory {
 
         INPUT = new InputComponent(ip);
 
-        PLAYER.fireRate = 0.1;
+        PLAYER.bulletsPerSecond = 10;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER);
     }
@@ -194,6 +194,7 @@ public class EntityFactory {
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
         final ColliderComponent COLLIDER;
+        final BulletComponent BULLET = new BulletComponent();
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("bullet");
@@ -204,8 +205,8 @@ public class EntityFactory {
         // Initialize TransformComponent
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
         TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x, y);
-        TRANSFORM.rotation = 0;
+        TRANSFORM.POSITION.set(x - main.getOriginX(), y - main.getOriginY());
+        TRANSFORM.rotation = rot;
 
         // Initialize MovementComponent
         MOVEMENT.moveSpeed = 10;
@@ -237,6 +238,6 @@ public class EntityFactory {
         COLLIDER.body.setOrigin(2, 2);
         COLLIDER.solid = false;
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE);
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
 }

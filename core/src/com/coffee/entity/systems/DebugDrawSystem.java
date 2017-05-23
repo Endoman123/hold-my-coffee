@@ -39,13 +39,20 @@ public class DebugDrawSystem extends IteratingSystem {
         RENDERER.rect(
                 transform.POSITION.x,
                 transform.POSITION.y,
-                transform.POSITION.x + transform.ORIGIN.x,
-                transform.POSITION.y + transform.ORIGIN.y,
+                transform.ORIGIN.x,
+                transform.ORIGIN.y,
                 transform.SIZE.width,
                 transform.SIZE.height,
                 1,
                 1,
                 (float) transform.rotation
+        );
+
+        RENDERER.set(ShapeRenderer.ShapeType.Filled);
+        RENDERER.circle(
+                transform.POSITION.x + transform.ORIGIN.x,
+                transform.POSITION.y + transform.ORIGIN.y,
+                5
         );
 
         // Collider body second
