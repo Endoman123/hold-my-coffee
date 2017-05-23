@@ -22,7 +22,7 @@ public class DebugDrawSystem extends IteratingSystem {
     private final Camera CAMERA;
 
     public DebugDrawSystem(ShapeRenderer renderer, Viewport viewport) {
-        super(Family.all(TransformComponent.class, ColliderComponent.class).get());
+        super(Family.one(TransformComponent.class, ColliderComponent.class).get());
 
         CAMERA = viewport.getCamera();
         RENDERER = renderer;

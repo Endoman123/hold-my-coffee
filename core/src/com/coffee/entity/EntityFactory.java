@@ -8,6 +8,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
@@ -20,27 +21,27 @@ import java.awt.*;
  * Builder class that automates the creation of entities and
  * attaching the necessary {@link Component}s onto them.
  */
-public class EntityBuilder {
+public class EntityFactory {
     // Please never change these values once they have been initialized.
-    // I will throw a hissy fit otherwise. NO!, gonna set em to null at runtime trolol XD rawr
+    // I will throw a hissy fit otherwise.
     // - Game
     private static Viewport viewport;
     private static Batch batch;
     private static InputMultiplexer inputMultiplexer;
     private static TextureAtlas goAtlas;
 
-    private static EntityBuilder _inst;
+    private static EntityFactory _inst;
 
     /**
-     * Initializes the {@link EntityBuilder} instance only if it has not been already.
+     * Initializes the {@link EntityFactory} instance only if it has not been already.
      *
-     * @param a the {@code Application} to feed into the {@code EntityBuilder} constructor
+     * @param a the {@code Application} to feed into the {@code EntityFactory} constructor
      */
     public static void init(Application a) {
         if (_inst == null) {
-            _inst = new EntityBuilder(a);
+            _inst = new EntityFactory(a);
 
-            System.out.println("Initialized EntityBuilder");
+            System.out.println("Initialized EntityFactory");
         }
     }
 
@@ -57,7 +58,7 @@ public class EntityBuilder {
      *
      * @param app the {@code Application} to take the {@code Viewport}, {@code Engine}, {@code InputMultiplexer}, and {@code Batch} from
      */
-    public EntityBuilder(Application app) {
+    public EntityFactory(Application app) {
         viewport = app.getViewport();
         batch = app.getBatch();
         inputMultiplexer = app.getInputMultiplexer();
@@ -139,6 +140,7 @@ public class EntityBuilder {
                         break;
                     case Input.Keys.SPACE:
                     case Input.Keys.SHIFT_LEFT:
+                    case Input.Keys.SHIFT_RIGHT:
                         PLAYER.shoot = true;
                         break;
                     default:
@@ -167,6 +169,7 @@ public class EntityBuilder {
                         break;
                     case Input.Keys.SPACE:
                     case Input.Keys.SHIFT_LEFT:
+                    case Input.Keys.SHIFT_RIGHT:
                         PLAYER.shoot = false;
                         break;
                     default:
@@ -180,13 +183,60 @@ public class EntityBuilder {
 
         INPUT = new InputComponent(ip);
 
+        PLAYER.fireRate = 0.1;
+
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER);
     }
 
-    //Powerups
-    public static Entity createHealthUp() {
-        final Entity E;
+    public static Entity createPlayerBullet(float x, float y, float rot, Entity source) {
+        final Entity E = new Entity();
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final MovementComponent MOVEMENT = new MovementComponent();
+        final SpriteComponent SPRITE = new SpriteComponent();
+        final ColliderComponent COLLIDER;
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet");
+        main.setOrigin(main.getWidth(), main.getHeight() / 2);
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -99;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x, y);
+        TRANSFORM.rotation = 0;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 10;
+        MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
+
+        // Initialize ColliderComponent
+        COLLIDER = new ColliderComponent(new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+
+            }
+        });
+        COLLIDER.body.setVertices(new float[]{
+                0,0,
+                4,0,
+                4,4,
+                0,4
+        });
+        COLLIDER.body.setOrigin(2, 2);
+        COLLIDER.solid = false;
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE);
     }
-
-
 }

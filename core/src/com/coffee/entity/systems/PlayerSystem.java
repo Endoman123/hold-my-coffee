@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.MovementComponent;
 import com.coffee.entity.components.PlayerComponent;
 import com.coffee.entity.components.TransformComponent;
@@ -50,8 +51,9 @@ public class PlayerSystem extends IteratingSystem {
 
         // Shoot if we can
         if (player.shoot && player.shootTimer == 0) {
-
+            getEngine().addEntity(EntityFactory.createPlayerBullet(transform.POSITION.x, transform.POSITION.y + 4, 90, entity));
             player.shootTimer = player.fireRate;
+            System.out.println("ech");
         }
 
         // Update position
