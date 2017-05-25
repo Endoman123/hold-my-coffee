@@ -17,6 +17,13 @@ goodlogic
   orig: 300, 168
   offset: 0, 0
   index: -1
+enemy
+  rotate: false
+  xy: 259, 383
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
 bullet_ball
   rotate: false
   xy: 1, 35
@@ -31,11 +38,25 @@ bullet_large
   orig: 32, 32
   offset: 0, 0
   index: -1
+upgrade_base
+  rotate: false
+  xy: 35, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 player
   rotate: false
-  xy: 259, 474
+  xy: 259, 344
   size: 40, 37
   orig: 40, 37
+  offset: 0, 0
+  index: -1
+up_arrow
+  rotate: false
+  xy: 389, 479
+  size: 32, 32
+  orig: 32, 32
   offset: 0, 0
   index: -1
 bullet

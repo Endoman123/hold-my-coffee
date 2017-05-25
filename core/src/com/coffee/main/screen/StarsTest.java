@@ -13,16 +13,18 @@ import com.coffee.main.Application;
 import com.coffee.util.Mapper;
 
 /**
- * @author Phillip O'Reggio
+ * Test to see if the player is controllable.
+ *
+ * @author Jared Tulayan
  */
-public class PowerUpTest extends ScreenAdapter {
+public class StarsTest extends ScreenAdapter {
     private final SpriteBatch BATCH;
     private final Viewport VIEWPORT;
     private final ShapeRenderer SHAPE_RENDERER;
     private final PooledEngine ENGINE;
     private Entity player;
 
-    public PowerUpTest() {
+    public StarsTest() {
         Application app = (Application) Gdx.app.getApplicationListener();
 
         BATCH = app.getBatch();
@@ -31,17 +33,14 @@ public class PowerUpTest extends ScreenAdapter {
         SHAPE_RENDERER = app.getShapeRenderer();
 
         ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
+        //ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new BulletSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
         ENGINE.addSystem(new CollisionSystem(app.getShapeRenderer(), VIEWPORT, true));
-        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
-        ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
 
         player = EntityFactory.createPlayer();
-
         ENGINE.addEntity(player);
-        ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200));
     }
 
     @Override

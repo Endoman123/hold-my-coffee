@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -20,7 +19,6 @@ import com.coffee.main.Application;
 import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
 import com.coffee.util.Mapper;
-import com.coffee.util.SpawnerHandler;
 
 import java.awt.*;
 
@@ -261,54 +259,73 @@ public class EntityFactory {
     public static Entity createRandomPowerUpSpawner(float x, float y) {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
-        final SpriteComponent SPRITE = new SpriteComponent(); //debug
-        final SpawnerComponent SPAWN = new SpawnerComponent(new SpawnerHandler() {
-            @Override
-            public Array<Entity> getSpawnEntity() {
-                Array<Entity> spawnedEntities = new Array<Entity>(1);
-                //Spawn a random power up within a 300x300 square of the position
-                float spawnX = TRANSFORM.POSITION.x  + (float) ((Math.random() * 600) - 300);
-                float spawnY = TRANSFORM.POSITION.y  + (float) ((Math.random() * 600) - 300);
-                int randomPowerUpSpawned = (int) ((Math.random() * 3));
+        final SpawnerComponent SPAWN = new SpawnerComponent(() -> {
+            Array<Entity> spawnedEntities = new Array<Entity>(1);
+            //Spawn a random power up within a 300x300 square of the position
+            float spawnX = TRANSFORM.POSITION.x  + (float) ((Math.random() * 600) - 300);
+            float spawnY = TRANSFORM.POSITION.y  + (float) ((Math.random() * 600) - 300);
+            int randomPowerUpSpawned = (int) ((Math.random() * 3));
 
-                switch (randomPowerUpSpawned) {
-                    case 0: //health power up
-                        spawnedEntities.add(createHealthPowerUp(spawnX, spawnY));
-                        break;
-                    case 1: //speed power up
-                        spawnedEntities.add(createSpeedPowerUp(spawnX, spawnY));
-                        break;
-                    case 2: //create fire rate up
-                        spawnedEntities.add(createFireRatePowerUp(spawnX, spawnY));
-                        break;
-                }
-                return spawnedEntities;
+            switch (randomPowerUpSpawned) {
+                case 0: //health power up
+                    spawnedEntities.add(createHealthPowerUp(spawnX, spawnY));
+                    break;
+                case 1: //speed power up
+                    spawnedEntities.add(createSpeedPowerUp(spawnX, spawnY));
+                    break;
+                case 2: //create fire rate up
+                    spawnedEntities.add(createFireRatePowerUp(spawnX, spawnY));
+                    break;
             }
+            return spawnedEntities;
         });
 
-        //Set up Sprite Component
-        Sprite sprite = goAtlas.createSprite("bullet_large");
-        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        SPRITE.SPRITES.add(sprite);
-
         //Set up Transform Component
-        TRANSFORM.POSITION.x = x;
-        TRANSFORM.POSITION.y = y;
+        TRANSFORM.POSITION.set(x, y);
 
         //Set up Spawn Component
         SPAWN.spawnRate = 2;
 
-        return E.add(TRANSFORM).add(SPRITE).add(SPAWN);
+        return E.add(TRANSFORM).add(SPAWN);
+    }
+
+    public static Entity createBasePowerUp(float x, float y) {
+        final Entity E = new Entity();
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final SpriteComponent SPRITE = new SpriteComponent();
+        final ColliderComponent COLLIDER;
+
+        //Set up Sprite Component
+        Sprite
+            base = goAtlas.createSprite("upgrade_base"),
+            up = goAtlas.createSprite("up_arrow");
+
+        base.setOriginCenter();
+        up.setOriginCenter();
+
+        SPRITE.SPRITES.add(base);
+        SPRITE.SPRITES.add(up);
+
+        //Set up Transform Component
+        TRANSFORM.POSITION.set(x, y);
+
+        return E.add(TRANSFORM).add(SPRITE);
     }
 
     /**
      * Creates a health power up that restores the player's health to max.
      */
     public static Entity createHealthPowerUp(float x, float y) {
-        final Entity E = new Entity();
-        final TransformComponent TRANSFORM = new TransformComponent();
-        final SpriteComponent SPRITE = new SpriteComponent();
-        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+        final Entity E = createBasePowerUp(x, y);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER;
+
+        // Set up base sprite
+        SPRITE.SPRITES.get(0).setColor(Color.RED);
+
+        //Set up Collider Component
+        COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
@@ -325,26 +342,16 @@ public class EntityFactory {
             }
         });
 
-        //Set up Transform Component
-        TRANSFORM.POSITION.x = x;
-        TRANSFORM.POSITION.y = y;
-
-        //Set up Sprite Component
-        Sprite sprite = goAtlas.createSprite("bullet_ball");
-        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        SPRITE.SPRITES.add(sprite);
-
-        //Set up Collider Component
         COLLIDER.body = new Polygon(new float[] {
                 0, 0,
-                16, 0,
-                16, 16,
-                0, 16
+                TRANSFORM.SIZE.width, 0,
+                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
+                0, TRANSFORM.SIZE.height
         });
         COLLIDER.solid = false;
-        COLLIDER.body.setOrigin(8, 8);
+        COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
 
-        return E.add(TRANSFORM).add(SPRITE).add(COLLIDER);
+        return E.add(COLLIDER);
     }
 
     /**
@@ -352,15 +359,20 @@ public class EntityFactory {
      * diminishing returns after 20 bullets per second.
      */
     public static Entity createFireRatePowerUp(float x, float y) {
-        final Entity E = new Entity();
-        final TransformComponent TRANSFORM = new TransformComponent();
-        final SpriteComponent SPRITE = new SpriteComponent();
-        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+        final Entity E = createBasePowerUp(x, y);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER;
+
+        // Set up base sprite
+        SPRITE.SPRITES.get(0).setColor(Color.YELLOW);
+
+        //Set up Collider Component
+        COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
-                    PlayerComponent player = Mapper.PLAYER.get(entity);
-                    player.bulletsPerSecond += 2 * MathUtils.clamp(20 / player.bulletsPerSecond, 0, 1);
+                    Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
                 }
             }
 
@@ -373,27 +385,16 @@ public class EntityFactory {
             }
         });
 
-        //Set up Transform Component
-        TRANSFORM.POSITION.x = x;
-        TRANSFORM.POSITION.y = y;
-
-        //Set up Sprite Component
-        Sprite sprite = goAtlas.createSprite("bullet_ball");
-        sprite.setColor(Color.RED);
-        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        SPRITE.SPRITES.add(sprite);
-
-        //Set up Collider Component
         COLLIDER.body = new Polygon(new float[] {
                 0, 0,
-                16, 0,
-                16, 16,
-                0, 16
+                TRANSFORM.SIZE.width, 0,
+                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
+                0, TRANSFORM.SIZE.height
         });
         COLLIDER.solid = false;
-        COLLIDER.body.setOrigin(8, 8);
+        COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
 
-        return E.add(TRANSFORM).add(SPRITE).add(COLLIDER);
+        return E.add(COLLIDER);
     }
 
     /**
@@ -401,15 +402,20 @@ public class EntityFactory {
      * returns after 10.
      */
     public static Entity createSpeedPowerUp(float x, float y) {
-        final Entity E = new Entity();
-        final TransformComponent TRANSFORM = new TransformComponent();
-        final SpriteComponent SPRITE = new SpriteComponent();
-        final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
+        final Entity E = createBasePowerUp(x, y);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER;
+
+        // Set up base sprite
+        SPRITE.SPRITES.get(0).setColor(Color.CYAN);
+
+        //Set up Collider Component
+        COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-                MovementComponent move = Mapper.MOVEMENT.get(entity);
-                if (move != null) {
-                    move.moveSpeed += 1 * MathUtils.clamp(10 / move.moveSpeed, 0, 1);
+                if (Mapper.PLAYER.has(entity)) {
+                    Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
                 }
             }
 
@@ -422,27 +428,15 @@ public class EntityFactory {
             }
         });
 
-        //Set up Transform Component
-        TRANSFORM.POSITION.x = x;
-        TRANSFORM.POSITION.y = y;
-
-        //Set up Sprite Component
-        Sprite sprite = goAtlas.createSprite("bullet_ball");
-        sprite.setColor(Color.PINK);
-        sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        SPRITE.SPRITES.add(sprite);
-
-        //Set up Collider Component
         COLLIDER.body = new Polygon(new float[] {
                 0, 0,
-                16, 0,
-                16, 16,
-                0, 16
+                TRANSFORM.SIZE.width, 0,
+                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
+                0, TRANSFORM.SIZE.height
         });
         COLLIDER.solid = false;
-        COLLIDER.body.setOrigin(8, 8);
+        COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
 
-        return E.add(TRANSFORM).add(SPRITE).add(COLLIDER);
-
+        return E.add(COLLIDER);
     }
 }

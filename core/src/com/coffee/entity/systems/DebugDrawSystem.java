@@ -30,35 +30,40 @@ public class DebugDrawSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
-        TransformComponent transform = Mapper.TRANSFORM.get(entity);
-        ColliderComponent collider = Mapper.COLLIDER.get(entity);
-
         // Transform first
-        RENDERER.set(ShapeRenderer.ShapeType.Line);
-        RENDERER.setColor(Color.GREEN);
-        RENDERER.rect(
-                transform.POSITION.x,
-                transform.POSITION.y,
-                transform.ORIGIN.x,
-                transform.ORIGIN.y,
-                transform.SIZE.width,
-                transform.SIZE.height,
-                1,
-                1,
-                (float) transform.rotation
-        );
+        if (Mapper.TRANSFORM.has(entity)) {
+            TransformComponent transform = Mapper.TRANSFORM.get(entity);
 
-        RENDERER.set(ShapeRenderer.ShapeType.Filled);
-        RENDERER.circle(
-                transform.POSITION.x + transform.ORIGIN.x,
-                transform.POSITION.y + transform.ORIGIN.y,
-                5
-        );
+            RENDERER.set(ShapeRenderer.ShapeType.Line);
+            RENDERER.setColor(Color.GREEN);
+            RENDERER.rect(
+                    transform.POSITION.x,
+                    transform.POSITION.y,
+                    transform.ORIGIN.x,
+                    transform.ORIGIN.y,
+                    transform.SIZE.width,
+                    transform.SIZE.height,
+                    1,
+                    1,
+                    (float) transform.rotation
+            );
+
+            RENDERER.set(ShapeRenderer.ShapeType.Filled);
+            RENDERER.circle(
+                    transform.POSITION.x + transform.ORIGIN.x,
+                    transform.POSITION.y + transform.ORIGIN.y,
+                    5
+            );
+        }
 
         // Collider body second
-        RENDERER.set(ShapeRenderer.ShapeType.Line);
-        RENDERER.setColor(Color.RED);
-        RENDERER.polygon(collider.body.getTransformedVertices());
+        if (Mapper.COLLIDER.has(entity)) {
+            ColliderComponent collider = Mapper.COLLIDER.get(entity);
+
+            RENDERER.set(ShapeRenderer.ShapeType.Line);
+            RENDERER.setColor(Color.RED);
+            RENDERER.polygon(collider.body.getTransformedVertices());
+        }
     }
 
     public void update(float dt) {
