@@ -9,10 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
-import com.coffee.main.screen.CollisionTest;
-import com.coffee.main.screen.DrawSystemTest;
-import com.coffee.main.screen.PlayerTest;
-import com.coffee.main.screen.ViewportTest;
+import com.coffee.main.screen.*;
 import com.coffee.util.Assets;
 
 /**
@@ -110,7 +107,8 @@ public class Application extends Game {
 							new CollisionTest(),
 							new DrawSystemTest(),
 							new PlayerTest(),
-							new ViewportTest()
+							new ViewportTest(),
+							new PowerUpTest()
 					);
 
 					// Set the screen beforehand
