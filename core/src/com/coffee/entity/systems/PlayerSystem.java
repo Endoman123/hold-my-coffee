@@ -52,14 +52,7 @@ public class PlayerSystem extends IteratingSystem {
         // Shoot if we can
         if (player.shoot && player.shootTimer == 0) {
             getEngine().addEntity(EntityFactory.createPlayerBullet(
-                    transform.POSITION.x + transform.ORIGIN.x - 8,
-                    transform.POSITION.y + transform.SIZE.height + 10,
-                    90,
-                    entity
-            ));
-
-            getEngine().addEntity(EntityFactory.createPlayerBullet(
-                    transform.POSITION.x + transform.ORIGIN.x + 8,
+                    transform.POSITION.x + transform.ORIGIN.x,
                     transform.POSITION.y + transform.SIZE.height + 10,
                     90,
                     entity

@@ -5,11 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
@@ -48,6 +50,9 @@ public class EntityFactory {
         }
     }
 
+    /**
+     * Loads the assets from the {@link Assets}' {@link AssetManager}.
+     */
     public static void getAssets() {
         goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
     }
@@ -187,6 +192,15 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER);
     }
 
+    /**
+     * Creates a bullet with a velocity of 10 at the specified location.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @param source the {@code Entity} that shot the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
     public static Entity createPlayerBullet(float x, float y, float rot, Entity source) {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
@@ -283,12 +297,12 @@ public class EntityFactory {
     public static Entity createFireRatePowerUp() {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
-        final SpriteComponent SPRITE = new SpriteComponent(new Sprite[] {goAtlas.createSprite("BulletBall")});
+        final SpriteComponent SPRITE = new SpriteComponent(new Sprite[] {goAtlas.createSprite("bullet_ball")});
         final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-                PlayerComponent player = Mapper.PLAYER.get(entity);
-                if (player != null) {
+                if (Mapper.PLAYER.has(entity)) {
+                    PlayerComponent player = Mapper.PLAYER.get(entity);
                     player.bulletsPerSecond += 2 * MathUtils.clamp(player.bulletsPerSecond / 20, 0, 1);
                 }
             }
