@@ -84,6 +84,7 @@ public class EntityFactory {
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
         final PlayerComponent PLAYER = new PlayerComponent();
+        final HealthComponent HEALTH = new HealthComponent(100, .2f);
         final ColliderComponent COLLIDER;
         final InputComponent INPUT;
 
@@ -155,7 +156,7 @@ public class EntityFactory {
                     default:
                         return false;
                 }
-                System.out.println("can i get uhh");
+                //System.out.println("can i get uhh");
                 return true;
             }
 
@@ -185,7 +186,7 @@ public class EntityFactory {
                     default:
                         return false;
                 }
-                System.out.println("understandable");
+                //System.out.println("understandable");
                 return true;
             }
         };
@@ -194,7 +195,7 @@ public class EntityFactory {
 
         PLAYER.bulletsPerSecond = 10;
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER);
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER).add(HEALTH);
     }
 
     /**
@@ -359,8 +360,7 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a fire rate power up that increases the player's fire rate. The effect of the power up starts to have
-     * diminishing returns after 20 bullets per second.
+     * Creates a fire rate power up that increases the player's fire rate. Stacks up to 5 times.
      */
     public static Entity createFireRatePowerUp(float x, float y, PooledEngine engine) {
         final PooledEngine ENGINE = engine;
@@ -372,7 +372,8 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
-                    player.bulletsPerSecond += 2 * MathUtils.clamp(20 / player.bulletsPerSecond, 0, 1);
+                    player.bulletsPerSecond = MathUtils.clamp(player.bulletsPerSecond + 4, 0, 30);
+                    System.out.println("Bullet Up : " + player.bulletsPerSecond);
                     ENGINE.removeEntity(E);
                 }
             }
@@ -410,8 +411,7 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a speed power up that increases the player's speed. The effects of the power up starts to have diminishing
-     * returns after 10.
+     * Creates a speed power up that increases the player's speed. Stacks up to 5 times.
      */
     public static Entity createSpeedPowerUp(float x, float y, PooledEngine engine) {
         final PooledEngine ENGINE = engine;
@@ -423,7 +423,8 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 MovementComponent move = Mapper.MOVEMENT.get(entity);
                 if (move != null) {
-                    move.moveSpeed += 1 * MathUtils.clamp(10 / move.moveSpeed, 0, 1);
+                    move.moveSpeed = MathUtils.clamp(move.moveSpeed + 1, 0, 10);
+                    System.out.println("Speed Up : " + move.moveSpeed);
                     ENGINE.removeEntity(E);
                 }
             }

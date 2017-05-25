@@ -30,7 +30,7 @@ public class BulletSystem extends IteratingSystem {
         if (transform.POSITION.x < -transform.SIZE.width || transform.POSITION.y < -transform.SIZE.height ||
             transform.POSITION.x > MAP_SIZE.width || transform.POSITION.y > MAP_SIZE.height) {
             getEngine().removeEntity(entity);
-            System.out.println("damage to myself");
+            //System.out.println("damage to myself");
         }
     }
 }
