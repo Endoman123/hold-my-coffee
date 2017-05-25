@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -53,6 +54,9 @@ public class EntityFactory {
         }
     }
 
+    /**
+     * Loads the assets from the {@link Assets}' {@link AssetManager}.
+     */
     public static void getAssets() {
         goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
     }
@@ -69,7 +73,8 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a player that can move and shoot.
+     * Creates a player that can move and shoot. Note that you need to add the
+     * {@link InputProcessor} to the game's {@link InputMultiplexer}; this builder does not do so.
      *
      * @return a player {@code Entity} that can move, shoot, and be killed.
      */
@@ -150,6 +155,7 @@ public class EntityFactory {
                     default:
                         return false;
                 }
+                System.out.println("can i get uhh");
                 return true;
             }
 
@@ -179,11 +185,10 @@ public class EntityFactory {
                     default:
                         return false;
                 }
+                System.out.println("understandable");
                 return true;
             }
         };
-
-        inputMultiplexer.addProcessor(ip);
 
         INPUT = new InputComponent(ip);
 
@@ -192,6 +197,15 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER);
     }
 
+    /**
+     * Creates a bullet with a velocity of 10 at the specified location.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @param source the {@code Entity} that shot the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
     public static Entity createPlayerBullet(float x, float y, float rot, Entity source) {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
@@ -259,7 +273,7 @@ public class EntityFactory {
         final SpriteComponent SPRITE = new SpriteComponent(); //debug
         final SpawnerComponent SPAWN = new SpawnerComponent(new SpawnerHandler() {
             @Override
-            public Array<Entity> spawn() {
+            public Array<Entity> getSpawnEntity() {
                 Array<Entity> spawnedEntities = new Array<Entity>(1);
                 //Spawn a random power up within a 300x300 square of the position
                 float spawnX = TRANSFORM.POSITION.x  + (float) ((Math.random() * 600) - 300);
@@ -356,8 +370,8 @@ public class EntityFactory {
         final ColliderComponent COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-                PlayerComponent player = Mapper.PLAYER.get(entity);
-                if (player != null) {
+                if (Mapper.PLAYER.has(entity)) {
+                    PlayerComponent player = Mapper.PLAYER.get(entity);
                     player.bulletsPerSecond += 2 * MathUtils.clamp(20 / player.bulletsPerSecond, 0, 1);
                     ENGINE.removeEntity(E);
                 }

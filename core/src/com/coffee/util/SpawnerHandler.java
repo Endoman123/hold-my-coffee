@@ -8,5 +8,5 @@ import com.badlogic.gdx.utils.Array;
  */
 @FunctionalInterface
 public interface SpawnerHandler {
-    public Array<Entity> spawn();
+    public Array<Entity> getSpawnEntity();
 }
