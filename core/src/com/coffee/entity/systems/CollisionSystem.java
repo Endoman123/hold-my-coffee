@@ -23,6 +23,7 @@ import com.coffee.util.QuadTree;
  */
 public class CollisionSystem extends IteratingSystem {
     private final QuadTree TREE;
+    private final Array<Entity> POSSIBLE_COLLISIONS;
     private ShapeRenderer renderer;
     private Camera camera;
     public boolean isDebugging;
@@ -33,6 +34,7 @@ public class CollisionSystem extends IteratingSystem {
 
         renderer = r;
         camera = v.getCamera();
+        POSSIBLE_COLLISIONS = new Array<>();
     }
 
     public CollisionSystem(Viewport v) {
@@ -73,13 +75,15 @@ public class CollisionSystem extends IteratingSystem {
     public void processEntity(Entity entity, float deltaTime) {
         ColliderComponent curCollider = Mapper.COLLIDER.get(entity);
         TransformComponent curTrans = Mapper.TRANSFORM.get(entity);
-        Array<Entity> collisions = new Array<Entity>();
+
+        // Clear list
+        POSSIBLE_COLLISIONS.clear();
 
         // Get possible collisions
-        collisions = TREE.retrieve(collisions, entity);
+        TREE.retrieve(POSSIBLE_COLLISIONS, entity);
 
         // Check for collisions
-        for (Entity e : collisions) {
+        for (Entity e : POSSIBLE_COLLISIONS) {
             if (e == entity)
                 continue;
 

@@ -98,6 +98,7 @@ public class QuadTree {
     /**
      * Inserts an {@link Entity} into the bottom most {@link QuadTree} node
      * that it can fit into.
+     *
      * @param entity the {@code Entity} to place into the {@code Quadtree}.
      */
     public void insert(Entity entity) {
@@ -109,15 +110,19 @@ public class QuadTree {
         }
 
         objects.add(entity);
+
         //check if it needs to split
         if (objects.size > MAX_OBJECTS && level < MAX_LEVELS) {
             if (nodes[0] == null)
                 split();
 
-            for (int i = 0; i < objects.size; i++) {
+            int i = 0;
+            while(i < objects.size) {
                 int index = getIndex(entity);
                 if (index != -1)
                     nodes[index].insert(objects.removeIndex(i));
+                else
+                    i++;
             }
         }
     }
@@ -137,6 +142,7 @@ public class QuadTree {
         }
 
         possibleCollisons.addAll(objects);
+
         return possibleCollisons;
     }
 
