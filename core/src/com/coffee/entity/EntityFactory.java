@@ -1,6 +1,7 @@
 package com.coffee.entity;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
@@ -244,7 +245,15 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
 
-    public static Entity createRandomPowerUpSpawner(float x, float y) {
+    /**
+     * Create a spawner that randomly spawns power-ups
+     * @param x x location of bottom left corner
+     * @param y y location of bottom left corner
+     * @param engine {@link PooledEngine}
+     * @return a random power-up spawner
+     */
+    public static Entity createRandomPowerUpSpawner(float x, float y, PooledEngine engine) {
+        final PooledEngine ENGINE = engine;
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
         final SpriteComponent SPRITE = new SpriteComponent(); //debug
@@ -259,13 +268,13 @@ public class EntityFactory {
 
                 switch (randomPowerUpSpawned) {
                     case 0: //health power up
-                        spawnedEntities.add(createHealthPowerUp(spawnX, spawnY));
+                        spawnedEntities.add(createHealthPowerUp(spawnX, spawnY, ENGINE));
                         break;
                     case 1: //speed power up
-                        spawnedEntities.add(createSpeedPowerUp(spawnX, spawnY));
+                        spawnedEntities.add(createSpeedPowerUp(spawnX, spawnY, ENGINE));
                         break;
                     case 2: //create fire rate up
-                        spawnedEntities.add(createFireRatePowerUp(spawnX, spawnY));
+                        spawnedEntities.add(createFireRatePowerUp(spawnX, spawnY, ENGINE));
                         break;
                 }
                 return spawnedEntities;
@@ -290,7 +299,8 @@ public class EntityFactory {
     /**
      * Creates a health power up that restores the player's health to max.
      */
-    public static Entity createHealthPowerUp(float x, float y) {
+    public static Entity createHealthPowerUp(float x, float y, PooledEngine engine) {
+        final PooledEngine ENGINE = engine;
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
@@ -299,6 +309,7 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
+                    ENGINE.removeEntity(E);
                 }
             }
 
@@ -337,7 +348,8 @@ public class EntityFactory {
      * Creates a fire rate power up that increases the player's fire rate. The effect of the power up starts to have
      * diminishing returns after 20 bullets per second.
      */
-    public static Entity createFireRatePowerUp(float x, float y) {
+    public static Entity createFireRatePowerUp(float x, float y, PooledEngine engine) {
+        final PooledEngine ENGINE = engine;
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
@@ -347,6 +359,7 @@ public class EntityFactory {
                 PlayerComponent player = Mapper.PLAYER.get(entity);
                 if (player != null) {
                     player.bulletsPerSecond += 2 * MathUtils.clamp(20 / player.bulletsPerSecond, 0, 1);
+                    ENGINE.removeEntity(E);
                 }
             }
 
@@ -383,10 +396,11 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a speed power up that increases the player's speed. The effects of the power up starts to have diminshing
+     * Creates a speed power up that increases the player's speed. The effects of the power up starts to have diminishing
      * returns after 10.
      */
-    public static Entity createSpeedPowerUp(float x, float y) {
+    public static Entity createSpeedPowerUp(float x, float y, PooledEngine engine) {
+        final PooledEngine ENGINE = engine;
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
@@ -396,6 +410,7 @@ public class EntityFactory {
                 MovementComponent move = Mapper.MOVEMENT.get(entity);
                 if (move != null) {
                     move.moveSpeed += 1 * MathUtils.clamp(10 / move.moveSpeed, 0, 1);
+                    ENGINE.removeEntity(E);
                 }
             }
 

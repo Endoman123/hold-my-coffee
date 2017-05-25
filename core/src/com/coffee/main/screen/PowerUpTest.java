@@ -40,8 +40,9 @@ public class PowerUpTest extends ScreenAdapter {
             e.setProcessing(true);
         }
 
-        ENGINE.addEntity(EntityFactory.createPlayer());
         ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200));
+        ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(300, 600));
+        ENGINE.addEntity(EntityFactory.createPlayer());
     }
 
     @Override
