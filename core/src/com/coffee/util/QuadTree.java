@@ -104,9 +104,10 @@ public class QuadTree {
     public void insert(Entity entity) {
         if (nodes[0] != null) { //if it has sub nodes
             int index = getIndex(entity);
-            if (index != -1)
+            if (index != -1) {
                 nodes[index].insert(entity);
-            return;
+                return;
+            }
         }
 
         objects.add(entity);
