@@ -37,11 +37,12 @@ public class PowerUpTest extends ScreenAdapter {
         ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
+        //ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
 
         player = EntityFactory.createPlayer();
 
         ENGINE.addEntity(player);
-        ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200));
+        ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200, ENGINE));
     }
 
     @Override
