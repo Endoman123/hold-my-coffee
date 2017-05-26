@@ -44,7 +44,7 @@ public class DrawSystem extends SortedIteratingSystem {
     @Override
     public void processEntity(Entity e, float deltaTime) {
         if (GUIMapper.has(e)) {
-            GUIMapper.get(e).HANDLER.update(deltaTime);
+            GUIMapper.get(e).handler.update(deltaTime);
             BATCH.end();
             GUIMapper.get(e).CANVAS.draw();
             BATCH.begin();

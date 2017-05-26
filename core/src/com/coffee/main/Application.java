@@ -106,7 +106,8 @@ public class Application extends Game {
 							new PlayerTest(),
 							new ViewportTest(),
 							new PowerUpTest(),
-							new StarsTest()
+							new StarsTest(),
+							new MainMenu()
 					);
 
 					// Set the screen beforehand
