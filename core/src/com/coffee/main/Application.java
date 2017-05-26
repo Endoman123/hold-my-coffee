@@ -86,9 +86,6 @@ public class Application extends Game {
 
 		Gdx.input.setInputProcessor(inputMultiplexer);
 
-		System.out.println("Initializing EntityFactory");
-		EntityFactory.init(this);
-
 		// Screen stuff
 		testScreens = new Array<Screen>();
 	}
@@ -100,7 +97,7 @@ public class Application extends Game {
 			assetsLoaded = Assets.MANAGER.update();
 
 			if (assetsLoaded) {
-				EntityFactory.getAssets();
+				EntityFactory.init();
 
 				if (testScreens.size == 0) {
 					testScreens.addAll(

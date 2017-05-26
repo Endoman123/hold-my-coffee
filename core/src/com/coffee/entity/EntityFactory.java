@@ -3,14 +3,10 @@ package com.coffee.entity;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
@@ -30,30 +26,24 @@ import com.kotcrab.vis.ui.util.ColorUtils;
  */
 public class EntityFactory {
     private static Viewport viewport;
-    private static Batch batch;
+    private static SpriteBatch batch;
     private static InputMultiplexer inputMultiplexer;
     private static TextureAtlas goAtlas;
 
-    private static EntityFactory _inst;
+    private static boolean initialized = false;
 
     /**
      * Initializes the {@link EntityFactory} instance only if it has not been already.
-     *
-     * @param a the {@code Application} to feed into the {@code EntityFactory} constructor
      */
-    public static void init(Application a) {
-        if (_inst == null) {
-            _inst = new EntityFactory(a);
+    public static void init() {
+        if (!initialized) {
+            Application app = (Application) Gdx.app.getApplicationListener();
 
-            System.out.println("Initialized EntityFactory");
+            viewport = app.getViewport();
+            batch = app.getBatch();
+            inputMultiplexer = app.getInputMultiplexer();
+            goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
         }
-    }
-
-    /**
-     * Loads the assets from the {@link Assets}' {@link AssetManager}.
-     */
-    public static void getAssets() {
-        goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
     }
 
     /**
@@ -62,9 +52,7 @@ public class EntityFactory {
      * @param app the {@code Application} to take the {@code Viewport}, {@code Engine}, {@code InputMultiplexer}, and {@code Batch} from
      */
     public EntityFactory(Application app) {
-        viewport = app.getViewport();
-        batch = app.getBatch();
-        inputMultiplexer = app.getInputMultiplexer();
+        //
     }
 
     /**
