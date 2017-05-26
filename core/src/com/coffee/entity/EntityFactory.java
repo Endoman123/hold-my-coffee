@@ -25,15 +25,19 @@ import com.kotcrab.vis.ui.util.ColorUtils;
  * attaching the necessary {@link Component}s onto them.
  */
 public class EntityFactory {
+    // Static fields that we can use throughout any instance of the EntityBuilder
     private static Viewport viewport;
     private static SpriteBatch batch;
     private static InputMultiplexer inputMultiplexer;
     private static TextureAtlas goAtlas;
+    private static PooledEngine pooledEngine;
 
+    // Boolean to check if the factory has already been pre-initialized.
     private static boolean initialized = false;
 
     /**
-     * Initializes the {@link EntityFactory} instance only if it has not been already.
+     * Initializes the {@link EntityFactory} static fields
+     * only if it has not been done already.
      */
     public static void init() {
         if (!initialized) {
@@ -43,16 +47,18 @@ public class EntityFactory {
             batch = app.getBatch();
             inputMultiplexer = app.getInputMultiplexer();
             goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
+
+            initialized = true;
         }
     }
 
     /**
-     * Initializes the constants in the class.
+     * Sets the {@link PooledEngine} to use for initializing poolable {@link Entity}s
      *
-     * @param app the {@code Application} to take the {@code Viewport}, {@code Engine}, {@code InputMultiplexer}, and {@code Batch} from
+     * @param p the {@code PooledEngine} to use for pooling and creating poolable {@code Entity}s
      */
-    public EntityFactory(Application app) {
-        //
+    public EntityFactory(PooledEngine p) {
+        pooledEngine = p;
     }
 
     /**
