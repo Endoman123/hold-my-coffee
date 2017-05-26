@@ -74,26 +74,32 @@ public class QuadTree {
      * @return the index of the quadrant, or -1 if it does not fit completely into any single quadrant
      */
     private int getIndex(Entity entity) {
-        final Rectangle BODY = Mapper.COLLIDER.get(entity).body.getBoundingRectangle();
+        // Initialize initial index, midpoint coordinates, and get collider body from entity.
         int index = -1;
         float verticalMid = bounds.getX() + (bounds.getWidth() / 2f);
         float horizontalMid = bounds.getY() + (bounds.getHeight() / 2f);
+        final Rectangle BODY = Mapper.COLLIDER.get(entity).body.getBoundingRectangle();
 
+        // Check if it can fit into either the top quadrants or bottom quadrants.
         boolean inTopQuadrant = (BODY.getY() > horizontalMid && BODY.getY() + BODY.getHeight() > horizontalMid);
         boolean inBottomQuadrant = (BODY.getY() < horizontalMid && BODY.getY() + BODY.getHeight() < horizontalMid);
 
-        if (BODY.getX() > verticalMid && BODY.getX() + BODY.getWidth() > verticalMid) { //right side
+        // Check if it can fit into either right-side quadrants.
+        if (BODY.getX() > verticalMid && BODY.getX() + BODY.getWidth() > verticalMid) {
             if (inTopQuadrant)
                 index = 0;
             else if (inBottomQuadrant)
                 index = 3;
-        } else if (BODY.getX() < verticalMid && BODY.getX() + BODY.getWidth() < verticalMid) { //left side
+        }
+        // Check if it can fit into either left-side quadrants.
+        else if (BODY.getX() < verticalMid && BODY.getX() + BODY.getWidth() < verticalMid) {
             if (inTopQuadrant)
                 index = 1;
             else if (inBottomQuadrant)
                 index = 2;
         }
 
+        // Return final value
         return index;
 
     }
@@ -119,7 +125,7 @@ public class QuadTree {
         objects.add(entity);
 
         // Check if the max capacity has been reached
-        // and we can still split down a level.
+        // and if we can still split down a level.
         if (objects.size > MAX_OBJECTS && level < MAX_LEVELS) {
             if (nodes[0] == null)
                 split();
@@ -127,7 +133,7 @@ public class QuadTree {
             // Iterate through all the objects in this node
             // and see if you can place them into any of the subnodes.
             int i = 0;
-            while(i < objects.size) {
+            while (i < objects.size) {
                 int index = getIndex(objects.get(i));
                 if (index != -1)
                     nodes[index].insert(objects.removeIndex(i));
@@ -165,8 +171,8 @@ public class QuadTree {
         DEBUG.end();
 
         if (nodes[0] != null) {
-            for (int i = 0; i < nodes.length; i++)
-                nodes[i].draw(DEBUG);
+            for(QuadTree node : nodes)
+                node.draw(DEBUG);
         }
     }
 
