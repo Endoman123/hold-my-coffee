@@ -8,13 +8,15 @@ import com.badlogic.gdx.utils.Array;
 import com.coffee.entity.components.ColliderComponent;
 
 /**
- * Class that recursively splits up a map into quadrants for
- * optimized collision checking.
+ * Data structure that recursively grows as it stores more objects
+ * by breaking itself up into four subnodes. This class represents one of those nodes.
+ * Each individual node has the capability of breaking up into 4 subnodes, as well
+ * as retrieving all the objects from its node downward, and other methods.
  *
  * @author Phillip O'Reggio
  */
 public class QuadTree {
-    private final int MAX_LEVELS = 10;
+    private final int MAX_LEVELS = 5;
     private final int MAX_OBJECTS = 3;
 
     private int level;
@@ -72,26 +74,27 @@ public class QuadTree {
      * @return the index of the quadrant, or -1 if it does not fit completely into any single quadrant
      */
     private int getIndex(Entity entity) {
-        final Rectangle BOUNDS = Mapper.COLLIDER.get(entity).body.getBoundingRectangle();
+        final Rectangle BODY = Mapper.COLLIDER.get(entity).body.getBoundingRectangle();
+        int index = -1;
         float verticalMid = bounds.getX() + (bounds.getWidth() / 2f);
         float horizontalMid = bounds.getY() + (bounds.getHeight() / 2f);
 
-        boolean inTopQuadrant = (BOUNDS.getY() > horizontalMid && BOUNDS.getY() + BOUNDS.getHeight() > horizontalMid);
-        boolean inBottomQuadrant = (BOUNDS.getY() < horizontalMid && BOUNDS.getY() + BOUNDS.getHeight() < horizontalMid);
+        boolean inTopQuadrant = (BODY.getY() > horizontalMid && BODY.getY() + BODY.getHeight() > horizontalMid);
+        boolean inBottomQuadrant = (BODY.getY() < horizontalMid && BODY.getY() + BODY.getHeight() < horizontalMid);
 
-        if (BOUNDS.getX() > verticalMid && BOUNDS.getX() + BOUNDS.getWidth() > verticalMid) { //right side
+        if (BODY.getX() > verticalMid && BODY.getX() + BODY.getWidth() > verticalMid) { //right side
             if (inTopQuadrant)
-                return 0;
+                index = 0;
             else if (inBottomQuadrant)
-                return 3;
-        } else if (BOUNDS.getX() < verticalMid && BOUNDS.getX() + BOUNDS.getWidth() < verticalMid) { //left side
+                index = 3;
+        } else if (BODY.getX() < verticalMid && BODY.getX() + BODY.getWidth() < verticalMid) { //left side
             if (inTopQuadrant)
-                return 1;
+                index = 1;
             else if (inBottomQuadrant)
-                return 2;
+                index = 2;
         }
 
-        return -1; //none
+        return index;
 
     }
 
@@ -102,7 +105,9 @@ public class QuadTree {
      * @param entity the {@code Entity} to place into the {@code Quadtree}.
      */
     public void insert(Entity entity) {
-        if (nodes[0] != null) { //if it has sub nodes
+        // If this node has subnodes,
+        // try to see if it can fit into any of them.
+        if (nodes[0] != null) {
             int index = getIndex(entity);
             if (index != -1) {
                 nodes[index].insert(entity);
@@ -110,16 +115,20 @@ public class QuadTree {
             }
         }
 
+        // Add the object to this node.
         objects.add(entity);
 
-        //check if it needs to split
+        // Check if the max capacity has been reached
+        // and we can still split down a level.
         if (objects.size > MAX_OBJECTS && level < MAX_LEVELS) {
             if (nodes[0] == null)
                 split();
 
+            // Iterate through all the objects in this node
+            // and see if you can place them into any of the subnodes.
             int i = 0;
             while(i < objects.size) {
-                int index = getIndex(entity);
+                int index = getIndex(objects.get(i));
                 if (index != -1)
                     nodes[index].insert(objects.removeIndex(i));
                 else
@@ -138,9 +147,8 @@ public class QuadTree {
     public Array<Entity> retrieve(Array<Entity> possibleCollisons, Entity entity) {
         int index = getIndex(entity);
 
-        if (index != -1 && nodes[0] != null) {
+        if (index != -1 && nodes[0] != null)
             nodes[index].retrieve(possibleCollisons, entity);
-        }
 
         possibleCollisons.addAll(objects);
 

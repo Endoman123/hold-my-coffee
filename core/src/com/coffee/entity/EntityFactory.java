@@ -338,6 +338,7 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
+                    System.out.println("Health up!");
                     engine.removeEntity(E);
                 }
             }
@@ -381,10 +382,9 @@ public class EntityFactory {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
-                    Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
                     PlayerComponent player = Mapper.PLAYER.get(entity);
                     player.bulletsPerSecond = MathUtils.clamp(player.bulletsPerSecond + 4, 0, 30);
-                    System.out.println("Bullet Up : " + player.bulletsPerSecond);
+                    System.out.println("Bullet Up!");
                     ENGINE.removeEntity(E);
                 }
             }
@@ -427,10 +427,10 @@ public class EntityFactory {
         COLLIDER = new ColliderComponent(new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-                MovementComponent move = Mapper.MOVEMENT.get(entity);
-                if (move != null) {
+                if (Mapper.PLAYER.has(entity)) {
+                    MovementComponent move = Mapper.MOVEMENT.get(entity);
                     move.moveSpeed = MathUtils.clamp(move.moveSpeed + 1, 0, 10);
-                    System.out.println("Speed Up : " + move.moveSpeed);
+                    System.out.println("Speed Up!");
                     ENGINE.removeEntity(E);
                 }
             }
