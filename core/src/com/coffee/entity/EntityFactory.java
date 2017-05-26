@@ -457,13 +457,15 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a star based on its z-index and temperature
+     * Creates a star entity.
      *
-     * @param z   the depth of the star
-     * @param hue the hue of the star
-     * @return an {@link Entity} with a sprite made to look like a star
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     * @param z the virtual depth of the star
+     * @return an {@code Entity} made to look like a star with a random burning temperature,
+     *         with its size & speed made proportional to its depth
      */
-    public static Entity createStar(float x, float y, int z, float hue) {
+    public static Entity createStar(float x, float y, int z) {
         final Entity E = pooledEngine.createEntity();
         final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
         final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
@@ -475,11 +477,14 @@ public class EntityFactory {
 
         // Create star sprite
         Sprite main = new Sprite(goAtlas.createSprite("star1"));
-        Color tint = ColorUtils.HSVtoRGB(hue, MathUtils.random(30), 100);
-        float size = MathUtils.lerp(3, 6, (100 - z) / 100f);
+        float temp = (float)Math.pow(MathUtils.random(), 0.5);
+        Color tint = ColorUtils.HSVtoRGB(MathUtils.lerp(0, 300, temp), (int)MathUtils.lerp(25, 0, temp), 100);
+        float size = MathUtils.lerp(1, 6, (100 - z) / 100f);
+
         main.setSize(size, size);
         main.setOriginCenter();
         main.setColor(tint);
+
         SPRITE.SPRITES.add(main);
         SPRITE.zIndex = -100 - z;
 
@@ -490,10 +495,10 @@ public class EntityFactory {
 
         // Initialize movement
         MOVEMENT.MOVEMENT_NORMAL.set(0, -1);
-        MOVEMENT.moveSpeed = MathUtils.lerp(3, 10, (100 - z) / 100f);
+        MOVEMENT.moveSpeed = MathUtils.lerp(3, 6, (100 - z) / 100f);
 
         // Initialize particle lifetime
-        LIFETIME.timer = 3;
+        LIFETIME.timer = 5;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(SPRITE).add(LIFETIME);
     }
@@ -518,9 +523,8 @@ public class EntityFactory {
             float x = MathUtils.random(0, viewport.getWorldWidth());
             float y = viewport.getWorldHeight();
             int z = MathUtils.random(0, 100);
-            float hue = MathUtils.random(180, 300);
 
-            entities.add(createStar(x, y, z, hue));
+            entities.add(createStar(x, y, z));
 
             return entities;
         });
