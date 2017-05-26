@@ -1,5 +1,6 @@
 package com.coffee.entity;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Input;
@@ -21,18 +22,13 @@ import com.coffee.main.Application;
 import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
 import com.coffee.util.Mapper;
-
-import java.awt.*;
+import com.kotcrab.vis.ui.util.ColorUtils;
 
 /**
  * Builder class that automates the creation of entities and
  * attaching the necessary {@link Component}s onto them.
  */
 public class EntityFactory {
-    // Please never change these values once they have been initialized.
-    // I will throw a hissy fit otherwise.
-    // - Game
-    // gonna change viewport to null, fight me 1v1
     private static Viewport viewport;
     private static Batch batch;
     private static InputMultiplexer inputMultiplexer;
@@ -259,6 +255,7 @@ public class EntityFactory {
 
     /**
      * Create a spawner that randomly spawns power-ups
+     *
      * @param x x location of bottom left corner
      * @param y y location of bottom left corner
      * @param engine {@link PooledEngine}
@@ -268,11 +265,19 @@ public class EntityFactory {
         final PooledEngine ENGINE = engine;
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
-        final SpawnerComponent SPAWN = new SpawnerComponent(() -> {
+        final Sprite REF = new Sprite(goAtlas.createSprite("upgrade_base"));
+        final SpawnerComponent SPAWNER;
+
+        //Set up Transform Component
+        TRANSFORM.POSITION.set(x, y);
+
+        //Set up Spawn Component
+        SPAWNER = new SpawnerComponent(() -> {
             Array<Entity> spawnedEntities = new Array<Entity>(1);
-            //Spawn a random power up within a 300x300 square of the position
-            float spawnX = TRANSFORM.POSITION.x  + (float) ((Math.random() * 600) - 300);
-            float spawnY = TRANSFORM.POSITION.y  + (float) ((Math.random() * 600) - 300);
+
+            // Spawn at the top of the screen. Make sure that it isn't out of the reach of the player.
+            float spawnX = MathUtils.random(REF.getWidth(), viewport.getWorldWidth() - REF.getWidth() * 2);
+            float spawnY = viewport.getWorldHeight() + 32;
             int randomPowerUpSpawned = (int) ((Math.random() * 3));
 
             switch (randomPowerUpSpawned) {
@@ -286,22 +291,28 @@ public class EntityFactory {
                     spawnedEntities.add(createFireRatePowerUp(spawnX, spawnY, ENGINE));
                     break;
             }
+
             return spawnedEntities;
         });
+        SPAWNER.spawnRateMin = 2;
+        SPAWNER.spawnRateMax = 4;
 
-        //Set up Transform Component
-        TRANSFORM.POSITION.set(x, y);
-
-        //Set up Spawn Component
-        SPAWN.spawnRate = 2;
-
-        return E.add(TRANSFORM).add(SPAWN);
+        return E.add(TRANSFORM).add(SPAWNER);
     }
 
+    /**
+     * Builder method for the basis of any powerup
+     *
+     * @param x the x-coordinate to spawn the powerup at
+     * @param y the y-coordinate to spawn the powerup at
+     * @return an {@code Entity} with the necessary {@code Component}s attached
+     *         to make any powerup (sans the {@code ColliderComponent}).
+     */
     public static Entity createBasePowerUp(float x, float y) {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
+        final MovementComponent MOVEMENT = new MovementComponent();
 
         //Set up Sprite Component
         Sprite
@@ -314,10 +325,16 @@ public class EntityFactory {
         SPRITE.SPRITES.add(base);
         SPRITE.SPRITES.add(up);
 
-        //Set up Transform Component
-        TRANSFORM.POSITION.set(x, y);
+        // Set up TransformComponent
+        TRANSFORM.SIZE.setSize(base.getWidth(), base.getHeight());
+        TRANSFORM.ORIGIN.set(base.getOriginX(), base.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
 
-        return E.add(TRANSFORM).add(SPRITE);
+        // Set up MovementComponent
+        MOVEMENT.MOVEMENT_NORMAL.set(0, -1);
+        MOVEMENT.moveSpeed = 4;
+
+        return E.add(TRANSFORM).add(SPRITE).add(MOVEMENT);
     }
 
     /**
@@ -454,5 +471,77 @@ public class EntityFactory {
         COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
 
         return E.add(COLLIDER);
+    }
+
+    /**
+     * Creates a star based on its z-index and temperature
+     *
+     * @param z   the depth of the star
+     * @param hue the hue of the star
+     * @return an {@link Entity} with a sprite made to look like a star
+     */
+    public static Entity createStar(float x, float y, int z, float hue) {
+        final Entity E = new Entity();
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final MovementComponent MOVEMENT = new MovementComponent();
+        final SpriteComponent SPRITE = new SpriteComponent();
+
+        // Clamp z between 0 and 100
+        z = MathUtils.clamp(z, 0, 100);
+
+        // Create star sprite
+        Sprite main = new Sprite(goAtlas.createSprite("star1"));
+        float val = MathUtils.lerp(10, 100, 100);
+        Color tint = ColorUtils.HSVtoRGB(hue, MathUtils.random(15, 30), val);
+        float size = MathUtils.lerp(3, 6, (100 - z) / 100f);
+        main.setSize(size, size);
+        main.setOriginCenter();
+        main.setColor(tint);
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -100 - z;
+
+        // Initialize transform
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+
+        // Initialize movement
+        MOVEMENT.MOVEMENT_NORMAL.set(0, -1);
+        MOVEMENT.moveSpeed = MathUtils.lerp(3, 10, (100 - z) / 100f);
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(SPRITE);
+    }
+
+    /**
+     * Creates a particle generator that simulates traveling through space.
+     *
+     * @return an {@link Entity} with a {@link SpawnerComponent} configured to spawn stars, asteroids, etc.
+     */
+    public static Entity createParticleGenerator() {
+        final Entity E = new Entity();
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final SpawnerComponent SPAWNER;
+
+        TRANSFORM.SIZE.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        TRANSFORM.POSITION.set(0, 0);
+        TRANSFORM.ORIGIN.set(TRANSFORM.SIZE.width / 2f, TRANSFORM.SIZE.height / 2f);
+
+        SPAWNER = new SpawnerComponent(() -> {
+            Array<Entity> entities = new Array<>();
+
+            float x = MathUtils.random(0, viewport.getWorldWidth());
+            float y = viewport.getWorldHeight();
+            int z = MathUtils.random(0, 100);
+            float hue = MathUtils.random(180, 300);
+
+            entities.add(createStar(x, y, z, hue));
+
+            return entities;
+        });
+
+        SPAWNER.spawnRateMin = 0.02;
+        SPAWNER.spawnRateMax = 0.05;
+
+        return E.add(TRANSFORM).add(SPAWNER);
     }
 }

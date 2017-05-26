@@ -19,12 +19,12 @@ goodlogic
   index: -1
 enemy
   rotate: false
-  xy: 259, 383
-  size: 128, 128
-  orig: 128, 128
+  xy: 259, 399
+  size: 112, 112
+  orig: 112, 112
   offset: 0, 0
   index: -1
-bullet_ball
+energy_ball
   rotate: false
   xy: 1, 35
   size: 48, 48
@@ -47,14 +47,14 @@ upgrade_base
   index: -1
 player
   rotate: false
-  xy: 259, 344
+  xy: 259, 360
   size: 40, 37
   orig: 40, 37
   offset: 0, 0
   index: -1
 up_arrow
   rotate: false
-  xy: 389, 479
+  xy: 373, 479
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -64,5 +64,12 @@ bullet
   xy: 51, 69
   size: 32, 14
   orig: 32, 14
+  offset: 0, 0
+  index: -1
+star1
+  rotate: false
+  xy: 259, 349
+  size: 9, 9
+  orig: 9, 9
   offset: 0, 0
   index: -1

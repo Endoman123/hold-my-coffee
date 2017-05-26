@@ -9,7 +9,7 @@ import com.coffee.util.SpawnerHandler;
  * @author Jared Tulayan
  */
 public class SpawnerComponent implements Component {
-    public double spawnRate, timer;
+    public double spawnRateMin, spawnRateMax, timer;
     public final SpawnerHandler HANDLER;
 
     /**
@@ -21,7 +21,8 @@ public class SpawnerComponent implements Component {
     public SpawnerComponent(SpawnerHandler handler) {
         HANDLER = handler;
         timer = 0;
-        spawnRate = 10;
+        spawnRateMin = 10;
+        spawnRateMax = 10;
     }
 
 }
