@@ -57,7 +57,8 @@ public class CollisionTest extends ScreenAdapter {
             final ColliderComponent COLLIDER;
             final SpriteComponent SPRITE = new SpriteComponent();
 
-            TRANSFORM.SIZE.setSize(8, 8);
+            TRANSFORM.SIZE.setSize(12, 12);
+            TRANSFORM.ORIGIN.set(TRANSFORM.SIZE.width / 2.0f, TRANSFORM.SIZE.height / 2.0f);
             TRANSFORM.POSITION.set(
                     (float) (Math.random() * VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width + 1),
                     (float) (Math.random() * VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height + 1)
@@ -83,15 +84,17 @@ public class CollisionTest extends ScreenAdapter {
 
             COLLIDER.body.setVertices(new float[]{
                     0,0,
-                    16,0,
-                    16,16,
-                    0,16
+                    TRANSFORM.SIZE.width,0,
+                    TRANSFORM.SIZE.width,TRANSFORM.SIZE.height,
+                    0,TRANSFORM.SIZE.height
             });
-
+            COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
             COLLIDER.solid = true;
 
             Sprite main = ATLAS.createSprite("goodlogic");
-            main.setSize(16, 16);
+            main.setSize(TRANSFORM.SIZE.width, TRANSFORM.SIZE.height);
+            main.setOriginCenter();
+
             SPRITE.SPRITES.add(main);
 
             E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE);

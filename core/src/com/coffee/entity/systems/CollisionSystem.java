@@ -23,6 +23,7 @@ import com.coffee.util.QuadTree;
  */
 public class CollisionSystem extends IteratingSystem {
     private final QuadTree TREE;
+    private final Array<Entity> POSSIBLE_COLLISIONS;
     private ShapeRenderer renderer;
     private Camera camera;
     public boolean isDebugging;
@@ -33,6 +34,7 @@ public class CollisionSystem extends IteratingSystem {
 
         renderer = r;
         camera = v.getCamera();
+        POSSIBLE_COLLISIONS = new Array<>();
     }
 
     public CollisionSystem(Viewport v) {
@@ -43,7 +45,8 @@ public class CollisionSystem extends IteratingSystem {
         // Clear tree
         TREE.clear();
 
-        // Fill tree
+        // Update position of all collision bodies
+        // then add them to the tree
         for (Entity e : getEntities()) {
             ColliderComponent curCollider = Mapper.COLLIDER.get(e);
             TransformComponent curTrans = Mapper.TRANSFORM.get(e);
@@ -73,29 +76,31 @@ public class CollisionSystem extends IteratingSystem {
     public void processEntity(Entity entity, float deltaTime) {
         ColliderComponent curCollider = Mapper.COLLIDER.get(entity);
         TransformComponent curTrans = Mapper.TRANSFORM.get(entity);
-        Array<Entity> collisions = new Array<Entity>();
+
+        // Clear list
+        POSSIBLE_COLLISIONS.clear();
 
         // Get possible collisions
-        collisions = TREE.retrieve(collisions, entity);
+        TREE.retrieve(POSSIBLE_COLLISIONS, entity);
 
         // Check for collisions
-        for (Entity e : collisions) {
-            if (e == entity)
+        for (Entity entity2 : POSSIBLE_COLLISIONS) {
+            if (entity2 == entity)
                 continue;
 
-            ColliderComponent otherCollider = Mapper.COLLIDER.get(e);
+            ColliderComponent otherCollider = Mapper.COLLIDER.get(entity2);
             Intersector.MinimumTranslationVector mtv = new Intersector.MinimumTranslationVector();
 
             if (Intersector.overlapConvexPolygons(curCollider.body, otherCollider.body, mtv)) {
                 // Technically, we have entered collision.
-                curCollider.HANDLER.enterCollision(e);
+                curCollider.HANDLER.enterCollision(entity2);
                 otherCollider.HANDLER.enterCollision(entity);
 
                 // If both objects are solid, move them out of each other.
                 if (curCollider.solid && otherCollider.solid) {
                     curTrans.POSITION.add(mtv.normal.scl(mtv.depth));
 
-                    curCollider.HANDLER.exitCollision(e);
+                    curCollider.HANDLER.exitCollision(entity2);
                     otherCollider.HANDLER.exitCollision(entity);
                 } else {
 

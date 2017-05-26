@@ -19,7 +19,7 @@ public class ColliderComponent implements Component {
     public Array<Entity> collidingWith;
 
     /**
-     * Creates component with  a polygonal square body of size 32.
+     * Creates component with a polygonal square body of size 32.
      */
     public ColliderComponent(CollisionHandler handler) {
         body = new Polygon(new float[]{
