@@ -338,6 +338,7 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
+                    System.out.println("Got health power up");
                     engine.removeEntity(E);
                 }
             }
