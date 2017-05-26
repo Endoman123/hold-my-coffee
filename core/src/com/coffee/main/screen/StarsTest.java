@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.systems.DrawSystem;
+import com.coffee.entity.systems.LifetimeSystem;
 import com.coffee.entity.systems.MovementSystem;
 import com.coffee.entity.systems.SpawnerSystem;
 import com.coffee.main.Application;
@@ -35,6 +36,7 @@ public class StarsTest extends ScreenAdapter {
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
+        ENGINE.addSystem(new LifetimeSystem());
 
         ENGINE.addEntity(EntityFactory.createParticleGenerator());
     }
@@ -53,7 +55,7 @@ public class StarsTest extends ScreenAdapter {
     }
 
     public void show() {
-
+        EntityFactory.setPooledEngine(ENGINE);
     }
 
     @Override

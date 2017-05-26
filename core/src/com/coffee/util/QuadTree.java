@@ -74,11 +74,11 @@ public class QuadTree {
      * @return the index of the quadrant, or -1 if it does not fit completely into any single quadrant
      */
     private int getIndex(Entity entity) {
-        // Initialize initial index, midpoint coordinates, and get collider body from entity.
+        // Initialize initial index, midpoint coordinates, and get collider BODY from entity.
         int index = -1;
         float verticalMid = bounds.getX() + (bounds.getWidth() / 2f);
         float horizontalMid = bounds.getY() + (bounds.getHeight() / 2f);
-        final Rectangle BODY = Mapper.COLLIDER.get(entity).body.getBoundingRectangle();
+        final Rectangle BODY = Mapper.COLLIDER.get(entity).BODY.getBoundingRectangle();
 
         // Check if it can fit into either the top quadrants or bottom quadrants.
         boolean inTopQuadrant = (BODY.getY() > horizontalMid && BODY.getY() + BODY.getHeight() > horizontalMid);

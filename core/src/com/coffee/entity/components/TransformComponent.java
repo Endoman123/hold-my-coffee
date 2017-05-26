@@ -3,6 +3,7 @@ package com.coffee.entity.components;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 
 import java.awt.*;
 
@@ -13,7 +14,7 @@ import java.awt.*;
  *
  * @author Jared Tulayan
  */
-public class TransformComponent implements Component {
+public class TransformComponent implements Component, Pool.Poolable {
     public final Vector2
         POSITION,
         ORIGIN;
@@ -31,6 +32,15 @@ public class TransformComponent implements Component {
         POSITION = new Vector2();
         SIZE = new Dimension(32, 32);
         ORIGIN = new Vector2(16, 16);
+
+        rotation = 0;
+    }
+
+    @Override
+    public void reset() {
+        POSITION.setZero();
+        SIZE.setSize(32, 32);
+        ORIGIN.set(16, 16);
 
         rotation = 0;
     }

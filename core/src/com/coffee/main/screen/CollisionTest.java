@@ -54,7 +54,7 @@ public class CollisionTest extends ScreenAdapter {
             final Entity E = new Entity();
             final TransformComponent TRANSFORM = new TransformComponent();
             final MovementComponent MOVEMENT = new MovementComponent();
-            final ColliderComponent COLLIDER;
+            final ColliderComponent COLLIDER = new ColliderComponent();
             final SpriteComponent SPRITE = new SpriteComponent();
 
             TRANSFORM.SIZE.setSize(12, 12);
@@ -66,7 +66,7 @@ public class CollisionTest extends ScreenAdapter {
             MOVEMENT.moveSpeed = 2.5;
             MOVEMENT.MOVEMENT_NORMAL.set(1, 0).setToRandomDirection();
 
-            COLLIDER = new ColliderComponent(new CollisionHandler() {
+            COLLIDER.handler = new CollisionHandler() {
                 @Override
                 public void enterCollision(Entity entity) {
 
@@ -79,16 +79,17 @@ public class CollisionTest extends ScreenAdapter {
 
                 @Override
                 public void exitCollision(Entity entity) {
-                }
-            });
 
-            COLLIDER.body.setVertices(new float[]{
+                }
+            };
+
+            COLLIDER.BODY.setVertices(new float[]{
                     0,0,
                     TRANSFORM.SIZE.width,0,
                     TRANSFORM.SIZE.width,TRANSFORM.SIZE.height,
                     0,TRANSFORM.SIZE.height
             });
-            COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
+            COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
             COLLIDER.solid = true;
 
             Sprite main = ATLAS.createSprite("goodlogic");

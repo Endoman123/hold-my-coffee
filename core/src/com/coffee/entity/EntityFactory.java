@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -57,7 +56,7 @@ public class EntityFactory {
      *
      * @param p the {@code PooledEngine} to use for pooling and creating poolable {@code Entity}s
      */
-    public EntityFactory(PooledEngine p) {
+    public static void setPooledEngine(PooledEngine p) {
         pooledEngine = p;
     }
 
@@ -74,7 +73,7 @@ public class EntityFactory {
         final SpriteComponent SPRITE = new SpriteComponent();
         final PlayerComponent PLAYER = new PlayerComponent();
         final HealthComponent HEALTH = new HealthComponent(100, .2f);
-        final ColliderComponent COLLIDER;
+        final ColliderComponent COLLIDER = new ColliderComponent();
         final InputComponent INPUT;
 
         // Initialize MovmementComponent
@@ -91,7 +90,7 @@ public class EntityFactory {
         TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
 
         // Initialize ColliderComponent
-        COLLIDER = new ColliderComponent(new CollisionHandler() {
+        COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
 
@@ -106,14 +105,14 @@ public class EntityFactory {
             public void exitCollision(Entity entity) {
 
             }
-        });
-        COLLIDER.body.setVertices(new float[]{
+        };
+        COLLIDER.BODY.setVertices(new float[]{
                 0,0,
                 16,0,
                 16,16,
                 0,16
         });
-        COLLIDER.body.setOrigin(8, 8);
+        COLLIDER.BODY.setOrigin(8, 8);
         COLLIDER.solid = true;
 
         // Initialize InputComponent
@@ -180,7 +179,7 @@ public class EntityFactory {
 
         INPUT = new InputComponent(ip);
 
-        PLAYER.bulletsPerSecond = 10;
+        PLAYER.bulletsPerSecond = 3;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER).add(HEALTH);
     }
@@ -195,12 +194,12 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createPlayerBullet(float x, float y, float rot, Entity source) {
-        final Entity E = new Entity();
-        final TransformComponent TRANSFORM = new TransformComponent();
-        final MovementComponent MOVEMENT = new MovementComponent();
-        final SpriteComponent SPRITE = new SpriteComponent();
-        final ColliderComponent COLLIDER;
-        final BulletComponent BULLET = new BulletComponent();
+        final Entity E = pooledEngine.createEntity();
+        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
+        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
+        final BulletComponent BULLET = pooledEngine.createComponent(BulletComponent.class);
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("bullet");
@@ -219,7 +218,7 @@ public class EntityFactory {
         MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
 
         // Initialize ColliderComponent
-        COLLIDER = new ColliderComponent(new CollisionHandler() {
+        COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
 
@@ -234,14 +233,14 @@ public class EntityFactory {
             public void exitCollision(Entity entity) {
 
             }
-        });
-        COLLIDER.body.setVertices(new float[]{
+        };
+        COLLIDER.BODY.setVertices(new float[]{
                 0,0,
                 4,0,
                 4,4,
                 0,4
         });
-        COLLIDER.body.setOrigin(2, 2);
+        COLLIDER.BODY.setOrigin(2, 2);
         COLLIDER.solid = false;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
@@ -303,10 +302,12 @@ public class EntityFactory {
      *         to make any powerup (sans the {@code ColliderComponent}).
      */
     public static Entity createBasePowerUp(float x, float y) {
-        final Entity E = new Entity();
-        final TransformComponent TRANSFORM = new TransformComponent();
-        final SpriteComponent SPRITE = new SpriteComponent();
-        final MovementComponent MOVEMENT = new MovementComponent();
+        final Entity E = pooledEngine.createEntity();
+        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
+        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
+        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
+        final LifetimeComponent LIFETIME = pooledEngine.createComponent(LifetimeComponent.class);
 
         //Set up Sprite Component
         Sprite
@@ -324,11 +325,24 @@ public class EntityFactory {
         TRANSFORM.ORIGIN.set(base.getOriginX(), base.getOriginY());
         TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
 
+        // Set up ColliderComponent pt 1
+        COLLIDER.BODY.setVertices(new float[] {
+                0, 0,
+                TRANSFORM.SIZE.width, 0,
+                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
+                0, TRANSFORM.SIZE.height
+        });
+        COLLIDER.solid = false;
+        COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
+
         // Set up MovementComponent
         MOVEMENT.MOVEMENT_NORMAL.set(0, -1);
         MOVEMENT.moveSpeed = 4;
 
-        return E.add(TRANSFORM).add(SPRITE).add(MOVEMENT);
+        // Set up powerup lifetime
+        LIFETIME.timer = 10;
+
+        return E.add(TRANSFORM).add(SPRITE).add(MOVEMENT).add(COLLIDER).add(LIFETIME);
     }
 
     /**
@@ -336,15 +350,14 @@ public class EntityFactory {
      */
     public static Entity createHealthPowerUp(float x, float y, PooledEngine engine) {
         final Entity E = createBasePowerUp(x, y);
-        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        final ColliderComponent COLLIDER;
 
         // Set up base sprite
         SPRITE.SPRITES.get(0).setColor(Color.RED);
 
         //Set up Collider Component
-        COLLIDER = new ColliderComponent(new CollisionHandler() {
+        COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
@@ -361,18 +374,9 @@ public class EntityFactory {
             @Override
             public void exitCollision(Entity entity) {
             }
-        });
+        };
 
-        COLLIDER.body = new Polygon(new float[] {
-                0, 0,
-                TRANSFORM.SIZE.width, 0,
-                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
-                0, TRANSFORM.SIZE.height
-        });
-        COLLIDER.solid = false;
-        COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
-
-        return E.add(COLLIDER);
+        return E;
     }
 
     /**
@@ -381,20 +385,19 @@ public class EntityFactory {
     public static Entity createFireRatePowerUp(float x, float y, PooledEngine engine) {
         final PooledEngine ENGINE = engine;
         final Entity E = createBasePowerUp(x, y);
-        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        final ColliderComponent COLLIDER;
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
 
         // Set up base sprite
         SPRITE.SPRITES.get(0).setColor(Color.YELLOW);
 
         //Set up Collider Component
-        COLLIDER = new ColliderComponent(new CollisionHandler() {
+        COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
-                    player.bulletsPerSecond = MathUtils.clamp(player.bulletsPerSecond + 4, 0, 30);
+                    player.bulletsPerSecond = MathUtils.clamp(player.bulletsPerSecond + 4, 1, 10);
                     System.out.println("Bullet Up!");
                     ENGINE.removeEntity(E);
                 }
@@ -407,18 +410,9 @@ public class EntityFactory {
             @Override
             public void exitCollision(Entity entity) {
             }
-        });
+        };
 
-        COLLIDER.body = new Polygon(new float[] {
-                0, 0,
-                TRANSFORM.SIZE.width, 0,
-                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
-                0, TRANSFORM.SIZE.height
-        });
-        COLLIDER.solid = false;
-        COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
-
-        return E.add(COLLIDER);
+        return E;
     }
 
     /**
@@ -427,15 +421,14 @@ public class EntityFactory {
     public static Entity createSpeedPowerUp(float x, float y, PooledEngine engine) {
         final PooledEngine ENGINE = engine;
         final Entity E = createBasePowerUp(x, y);
-        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        final ColliderComponent COLLIDER;
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
 
         // Set up base sprite
         SPRITE.SPRITES.get(0).setColor(Color.CYAN);
 
         //Set up Collider Component
-        COLLIDER = new ColliderComponent(new CollisionHandler() {
+        COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
@@ -453,18 +446,9 @@ public class EntityFactory {
             @Override
             public void exitCollision(Entity entity) {
             }
-        });
+        };
 
-        COLLIDER.body = new Polygon(new float[] {
-                0, 0,
-                TRANSFORM.SIZE.width, 0,
-                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
-                0, TRANSFORM.SIZE.height
-        });
-        COLLIDER.solid = false;
-        COLLIDER.body.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
-
-        return E.add(COLLIDER);
+        return E;
     }
 
     /**
@@ -475,10 +459,11 @@ public class EntityFactory {
      * @return an {@link Entity} with a sprite made to look like a star
      */
     public static Entity createStar(float x, float y, int z, float hue) {
-        final Entity E = new Entity();
-        final TransformComponent TRANSFORM = new TransformComponent();
-        final MovementComponent MOVEMENT = new MovementComponent();
-        final SpriteComponent SPRITE = new SpriteComponent();
+        final Entity E = pooledEngine.createEntity();
+        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
+        final LifetimeComponent LIFETIME = pooledEngine.createComponent(LifetimeComponent.class);
 
         // Clamp z between 0 and 100
         z = MathUtils.clamp(z, 0, 100);
@@ -503,7 +488,10 @@ public class EntityFactory {
         MOVEMENT.MOVEMENT_NORMAL.set(0, -1);
         MOVEMENT.moveSpeed = MathUtils.lerp(3, 10, (100 - z) / 100f);
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(SPRITE);
+        // Initialize particle lifetime
+        LIFETIME.timer = 3;
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(SPRITE).add(LIFETIME);
     }
 
     /**

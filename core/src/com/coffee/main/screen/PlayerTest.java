@@ -56,6 +56,7 @@ public class PlayerTest extends ScreenAdapter {
     public void show() {
         Application app = (Application) Gdx.app.getApplicationListener();
 
+        EntityFactory.setPooledEngine(ENGINE);
         app.getInputMultiplexer().addProcessor(Mapper.INPUT.get(player).PROCESSOR);
     }
 

@@ -56,13 +56,13 @@ public class DebugDrawSystem extends IteratingSystem {
             );
         }
 
-        // Collider body second
+        // Collider BODY second
         if (Mapper.COLLIDER.has(entity)) {
             ColliderComponent collider = Mapper.COLLIDER.get(entity);
 
             RENDERER.set(ShapeRenderer.ShapeType.Line);
             RENDERER.setColor(Color.RED);
-            RENDERER.polygon(collider.body.getTransformedVertices());
+            RENDERER.polygon(collider.BODY.getTransformedVertices());
         }
     }
 

@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 import com.coffee.util.CollisionHandler;
 
 /**
@@ -12,17 +13,17 @@ import com.coffee.util.CollisionHandler;
  *
  * @author Phillip O'Reggio
  */
-public class ColliderComponent implements Component {
-    public Polygon body;
-    public final CollisionHandler HANDLER;
+public class ColliderComponent implements Component, Pool.Poolable {
+    public final Polygon BODY;
+    public CollisionHandler handler;
     public boolean solid;
     public Array<Entity> collidingWith;
 
     /**
-     * Creates component with a polygonal square body of size 32.
+     * Creates component with a polygonal square BODY of size 32.
      */
-    public ColliderComponent(CollisionHandler handler) {
-        body = new Polygon(new float[]{
+    public ColliderComponent() {
+        BODY = new Polygon(new float[]{
                 0,0,
                 32, 0,
                 32, 32,
@@ -30,6 +31,17 @@ public class ColliderComponent implements Component {
         });
         solid = true;
         collidingWith = new Array<Entity>();
-        HANDLER = handler;
+    }
+
+    @Override
+    public void reset() {
+        BODY.setVertices(new float[]{
+                0,0,
+                32, 0,
+                32, 32,
+                0, 32
+        });
+        solid = true;
+        collidingWith.clear();
     }
 }

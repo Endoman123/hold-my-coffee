@@ -55,10 +55,10 @@ public class CollisionSystem extends IteratingSystem {
             float
                 transX = curTrans.POSITION.x + curTrans.ORIGIN.x,
                 transY = curTrans.POSITION.y + curTrans.ORIGIN.y,
-                bodyX = curCollider.body.getBoundingRectangle().getWidth() - curCollider.body.getOriginX(),
-                bodyY = curCollider.body.getBoundingRectangle().getHeight() - curCollider.body.getOriginY();
+                bodyX = curCollider.BODY.getBoundingRectangle().getWidth() - curCollider.BODY.getOriginX(),
+                bodyY = curCollider.BODY.getBoundingRectangle().getHeight() - curCollider.BODY.getOriginY();
 
-            curCollider.body.setPosition(transX - bodyX, transY - bodyY);
+            curCollider.BODY.setPosition(transX - bodyX, transY - bodyY);
 
             TREE.insert(e);
         }
@@ -91,17 +91,17 @@ public class CollisionSystem extends IteratingSystem {
             ColliderComponent otherCollider = Mapper.COLLIDER.get(entity2);
             Intersector.MinimumTranslationVector mtv = new Intersector.MinimumTranslationVector();
 
-            if (Intersector.overlapConvexPolygons(curCollider.body, otherCollider.body, mtv)) {
+            if (Intersector.overlapConvexPolygons(curCollider.BODY, otherCollider.BODY, mtv)) {
                 // Technically, we have entered collision.
-                curCollider.HANDLER.enterCollision(entity2);
-                otherCollider.HANDLER.enterCollision(entity);
+                curCollider.handler.enterCollision(entity2);
+                otherCollider.handler.enterCollision(entity);
 
                 // If both objects are solid, move them out of each other.
                 if (curCollider.solid && otherCollider.solid) {
                     curTrans.POSITION.add(mtv.normal.scl(mtv.depth));
 
-                    curCollider.HANDLER.exitCollision(entity2);
-                    otherCollider.HANDLER.exitCollision(entity);
+                    curCollider.handler.exitCollision(entity2);
+                    otherCollider.handler.exitCollision(entity);
                 } else {
 
                 }
