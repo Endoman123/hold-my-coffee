@@ -2,6 +2,7 @@ package com.coffee.entity.systems;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.math.MathUtils;
 import com.coffee.entity.components.SpawnerComponent;
 
 import static com.coffee.util.Mapper.SPAWNER;
@@ -30,7 +31,7 @@ public class SpawnerSystem extends IteratingSystem {
             for (Entity e : spawner.HANDLER.getSpawnEntity())
                 ENGINE.addEntity(e);
 
-            spawner.timer = spawner.spawnRate;
+            spawner.timer = MathUtils.random((float) spawner.spawnRateMin, (float) spawner.spawnRateMax);
         }
     }
 }

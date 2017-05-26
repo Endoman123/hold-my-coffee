@@ -1,19 +1,20 @@
 package com.coffee.main.screen;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
-import com.coffee.entity.systems.*;
+import com.coffee.entity.systems.DrawSystem;
+import com.coffee.entity.systems.MovementSystem;
+import com.coffee.entity.systems.SpawnerSystem;
 import com.coffee.main.Application;
-import com.coffee.util.Mapper;
 
 /**
- * Test to see if the player is controllable.
+ * Test to see if stars spawn properly.
  *
  * @author Jared Tulayan
  */
@@ -22,7 +23,6 @@ public class StarsTest extends ScreenAdapter {
     private final Viewport VIEWPORT;
     private final ShapeRenderer SHAPE_RENDERER;
     private final PooledEngine ENGINE;
-    private Entity player;
 
     public StarsTest() {
         Application app = (Application) Gdx.app.getApplicationListener();
@@ -32,19 +32,18 @@ public class StarsTest extends ScreenAdapter {
         ENGINE = new PooledEngine();
         SHAPE_RENDERER = app.getShapeRenderer();
 
+        ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
-        //ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
-        ENGINE.addSystem(new BulletSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
-        ENGINE.addSystem(new CollisionSystem(app.getShapeRenderer(), VIEWPORT, true));
-        ENGINE.addSystem(new PlayerSystem(VIEWPORT));
 
-        player = EntityFactory.createPlayer();
-        ENGINE.addEntity(player);
+        ENGINE.addEntity(EntityFactory.createParticleGenerator());
     }
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 10 / 255f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         ENGINE.update(delta);
     }
 
@@ -54,15 +53,11 @@ public class StarsTest extends ScreenAdapter {
     }
 
     public void show() {
-        Application app = (Application) Gdx.app.getApplicationListener();
 
-        app.getInputMultiplexer().addProcessor(Mapper.INPUT.get(player).PROCESSOR);
     }
 
     @Override
     public void hide() {
-        Application app = (Application) Gdx.app.getApplicationListener();
 
-        app.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(player).PROCESSOR);
     }
 }
