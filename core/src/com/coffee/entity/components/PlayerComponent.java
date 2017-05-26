@@ -14,4 +14,7 @@ public class PlayerComponent implements Component {
 
     // Shooting timer
     public double shootTimer, bulletsPerSecond = 1;
+
+    // Buffs
+    public int upFireRate = 0, upBulletDamage = 0;
 }

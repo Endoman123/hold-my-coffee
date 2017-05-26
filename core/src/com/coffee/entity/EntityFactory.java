@@ -275,7 +275,7 @@ public class EntityFactory {
 
             switch (randomPowerUpSpawned) {
                 case 0: //health power up
-                    spawnedEntities.add(createHealthPowerUp(spawnX, spawnY, ENGINE));
+                    spawnedEntities.add(createDamagePowerUp(spawnX, spawnY, ENGINE));
                     break;
                 case 1: //speed power up
                     spawnedEntities.add(createSpeedPowerUp(spawnX, spawnY, ENGINE));
@@ -346,9 +346,9 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a health power up that restores the player's health to max.
+     * Creates a power up that upgrades the damage output of the player.
      */
-    public static Entity createHealthPowerUp(float x, float y, PooledEngine engine) {
+    public static Entity createDamagePowerUp(float x, float y, PooledEngine engine) {
         final Entity E = createBasePowerUp(x, y);
         final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -361,8 +361,11 @@ public class EntityFactory {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
-                    Mapper.HEALTH.get(entity).health = Mapper.HEALTH.get(entity).MAX_HEALTH;
-                    System.out.println("Health up!");
+                    PlayerComponent player = Mapper.PLAYER.get(entity);
+                    if (player.upBulletDamage < 4) {
+                        player.upBulletDamage++;
+                        System.out.println("Damage up!");
+                    }
                     engine.removeEntity(E);
                 }
             }
@@ -397,8 +400,10 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
-                    player.bulletsPerSecond = MathUtils.clamp(player.bulletsPerSecond + 4, 1, 10);
-                    System.out.println("Bullet Up!");
+                    if (player.upFireRate < 4) {
+                        player.upFireRate++;
+                        System.out.println("Bullet Up!");
+                    }
                     ENGINE.removeEntity(E);
                 }
             }
@@ -470,8 +475,7 @@ public class EntityFactory {
 
         // Create star sprite
         Sprite main = new Sprite(goAtlas.createSprite("star1"));
-        float val = MathUtils.lerp(10, 100, 100);
-        Color tint = ColorUtils.HSVtoRGB(hue, MathUtils.random(15, 30), val);
+        Color tint = ColorUtils.HSVtoRGB(hue, MathUtils.random(30), 100);
         float size = MathUtils.lerp(3, 6, (100 - z) / 100f);
         main.setSize(size, size);
         main.setOriginCenter();

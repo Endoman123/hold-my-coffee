@@ -37,7 +37,8 @@ public class PlayerSystem extends IteratingSystem {
         // Update the shoot timer
         // Since we can, we need to clamp the value of the timer between 0 and the value of the bulletsPerSecond
         // to avoid any overflow exceptions.
-        player.shootTimer = MathUtils.clamp(player.shootTimer - player.bulletsPerSecond * deltaTime, 0, 1);
+        float bps = (float)(player.bulletsPerSecond + player.upFireRate);
+        player.shootTimer = MathUtils.clamp(player.shootTimer - bps * deltaTime, 0, 1);
 
         // Any invalid moves the player tries to take, we should combat ASAP.
         if (player.up == 1 && transform.POSITION.y + move.moveSpeed * deltaTime > GAME_SIZE.height * 2 / 3)
@@ -51,13 +52,122 @@ public class PlayerSystem extends IteratingSystem {
 
         // Shoot if we can
         if (player.shoot && player.shootTimer == 0) {
-            getEngine().addEntity(EntityFactory.createPlayerBullet(
-                    transform.POSITION.x + transform.ORIGIN.x,
-                    transform.POSITION.y + transform.SIZE.height + 10,
-                    90,
-                    entity
-            ));
+            switch(player.upBulletDamage) {
+                case 1:
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x + 8,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
 
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x - 8,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+                    break;
+
+                case 2:
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x + 16,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x - 16,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+                    break;
+
+                case 3:
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x + 8,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x + 24,
+                            transform.POSITION.y + transform.SIZE.height - 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x - 8,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x - 24,
+                            transform.POSITION.y + transform.SIZE.height - 10,
+                            90,
+                            entity
+                    ));
+                    break;
+
+                case 4:
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x + 16,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x + 32,
+                            transform.POSITION.y + transform.SIZE.height - 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x - 16,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x - 32,
+                            transform.POSITION.y + transform.SIZE.height - 10,
+                            90,
+                            entity
+                    ));
+                    break;
+
+                default:
+                    getEngine().addEntity(EntityFactory.createPlayerBullet(
+                            transform.POSITION.x + transform.ORIGIN.x,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            90,
+                            entity
+                    ));
+                    break;
+            }
             player.shootTimer = 1;
         }
 

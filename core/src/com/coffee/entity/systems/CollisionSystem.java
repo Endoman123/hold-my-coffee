@@ -82,26 +82,22 @@ public class CollisionSystem extends IteratingSystem {
 
         // Get possible collisions
         TREE.retrieve(POSSIBLE_COLLISIONS, entity);
+        POSSIBLE_COLLISIONS.removeValue(entity, true);
 
         // Check for collisions
         for (Entity entity2 : POSSIBLE_COLLISIONS) {
-            if (entity2 == entity)
-                continue;
-
             ColliderComponent otherCollider = Mapper.COLLIDER.get(entity2);
             Intersector.MinimumTranslationVector mtv = new Intersector.MinimumTranslationVector();
 
             if (Intersector.overlapConvexPolygons(curCollider.BODY, otherCollider.BODY, mtv)) {
                 // Technically, we have entered collision.
                 curCollider.handler.enterCollision(entity2);
-                otherCollider.handler.enterCollision(entity);
 
                 // If both objects are solid, move them out of each other.
                 if (curCollider.solid && otherCollider.solid) {
                     curTrans.POSITION.add(mtv.normal.scl(mtv.depth));
 
                     curCollider.handler.exitCollision(entity2);
-                    otherCollider.handler.exitCollision(entity);
                 } else {
 
                 }

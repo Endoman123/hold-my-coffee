@@ -146,19 +146,20 @@ public class QuadTree {
     /**
      * Gets all the possible collisions with the specified collider.
      *
-     * @param possibleCollisons an empty {@code Array<Entity>} to store all the possible entities that could be in collision
+     * @param possibleCollisions an empty {@code Array<Entity>} to store all the possible entities that could be in collision
      * @param entity the {@code Entity} to check for collisions
      * @return an {@code Array<Entity>} of all the entities that could be colliding with the specified {@code Entity}
      */
-    public Array<Entity> retrieve(Array<Entity> possibleCollisons, Entity entity) {
+    public Array<Entity> retrieve(Array<Entity> possibleCollisions, Entity entity) {
         int index = getIndex(entity);
 
+        // Get to the bottom-most node of the tree
         if (index != -1 && nodes[0] != null)
-            nodes[index].retrieve(possibleCollisons, entity);
+            nodes[index].retrieve(possibleCollisions, entity);
 
-        possibleCollisons.addAll(objects);
+        possibleCollisions.addAll(objects);
 
-        return possibleCollisons;
+        return possibleCollisions;
     }
 
     /**

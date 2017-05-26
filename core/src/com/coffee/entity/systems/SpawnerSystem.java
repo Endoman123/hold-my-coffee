@@ -28,7 +28,8 @@ public class SpawnerSystem extends IteratingSystem {
         spawner.timer -= deltaTime;
 
         if (spawner.timer <= 0) {
-            for (Entity e : spawner.HANDLER.getSpawnEntity())
+            Entity[] spawns = spawner.HANDLER.getSpawnEntity().toArray(Entity.class);
+            for (Entity e : spawns)
                 ENGINE.addEntity(e);
 
             spawner.timer = MathUtils.random((float) spawner.spawnRateMin, (float) spawner.spawnRateMax);
