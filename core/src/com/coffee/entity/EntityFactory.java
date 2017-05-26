@@ -429,7 +429,7 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     MovementComponent move = Mapper.MOVEMENT.get(entity);
-                    move.moveSpeed = MathUtils.clamp(move.moveSpeed + 1, 0, 10);
+                    move.moveSpeed = MathUtils.clamp(move.moveSpeed + .5, 0, 7.5);
                     System.out.println("Speed Up : " + move.moveSpeed);
                     ENGINE.removeEntity(E);
                 }
