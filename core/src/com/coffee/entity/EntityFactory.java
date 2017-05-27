@@ -534,4 +534,68 @@ public class EntityFactory {
 
         return E.add(TRANSFORM).add(SPAWNER);
     }
+
+    public static Entity createBossShip(float x, float y) {
+        final Entity E = new Entity();
+        final TransformComponent TRANSFORM = new TransformComponent();
+        final MovementComponent MOVEMENT = new MovementComponent();
+        final SpriteComponent SPRITE = new SpriteComponent();
+        final HealthComponent HEALTH = new HealthComponent(500, .2f);
+        final ColliderComponent COLLIDER = new ColliderComponent();
+        final AIComponent AI = new AIComponent();
+
+        // Initialize MovmementComponent
+        TRANSFORM.POSITION.set(x, y);
+
+        // Initialize MovmementComponent
+        MOVEMENT.moveSpeed = 5;
+        MOVEMENT.MOVEMENT_NORMAL.set(Vector2.X);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("enemy");
+        main.setOrigin(main.getWidth() / 2, main.getHeight() / 2);
+
+        SPRITE.SPRITES.add(main);
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+
+        // Initialize ColliderComponent
+        COLLIDER.handler = new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+
+            }
+        };
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                main.getWidth(), 0,
+                main.getWidth(), main.getHeight(),
+                0, main.getHeight()
+        });
+        COLLIDER.BODY.setOrigin(main.getOriginX(), main.getOriginY());
+        COLLIDER.solid = true;
+
+        // Initialize AIComponent
+        AI.path = new Array<Vector2>(new Vector2[]{
+                new Vector2(100, 100),
+                new Vector2(200, 100),
+                new Vector2(200, 200),
+                new Vector2(300, 300),
+                new Vector2(200, 500)
+        });
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI);
+    }
 }

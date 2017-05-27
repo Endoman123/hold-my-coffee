@@ -3,6 +3,8 @@ package com.coffee.entity.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.coffee.entity.components.AIComponent;
 import com.coffee.entity.components.MovementComponent;
 import com.coffee.entity.components.TransformComponent;
@@ -23,7 +25,30 @@ public class AISystem extends IteratingSystem {
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
         MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
 
-        //if ((TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) == AI.path.get())
+        Vector2 node = AI.path.get(AI.currentNode);
+
+        //Has reached target node (with some buffer space)
+        boolean reachedXLocation = (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) >= node.x - 10 && (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) <= node.x + 10;
+        boolean reachedYLocation = (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) >= node.y - 10 && (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) <= node.y + 10;
+        if (reachedXLocation && reachedYLocation) {
+            int newNode = MathUtils.random(0, AI.path.size - 1);
+            if (newNode == AI.currentNode)
+                newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.path.size - 1);
+            AI.currentNode = newNode;
+            performAction();
+        } else { //Needs to move towards Target node
+            //Point in direction of target node
+            float direction = (float) Math.atan2(node.y - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y), node.x - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x));
+            MOVE.MOVEMENT_NORMAL.setAngle((float) Math.toDegrees(direction));
+
+        }
+    }
+
+    /**
+     * Makes the boss perform a random action based on variables such as the amount of health or time left.
+     */
+    private void performAction() {
+        //Shoot alot of stuff
     }
 
 
