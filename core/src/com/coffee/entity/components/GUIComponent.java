@@ -10,14 +10,10 @@ import com.coffee.util.GUIHandler;
  * @author Phillip O'Reggio
  */
 public class GUIComponent implements Component {
-    public final Stage CANVAS;
+    public Stage canvas;
     public GUIHandler handler;
 
     public GUIComponent() {
-        CANVAS = new Stage();
-        handler = new GUIHandler() {
-            @Override
-            public void update(float deltaTime) { }
-        };
+        handler = (float dt) -> {};
     }
 }

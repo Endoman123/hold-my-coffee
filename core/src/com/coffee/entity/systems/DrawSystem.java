@@ -46,7 +46,7 @@ public class DrawSystem extends SortedIteratingSystem {
         if (GUIMapper.has(e)) {
             GUIMapper.get(e).handler.update(deltaTime);
             BATCH.end();
-            GUIMapper.get(e).CANVAS.draw();
+            GUIMapper.get(e).canvas.draw();
             BATCH.begin();
         } else if (Mapper.TRANSFORM.has(e)) {
             for (int i = 0; i < spriteMapper.get(e).SPRITES.size; i++) {
