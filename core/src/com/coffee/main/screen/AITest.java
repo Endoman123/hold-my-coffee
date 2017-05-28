@@ -37,14 +37,14 @@ public class AITest extends ScreenAdapter {
         ENGINE.addSystem(new BulletSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
         ENGINE.addSystem(new CollisionSystem(app.getShapeRenderer(), VIEWPORT, true));
-        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        // ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
         ENGINE.addSystem(new AISystem(VIEWPORT));
 
         player = EntityFactory.createPlayer();
-        bossShip = EntityFactory.createBossShip(300, 300);
+        bossShip = EntityFactory.createBossShip(VIEWPORT.getWorldWidth() / 2, VIEWPORT.getWorldHeight() * 2 / 3 + 64);
 
         ENGINE.addEntity(player);
         ENGINE.addEntity(bossShip);

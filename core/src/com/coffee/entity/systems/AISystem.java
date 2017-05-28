@@ -29,87 +29,78 @@ public class AISystem extends IteratingSystem {
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
         final MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
         final HealthComponent HEALTH = Mapper.HEALTH.get(entity);
-        int choice = 1;
 
-        if (AI.lerpTimer == 1) {
-            System.out.println("burp");
-            AI.actionTimer = MathUtils.clamp(AI.actionTimer + deltaTime, 0, 5);
-
-            // region Perform Action
-            switch (AI.state) {
-                case 1:
-                    AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
-
-                    if (AI.fireTimer == 0.5) {
-                        for (int i = 0; i < 9; i++) {
-                            float deg = 180 + i * 20;
-                            float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                            float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg, entity));
-                        }
-
-                        AI.fireTimer = 0;
-                    }
-
-                    if (AI.actionTimer == 5) {
-                        AI.BEGIN_POS.set(TRANSFORM.POSITION);
-                        AI.END_POS.set(
-                                MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
-                                MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
-                        );
-                        AI.actionTimer = 0;
-                        AI.lerpTimer = 0;
-                    } else {
-                        AI.state = 2;
-                    }
-                    break;
-                case 2:
-                    AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
-
-                    if (AI.fireTimer == 0.5) {
-                        for (int i = 0; i < 9; i++) {
-                            float deg = 190 + i * 20;
-                            float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                            float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg, entity));
-                        }
-
-                        AI.fireTimer = 0;
-                    }
-
-                    if (AI.actionTimer == 5) {
-                        AI.BEGIN_POS.set(TRANSFORM.POSITION);
-                        AI.END_POS.set(
-                                MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
-                                MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
-                        );
-                        AI.actionTimer = 0;
-                        AI.lerpTimer = 0;
-                    } else {
-                        AI.state = 1;
-                    }
-                    break;
-                default:
-                    AI.BEGIN_POS.set(TRANSFORM.POSITION);
+        // region State Machine
+        switch (AI.state) {
+            case 0: // Reset states
+                AI.BEGIN_POS.set(TRANSFORM.POSITION);
+                do {
                     AI.END_POS.set(
                             MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
-                            MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
+                            MathUtils.random(VIEWPORT.getWorldHeight() * 2.0f / 3.0f, VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height)
                     );
-                    AI.actionTimer = 0;
-                    AI.lerpTimer = 0;
+                } while (AI.BEGIN_POS.dst(AI.END_POS) <= 100);
+                AI.actionTimer = 0;
+                AI.lerpTimer = 0;
+                AI.state = -1;
+                break;
+            case 1: // Attack style 1.1
+                AI.actionTimer = MathUtils.clamp(AI.actionTimer + deltaTime, 0, 5);
+                AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
 
-            }
+                if (AI.fireTimer == 0.5) {
+                    for (int i = 0; i < 9; i++) {
+                        float deg = 180 + i * 20;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                }
+
+                if (AI.actionTimer == 5) {
+                    AI.state = 0;
+                } else {
+                    AI.state = 2;
+                }
+                break;
+            case 2: // Attack style 1.2
+                AI.actionTimer = MathUtils.clamp(AI.actionTimer + deltaTime, 0, 5);
+                AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
+
+                if (AI.fireTimer == 0.5) {
+                    for (int i = 0; i < 9; i++) {
+                        float deg = 190 + i * 20;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                }
+
+                if (AI.actionTimer == 5) {
+                    AI.state = 0;
+                } else {
+                    AI.state = 1;
+                }
+                break;
+            default: // Move to position, then begin attacking
+                AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
+                float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
+
+                TRANSFORM.POSITION.set(
+                        MathUtils.lerp(AI.BEGIN_POS.x, AI.END_POS.x, perc),
+                        MathUtils.lerp(AI.BEGIN_POS.y, AI.END_POS.y, perc)
+                );
+
+                if (AI.lerpTimer == 1)
+                    AI.state = 1;
         }
-
-        AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime, 0, 1);
-        float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
-
-        TRANSFORM.POSITION.set(
-                MathUtils.lerp(AI.BEGIN_POS.x, AI.END_POS.x, perc),
-                MathUtils.lerp(AI.BEGIN_POS.y, AI.END_POS.y, perc)
-        );
+        // endregion
 
         if (HEALTH.health <= 0) {
             getEngine().removeEntity(entity);

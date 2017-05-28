@@ -78,7 +78,7 @@ public class EntityFactory {
         final InputComponent INPUT;
 
         // Initialize MovmementComponent
-        MOVEMENT.moveSpeed = 5;
+        MOVEMENT.moveSpeed = 4;
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("player");
@@ -191,10 +191,9 @@ public class EntityFactory {
      * @param x      the x-coordinate of the bullet
      * @param y      the y-coordinate of the bullet
      * @param rot    the rotation of the bullet
-     * @param source the {@code Entity} that shot the bullet
      * @return an {@code Entity} with all the necessary components for a bullet
      */
-    public static Entity createPlayerBullet(float x, float y, float rot, Entity source) {
+    public static Entity createPlayerBullet(float x, float y, float rot) {
         final Entity E = pooledEngine.createEntity();
         final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
         final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
@@ -257,10 +256,9 @@ public class EntityFactory {
      * @param x      the x-coordinate of the bullet
      * @param y      the y-coordinate of the bullet
      * @param rot    the rotation of the bullet
-     * @param source the {@code Entity} that shot the bullet
      * @return an {@code Entity} with all the necessary components for a bullet
      */
-    public static Entity createEnemyBullet(float x, float y, float rot, Entity source) {
+    public static Entity createEnemyBullet(float x, float y, float rot) {
         final Entity E = pooledEngine.createEntity();
         final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
         final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
@@ -290,6 +288,9 @@ public class EntityFactory {
             @Override
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
+                    HealthComponent health = Mapper.HEALTH.get(entity);
+
+                    health.health -= BULLET.damage;
                     pooledEngine.removeEntity(E);
                 }
             }
@@ -511,7 +512,7 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity)) {
                     MovementComponent move = Mapper.MOVEMENT.get(entity);
-                    move.moveSpeed = MathUtils.clamp(move.moveSpeed + .5, 0, 7.5);
+                    // move.moveSpeed = MathUtils.clamp(move.moveSpeed + .5, 0, 7.5);
                     System.out.println("Speed Up : " + move.moveSpeed);
                     ENGINE.removeEntity(E);
                 }
@@ -618,12 +619,7 @@ public class EntityFactory {
         final AIComponent AI = new AIComponent();
 
         // Initialize MovmementComponent
-        TRANSFORM.POSITION.set(x, y);
-
-        // Initialize MovmementComponent
-        MOVEMENT.moveSpeed = 5;
         MOVEMENT.rotSpeed = 2;
-        MOVEMENT.MOVEMENT_NORMAL.set(Vector2.X);
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("enemy");
@@ -634,6 +630,7 @@ public class EntityFactory {
         // Initialize TransformComponent
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
         TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
 
         // Initialize ColliderComponent
         COLLIDER.handler = new CollisionHandler() {
@@ -655,20 +652,21 @@ public class EntityFactory {
 
         COLLIDER.BODY.setVertices(new float[]{
                 0,0,
-                TRANSFORM.SIZE.width, 0,
-                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
-                0, TRANSFORM.SIZE.height
+                64, 0,
+                64, 64,
+                0, 64
         });
-        COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
+        COLLIDER.BODY.setOrigin(32, 32);
         COLLIDER.solid = true;
 
         // Initialize AIComponent
         AI.END_POS.set(
-                MathUtils.random(TRANSFORM.ORIGIN.x, viewport.getWorldWidth() - TRANSFORM.ORIGIN.x),
-                MathUtils.random(TRANSFORM.ORIGIN.y, viewport.getWorldHeight() * 2 / 3 + TRANSFORM.ORIGIN.y)
+                MathUtils.random(viewport.getWorldWidth() - TRANSFORM.SIZE.width),
+                MathUtils.random(viewport.getWorldHeight() * 2.0f / 3.0f, viewport.getWorldHeight() - TRANSFORM.SIZE.height)
         );
-
         AI.BEGIN_POS.set(TRANSFORM.POSITION);
+        AI.lerpSpeed = 1.6f;
+        AI.state = -1;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI);
     }

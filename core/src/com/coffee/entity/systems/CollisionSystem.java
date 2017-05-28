@@ -54,11 +54,9 @@ public class CollisionSystem extends IteratingSystem {
             // Centers collider onto transform based on origins
             float
                 transX = curTrans.POSITION.x + curTrans.ORIGIN.x,
-                transY = curTrans.POSITION.y + curTrans.ORIGIN.y,
-                bodyX = curCollider.BODY.getBoundingRectangle().getWidth() - curCollider.BODY.getOriginX(),
-                bodyY = curCollider.BODY.getBoundingRectangle().getHeight() - curCollider.BODY.getOriginY();
+                transY = curTrans.POSITION.y + curTrans.ORIGIN.y;
 
-            curCollider.BODY.setPosition(transX - bodyX, transY - bodyY);
+            curCollider.BODY.setPosition(transX - curCollider.BODY.getOriginX(), transY - curCollider.BODY.getOriginX());
 
             TREE.insert(e);
         }

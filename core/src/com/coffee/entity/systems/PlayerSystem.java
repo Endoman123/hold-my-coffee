@@ -6,6 +6,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
+import com.coffee.entity.components.HealthComponent;
 import com.coffee.entity.components.MovementComponent;
 import com.coffee.entity.components.PlayerComponent;
 import com.coffee.entity.components.TransformComponent;
@@ -33,6 +34,7 @@ public class PlayerSystem extends IteratingSystem {
         PlayerComponent player = Mapper.PLAYER.get(entity);
         MovementComponent move = Mapper.MOVEMENT.get(entity);
         TransformComponent transform = Mapper.TRANSFORM.get(entity);
+        HealthComponent health = Mapper.HEALTH.get(entity);
 
         // Update the shoot timer
         // Since we can, we need to clamp the value of the timer between 0 and the value of the bulletsPerSecond
@@ -57,15 +59,13 @@ public class PlayerSystem extends IteratingSystem {
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 8,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 8,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
                     break;
 
@@ -73,22 +73,19 @@ public class PlayerSystem extends IteratingSystem {
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 16,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 16,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
                     break;
 
@@ -96,29 +93,25 @@ public class PlayerSystem extends IteratingSystem {
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 8,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 24,
                             transform.POSITION.y + transform.SIZE.height - 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 8,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 24,
                             transform.POSITION.y + transform.SIZE.height - 10,
-                            90,
-                            entity
+                            90
                     ));
                     break;
 
@@ -126,36 +119,31 @@ public class PlayerSystem extends IteratingSystem {
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 16,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 32,
                             transform.POSITION.y + transform.SIZE.height - 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 16,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 32,
                             transform.POSITION.y + transform.SIZE.height - 10,
-                            90,
-                            entity
+                            90
                     ));
                     break;
 
@@ -163,8 +151,7 @@ public class PlayerSystem extends IteratingSystem {
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x,
                             transform.POSITION.y + transform.SIZE.height + 10,
-                            90,
-                            entity
+                            90
                     ));
                     break;
             }
@@ -173,5 +160,10 @@ public class PlayerSystem extends IteratingSystem {
 
         // Update position
         move.MOVEMENT_NORMAL.set(player.right - player.left, player.up - player.down);
+
+        if (health.health == 0) {
+            getEngine().removeEntity(entity);
+            System.out.println("u died loser");
+        }
     }
 }
