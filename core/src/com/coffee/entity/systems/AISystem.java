@@ -29,15 +29,41 @@ public class AISystem extends IteratingSystem {
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
         final MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
         final HealthComponent HEALTH = Mapper.HEALTH.get(entity);
+        int choice = 1;
 
         if (AI.lerpTimer == 1) {
             System.out.println("burp");
-            AI.BEGIN_POS.set(TRANSFORM.POSITION);
-            AI.END_POS.set(
-                    MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
-                    MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
-            );
-            AI.lerpTimer = 0;
+            AI.actionTimer = MathUtils.clamp(AI.actionTimer + deltaTime, 0, 5);
+
+            // region Perform Action
+            switch (choice) {
+                case 1:
+                    AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 1);
+
+                    if (AI.fireTimer == 1) {
+                        for (int i = 0; i < 9; i++) {
+                            getEngine().addEntity(EntityFactory.createEnemyBullet(
+                                    TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 8,
+                                    TRANSFORM.POSITION.y + TRANSFORM.SIZE.height + 10,
+                                    180 + i * 20,
+                                    entity
+                            ));
+                        }
+                        AI.fireTimer = 0;
+                    }
+
+                    if (AI.actionTimer == 5) {
+                        AI.actionTimer = 0;
+                        AI.lerpTimer = 0;
+
+                        AI.BEGIN_POS.set(TRANSFORM.POSITION);
+                        AI.END_POS.set(
+                                MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
+                                MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
+                        );
+                    }
+                    break;
+            }
         }
 
         AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime, 0, 1);
@@ -52,49 +78,5 @@ public class AISystem extends IteratingSystem {
             getEngine().removeEntity(entity);
             System.out.println("dead boi");
         }
-
-        /*//Has reached target node (with some buffer space)
-        boolean reachedXLocation = (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) >= node.x - 10 && (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) <= node.x + 10;
-        boolean reachedYLocation = (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) >= node.y - 10 && (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) <= node.y + 10;
-        if (reachedXLocation && reachedYLocation) {
-            //select new node
-            int newNode = MathUtils.random(0, AI.path.size - 1);
-            if (newNode == AI.currentNode)
-                newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.path.size - 1);
-            AI.currentNode = newNode;
-            performAction(entity);
-            int newNode = MathUtils.random(0, AI.END_POS.size - 1);
-            if (newNode == AI.currentNodes[0] || newNode == AI.currentNodes[1])
-                newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.END_POS.size - 1);
-            //move [1] node to [0] and set new node as [1]
-            AI.currentNodes[0] = AI.currentNodes[1];
-            AI.currentNodes[1] = newNode;
-            performAction();
-        } else {
-            float direction = (float) Math.atan2(node.y - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y), node.x - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x));
-            MOVE.MOVEMENT_NORMAL.setAngle((float) Math.toDegrees(direction));
-        }*/
     }
-
-    /**
-     * Makes the boss perform a random action based on variables such as the amount of health or time left.
-     */
-    private void performAction(Entity entity) {
-        TransformComponent transform = Mapper.TRANSFORM.get(entity);
-        int choice = 1;
-
-        switch (choice) {
-            case 1 :
-                for (int i = 0; i < 9; i++)
-                    getEngine().addEntity(EntityFactory.createEnemyBullet(
-                            transform.POSITION.x + transform.ORIGIN.x + 8,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            180 + i * 20,
-                            entity
-                    ));
-                break;
-        }
-    }
-
-
 }

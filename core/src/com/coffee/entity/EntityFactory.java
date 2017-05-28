@@ -624,7 +624,7 @@ public class EntityFactory {
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("enemy");
-        main.setOrigin(main.getWidth() / 2, main.getHeight() / 2);
+        main.setOriginCenter();
 
         SPRITE.SPRITES.add(main);
 
@@ -649,13 +649,14 @@ public class EntityFactory {
 
             }
         };
+
         COLLIDER.BODY.setVertices(new float[]{
                 0,0,
-                main.getWidth(), 0,
-                main.getWidth(), main.getHeight(),
-                0, main.getHeight()
+                TRANSFORM.SIZE.width, 0,
+                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
+                0, TRANSFORM.SIZE.height
         });
-        COLLIDER.BODY.setOrigin(main.getOriginX(), main.getOriginY());
+        COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
         COLLIDER.solid = true;
 
         // Initialize AIComponent

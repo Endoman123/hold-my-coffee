@@ -37,7 +37,7 @@ public class AITest extends ScreenAdapter {
         ENGINE.addSystem(new BulletSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
         ENGINE.addSystem(new CollisionSystem(app.getShapeRenderer(), VIEWPORT, true));
-        //ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));

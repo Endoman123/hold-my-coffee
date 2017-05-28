@@ -9,17 +9,21 @@ import com.badlogic.gdx.utils.Pool;
  */
 public class AIComponent implements Component, Pool.Poolable{
     public final Vector2 BEGIN_POS, END_POS;
-    public float lerpTimer;
+    public float lerpTimer, actionTimer, fireTimer;
 
     public AIComponent() {
         END_POS = new Vector2();
         BEGIN_POS = new Vector2();
         lerpTimer = 0;
+        actionTimer = 0;
+        fireTimer = 0;
     }
 
     public void reset() {
         END_POS.setZero();
         BEGIN_POS.setZero();
         lerpTimer = 0;
+        actionTimer = 0;
+        fireTimer = 0;
     }
 }
