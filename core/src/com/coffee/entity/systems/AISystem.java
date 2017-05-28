@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.AIComponent;
 import com.coffee.entity.components.HealthComponent;
 import com.coffee.entity.components.MovementComponent;
@@ -57,6 +58,11 @@ public class AISystem extends IteratingSystem {
         boolean reachedYLocation = (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) >= node.y - 10 && (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) <= node.y + 10;
         if (reachedXLocation && reachedYLocation) {
             //select new node
+            int newNode = MathUtils.random(0, AI.path.size - 1);
+            if (newNode == AI.currentNode)
+                newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.path.size - 1);
+            AI.currentNode = newNode;
+            performAction(entity);
             int newNode = MathUtils.random(0, AI.END_POS.size - 1);
             if (newNode == AI.currentNodes[0] || newNode == AI.currentNodes[1])
                 newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.END_POS.size - 1);
@@ -73,8 +79,21 @@ public class AISystem extends IteratingSystem {
     /**
      * Makes the boss perform a random action based on variables such as the amount of health or time left.
      */
-    private void performAction() {
-        //Shoot alot of stuff
+    private void performAction(Entity entity) {
+        TransformComponent transform = Mapper.TRANSFORM.get(entity);
+        int choice = 1;
+
+        switch (choice) {
+            case 1 :
+                for (int i = 0; i < 9; i++)
+                    getEngine().addEntity(EntityFactory.createEnemyBullet(
+                            transform.POSITION.x + transform.ORIGIN.x + 8,
+                            transform.POSITION.y + transform.SIZE.height + 10,
+                            180 + i * 20,
+                            entity
+                    ));
+                break;
+        }
     }
 
 
