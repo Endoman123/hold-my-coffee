@@ -589,11 +589,11 @@ public class EntityFactory {
 
         // Initialize AIComponent
         AI.path = new Array<Vector2>(new Vector2[]{
-                new Vector2(100, 100),
-                new Vector2(200, 100),
-                new Vector2(200, 200),
-                new Vector2(300, 300),
-                new Vector2(200, 500)
+                new Vector2(100, 300),
+                new Vector2(200, 400),
+                new Vector2(200, 650),
+                new Vector2(300, 700),
+                new Vector2(400, 750)
         });
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI);

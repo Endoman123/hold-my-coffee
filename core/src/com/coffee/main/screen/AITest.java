@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.systems.*;
@@ -21,6 +22,9 @@ public class AITest extends ScreenAdapter {
     private final ShapeRenderer SHAPE_RENDERER;
     private final PooledEngine ENGINE;
     private Entity player;
+    private Entity bossShip;
+
+    private float debugTimer;
 
     public AITest() {
         Application app = (Application) Gdx.app.getApplicationListener();
@@ -34,23 +38,37 @@ public class AITest extends ScreenAdapter {
         ENGINE.addSystem(new BulletSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
         ENGINE.addSystem(new CollisionSystem(app.getShapeRenderer(), VIEWPORT, true));
-        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        //ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
         ENGINE.addSystem(new AISystem());
 
         player = EntityFactory.createPlayer();
+        bossShip = EntityFactory.createBossShip(300, 300);
 
         ENGINE.addEntity(player);
+        ENGINE.addEntity(bossShip);
         ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200, ENGINE));
         ENGINE.addEntity(EntityFactory.createParticleGenerator());
-        ENGINE.addEntity(EntityFactory.createBossShip(300, 300));
     }
 
     @Override
     public void render(float delta) {
         ENGINE.update(delta);
+        //draw path
+        SHAPE_RENDERER.begin();
+        for (Vector2 v : Mapper.AI.get(bossShip).path) {
+            SHAPE_RENDERER.circle(v.x, v.y, 10);
+        }
+        SHAPE_RENDERER.end();
+
+        //FPS
+        debugTimer += delta;
+        if (debugTimer > 3) {
+            System.out.println(Gdx.graphics.getFramesPerSecond());
+            debugTimer = 0;
+        }
     }
 
     @Override

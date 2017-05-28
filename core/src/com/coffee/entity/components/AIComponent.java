@@ -10,13 +10,19 @@ import com.badlogic.gdx.utils.Pool;
  */
 public class AIComponent implements Component, Pool.Poolable{
     public Array<Vector2> path;
-    public int currentNode;
+    /**
+     * Indexes of nodes that is is approaching. Approaches index at 0 primarily,
+     * while gradually transitioning to the index at 1
+     * */
+    public int[] currentNodes;
 
-    public void AIComponent() {
+    public AIComponent() {
         path = new Array<Vector2>();
+        currentNodes = new int[] {0,1};
     }
 
     public void reset() {
         path.clear();
+        currentNodes = new int[] {0, 1};
     }
 }

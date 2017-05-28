@@ -25,22 +25,23 @@ public class AISystem extends IteratingSystem {
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
         MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
 
-        Vector2 node = AI.path.get(AI.currentNode);
+        Vector2 node = AI.path.get(AI.currentNodes[0]).cpy();
 
         //Has reached target node (with some buffer space)
         boolean reachedXLocation = (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) >= node.x - 10 && (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) <= node.x + 10;
         boolean reachedYLocation = (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) >= node.y - 10 && (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) <= node.y + 10;
         if (reachedXLocation && reachedYLocation) {
+            //select new node
             int newNode = MathUtils.random(0, AI.path.size - 1);
-            if (newNode == AI.currentNode)
+            if (newNode == AI.currentNodes[0] || newNode == AI.currentNodes[1])
                 newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.path.size - 1);
-            AI.currentNode = newNode;
+            //move [1] node to [0] and set new node as [1]
+            AI.currentNodes[0] = AI.currentNodes[1];
+            AI.currentNodes[1] = newNode;
             performAction();
-        } else { //Needs to move towards Target node
-            //Point in direction of target node
+        } else {
             float direction = (float) Math.atan2(node.y - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y), node.x - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x));
             MOVE.MOVEMENT_NORMAL.setAngle((float) Math.toDegrees(direction));
-
         }
     }
 
