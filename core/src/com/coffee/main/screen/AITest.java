@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.systems.*;
@@ -42,7 +41,7 @@ public class AITest extends ScreenAdapter {
         ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
-        ENGINE.addSystem(new AISystem());
+        ENGINE.addSystem(new AISystem(VIEWPORT));
 
         player = EntityFactory.createPlayer();
         bossShip = EntityFactory.createBossShip(300, 300);
@@ -56,19 +55,6 @@ public class AITest extends ScreenAdapter {
     @Override
     public void render(float delta) {
         ENGINE.update(delta);
-        //draw path
-        SHAPE_RENDERER.begin();
-        for (Vector2 v : Mapper.AI.get(bossShip).path) {
-            SHAPE_RENDERER.circle(v.x, v.y, 10);
-        }
-        SHAPE_RENDERER.end();
-
-        //FPS
-        debugTimer += delta;
-        if (debugTimer > 3) {
-            System.out.println(Gdx.graphics.getFramesPerSecond());
-            debugTimer = 0;
-        }
     }
 
     @Override

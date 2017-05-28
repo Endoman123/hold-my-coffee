@@ -1,6 +1,7 @@
 package com.coffee.entity;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.*;
@@ -221,7 +222,11 @@ public class EntityFactory {
         COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-
+                if (Mapper.AI.has(entity)) {
+                    HealthComponent health = Mapper.HEALTH.get(entity);
+                    health.health -= BULLET.damage;
+                    pooledEngine.removeEntity(E);
+                }
             }
 
             @Override
@@ -320,6 +325,8 @@ public class EntityFactory {
         SPRITE.SPRITES.add(base);
         SPRITE.SPRITES.add(up);
 
+        SPRITE.zIndex = -10;
+
         // Set up TransformComponent
         TRANSFORM.SIZE.setSize(base.getWidth(), base.getHeight());
         TRANSFORM.ORIGIN.set(base.getOriginX(), base.getOriginY());
@@ -348,7 +355,7 @@ public class EntityFactory {
     /**
      * Creates a power up that upgrades the damage output of the player.
      */
-    public static Entity createDamagePowerUp(float x, float y, PooledEngine engine) {
+    public static Entity createDamagePowerUp(float x, float y, Engine engine) {
         final Entity E = createBasePowerUp(x, y);
         final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -540,7 +547,7 @@ public class EntityFactory {
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
-        final HealthComponent HEALTH = new HealthComponent(500, .2f);
+        final HealthComponent HEALTH = new HealthComponent(10000, .2f);
         final ColliderComponent COLLIDER = new ColliderComponent();
         final AIComponent AI = new AIComponent();
 
@@ -549,6 +556,7 @@ public class EntityFactory {
 
         // Initialize MovmementComponent
         MOVEMENT.moveSpeed = 5;
+        MOVEMENT.rotSpeed = 2;
         MOVEMENT.MOVEMENT_NORMAL.set(Vector2.X);
 
         // Initialize SpriteComponent
@@ -588,13 +596,12 @@ public class EntityFactory {
         COLLIDER.solid = true;
 
         // Initialize AIComponent
-        AI.path = new Array<Vector2>(new Vector2[]{
-                new Vector2(100, 300),
-                new Vector2(200, 400),
-                new Vector2(200, 650),
-                new Vector2(300, 700),
-                new Vector2(400, 750)
-        });
+        AI.END_POS.set(
+                MathUtils.random(TRANSFORM.ORIGIN.x, viewport.getWorldWidth() - TRANSFORM.ORIGIN.x),
+                MathUtils.random(TRANSFORM.ORIGIN.y, viewport.getWorldHeight() * 2 / 3 + TRANSFORM.ORIGIN.y)
+        );
+
+        AI.BEGIN_POS.set(TRANSFORM.POSITION);
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI);
     }

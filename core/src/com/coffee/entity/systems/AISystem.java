@@ -4,8 +4,9 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.AIComponent;
+import com.coffee.entity.components.HealthComponent;
 import com.coffee.entity.components.MovementComponent;
 import com.coffee.entity.components.TransformComponent;
 import com.coffee.util.Mapper;
@@ -14,27 +15,51 @@ import com.coffee.util.Mapper;
  * @author Phillip O'Reggio
  */
 public class AISystem extends IteratingSystem {
+    public final Viewport VIEWPORT;
 
-    public AISystem() {
+    public AISystem(Viewport v) {
         super(Family.all(AIComponent.class).get());
+        VIEWPORT = v;
     }
 
 
     public void processEntity(Entity entity, float deltaTime) {
-        AIComponent AI = Mapper.AI.get(entity);
-        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
-        MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
+        final AIComponent AI = Mapper.AI.get(entity);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+        final MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
+        final HealthComponent HEALTH = Mapper.HEALTH.get(entity);
 
-        Vector2 node = AI.path.get(AI.currentNodes[0]).cpy();
+        if (AI.lerpTimer == 1) {
+            System.out.println("burp");
+            AI.BEGIN_POS.set(TRANSFORM.POSITION);
+            AI.END_POS.set(
+                    MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
+                    MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
+            );
+            AI.lerpTimer = 0;
+        }
 
-        //Has reached target node (with some buffer space)
+        AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime, 0, 1);
+        float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
+
+        TRANSFORM.POSITION.set(
+                MathUtils.lerp(AI.BEGIN_POS.x, AI.END_POS.x, perc),
+                MathUtils.lerp(AI.BEGIN_POS.y, AI.END_POS.y, perc)
+        );
+
+        if (HEALTH.health <= 0) {
+            getEngine().removeEntity(entity);
+            System.out.println("dead boi");
+        }
+
+        /*//Has reached target node (with some buffer space)
         boolean reachedXLocation = (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) >= node.x - 10 && (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x) <= node.x + 10;
         boolean reachedYLocation = (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) >= node.y - 10 && (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y) <= node.y + 10;
         if (reachedXLocation && reachedYLocation) {
             //select new node
-            int newNode = MathUtils.random(0, AI.path.size - 1);
+            int newNode = MathUtils.random(0, AI.END_POS.size - 1);
             if (newNode == AI.currentNodes[0] || newNode == AI.currentNodes[1])
-                newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.path.size - 1);
+                newNode = MathUtils.clamp(newNode + MathUtils.randomSign(), 0, AI.END_POS.size - 1);
             //move [1] node to [0] and set new node as [1]
             AI.currentNodes[0] = AI.currentNodes[1];
             AI.currentNodes[1] = newNode;
@@ -42,7 +67,7 @@ public class AISystem extends IteratingSystem {
         } else {
             float direction = (float) Math.atan2(node.y - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y), node.x - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x));
             MOVE.MOVEMENT_NORMAL.setAngle((float) Math.toDegrees(direction));
-        }
+        }*/
     }
 
     /**

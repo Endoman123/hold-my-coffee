@@ -22,7 +22,7 @@ public class HealthComponent implements Component {
     public HealthComponent(float duration, int maxHealth) {
         INVINCIBILITY_DURATION = duration;
         MAX_HEALTH = maxHealth;
-        health = maxHealth;
+        health = MAX_HEALTH;
     }
 
     /**
@@ -32,7 +32,7 @@ public class HealthComponent implements Component {
      */
     public HealthComponent(int maxHealth, float duration) {
         MAX_HEALTH = maxHealth;
-        health = maxHealth;
+        health = MAX_HEALTH;
         INVINCIBILITY_DURATION = duration;
     }
 }
