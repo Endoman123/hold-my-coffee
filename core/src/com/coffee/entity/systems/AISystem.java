@@ -36,33 +36,70 @@ public class AISystem extends IteratingSystem {
             AI.actionTimer = MathUtils.clamp(AI.actionTimer + deltaTime, 0, 5);
 
             // region Perform Action
-            switch (choice) {
+            switch (AI.state) {
                 case 1:
-                    AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 1);
+                    AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
 
-                    if (AI.fireTimer == 1) {
+                    if (AI.fireTimer == 0.5) {
                         for (int i = 0; i < 9; i++) {
-                            getEngine().addEntity(EntityFactory.createEnemyBullet(
-                                    TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 8,
-                                    TRANSFORM.POSITION.y + TRANSFORM.SIZE.height + 10,
-                                    180 + i * 20,
-                                    entity
-                            ));
+                            float deg = 180 + i * 20;
+                            float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                            float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg, entity));
                         }
+
                         AI.fireTimer = 0;
                     }
 
                     if (AI.actionTimer == 5) {
-                        AI.actionTimer = 0;
-                        AI.lerpTimer = 0;
-
                         AI.BEGIN_POS.set(TRANSFORM.POSITION);
                         AI.END_POS.set(
                                 MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
                                 MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
                         );
+                        AI.actionTimer = 0;
+                        AI.lerpTimer = 0;
+                    } else {
+                        AI.state = 2;
                     }
                     break;
+                case 2:
+                    AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
+
+                    if (AI.fireTimer == 0.5) {
+                        for (int i = 0; i < 9; i++) {
+                            float deg = 190 + i * 20;
+                            float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                            float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg, entity));
+                        }
+
+                        AI.fireTimer = 0;
+                    }
+
+                    if (AI.actionTimer == 5) {
+                        AI.BEGIN_POS.set(TRANSFORM.POSITION);
+                        AI.END_POS.set(
+                                MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
+                                MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
+                        );
+                        AI.actionTimer = 0;
+                        AI.lerpTimer = 0;
+                    } else {
+                        AI.state = 1;
+                    }
+                    break;
+                default:
+                    AI.BEGIN_POS.set(TRANSFORM.POSITION);
+                    AI.END_POS.set(
+                            MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
+                            MathUtils.random(TRANSFORM.SIZE.height, VIEWPORT.getWorldHeight() * 2.0f / 3.0f)
+                    );
+                    AI.actionTimer = 0;
+                    AI.lerpTimer = 0;
+
             }
         }
 

@@ -270,18 +270,18 @@ public class EntityFactory {
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("bullet_large");
-        main.setOrigin(main.getWidth(), main.getHeight() / 2);
+        main.setOrigin(main.getWidth() / 2, main.getHeight() / 2);
         SPRITE.SPRITES.add(main);
         SPRITE.zIndex = -99;
 
         // Initialize TransformComponent
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
         TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x - main.getOriginX(), y - main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
         TRANSFORM.rotation = rot;
 
         // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 8;
+        MOVEMENT.moveSpeed = 4;
         MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
         MOVEMENT.MOVEMENT_NORMAL.setAngle(rot);
 
@@ -289,7 +289,9 @@ public class EntityFactory {
         COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-
+                if (Mapper.PLAYER.has(entity)) {
+                    pooledEngine.removeEntity(E);
+                }
             }
 
             @Override
@@ -304,11 +306,12 @@ public class EntityFactory {
         };
         COLLIDER.BODY.setVertices(new float[]{
                 0,0,
-                4,0,
-                4,4,
-                0,4
+                TRANSFORM.SIZE.width,0,
+                TRANSFORM.SIZE.width,TRANSFORM.SIZE.height,
+                0,TRANSFORM.SIZE.height
         });
-        COLLIDER.BODY.setOrigin(2, 2);
+        COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
+        COLLIDER.BODY.setRotation(rot);
         COLLIDER.solid = false;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);

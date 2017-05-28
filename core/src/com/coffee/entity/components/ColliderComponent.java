@@ -41,6 +41,7 @@ public class ColliderComponent implements Component, Pool.Poolable {
                 32, 32,
                 0, 32
         });
+        BODY.setRotation(0);
         solid = true;
         collidingWith.clear();
     }
