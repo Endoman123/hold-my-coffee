@@ -247,6 +247,69 @@ public class EntityFactory {
     }
 
     /**
+     * Creates a bullet with a velocity of 8 at the specified location.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @param source the {@code Entity} that shot the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBullet(float x, float y, float rot, Entity source) {
+        final Entity E = pooledEngine.createEntity();
+        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
+        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
+        final BulletComponent BULLET = pooledEngine.createComponent(BulletComponent.class);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setOrigin(main.getWidth(), main.getHeight() / 2);
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -99;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - main.getOriginX(), y - main.getOriginY());
+        TRANSFORM.rotation = rot;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 8;
+        MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
+        MOVEMENT.MOVEMENT_NORMAL.setAngle(rot);
+
+        // Initialize ColliderComponent
+        COLLIDER.handler = new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+
+            }
+        };
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                4,0,
+                4,4,
+                0,4
+        });
+        COLLIDER.BODY.setOrigin(2, 2);
+        COLLIDER.solid = false;
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
+    }
+
+    /**
      * Create a spawner that randomly spawns power-ups
      *
      * @param x x location of bottom left corner
