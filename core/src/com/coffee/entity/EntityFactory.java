@@ -85,6 +85,7 @@ public class EntityFactory {
         main.setOrigin(main.getWidth() / 2, main.getHeight() / 2);
 
         SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -5;
 
         // Initialize TransformComponent
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
@@ -307,11 +308,11 @@ public class EntityFactory {
         };
         COLLIDER.BODY.setVertices(new float[]{
                 0,0,
-                TRANSFORM.SIZE.width,0,
-                TRANSFORM.SIZE.width,TRANSFORM.SIZE.height,
-                0,TRANSFORM.SIZE.height
+                16,0,
+                16,16,
+                0,16
         });
-        COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
+        COLLIDER.BODY.setOrigin(8, 8);
         COLLIDER.BODY.setRotation(rot);
         COLLIDER.solid = false;
 

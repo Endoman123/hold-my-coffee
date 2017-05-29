@@ -4,18 +4,21 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Scaling;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.GUIComponent;
-import com.coffee.entity.systems.DrawSystem;
+import com.coffee.entity.systems.GUISystem;
 import com.coffee.entity.systems.LifetimeSystem;
 import com.coffee.entity.systems.SpawnerSystem;
 import com.coffee.main.Application;
+import com.coffee.util.Assets;
 import com.coffee.util.Mapper;
 import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
@@ -30,9 +33,11 @@ public class MainMenu extends ScreenAdapter {
         Application app = (Application) Gdx.app.getApplicationListener();
 
         ENGINE = new PooledEngine();
+        final TextureAtlas UI_ATLAS = Assets.MANAGER.get(Assets.UI.ATLAS);
+
         VisUI.load();
 
-        ENGINE.addSystem(new DrawSystem(app.getBatch(), app.getViewport()));
+        ENGINE.addSystem(new GUISystem());
         ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
 
@@ -41,14 +46,16 @@ public class MainMenu extends ScreenAdapter {
         GUI.canvas = new Stage(app.getViewport(), app.getBatch());
 
         final VisTable TABLE = new VisTable();
-        final VisLabel TITLE = new VisLabel("Hold My Coffee");
+        final VisImage TITLE = new VisImage(UI_ATLAS.findRegion("title"));
         final VisTextButton PLAY = new VisTextButton("START");
 
-        TABLE.setFillParent(true);
-        TABLE.add(TITLE).row();
+        TITLE.setScaling(Scaling.fit);
+
+        TABLE.center().pad(50).setFillParent(true);
+        TABLE.add(TITLE).expand().fill().row();
         TABLE.add(PLAY);
 
-        GUI.canvas.addCaptureListener(new ChangeListener() {
+        GUI.canvas.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (((VisTextButton) actor).isChecked()) {

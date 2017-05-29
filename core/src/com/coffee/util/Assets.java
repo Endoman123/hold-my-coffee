@@ -20,6 +20,7 @@ public class Assets {
         MANAGER = new AssetManager();
 
         MANAGER.load(GameObjects.ATLAS);
+        MANAGER.load(UI.ATLAS);
     }
 
     /**
@@ -27,5 +28,12 @@ public class Assets {
      */
     public static class GameObjects {
         public static AssetDescriptor<TextureAtlas> ATLAS = new AssetDescriptor<TextureAtlas>("gameobjects.pack", TextureAtlas.class);
+    }
+
+    /**
+     * Subclass containing {@link AssetDescriptor}s for ui textures
+     */
+    public static class UI {
+        public static AssetDescriptor<TextureAtlas> ATLAS = new AssetDescriptor<TextureAtlas>("ui.pack", TextureAtlas.class);
     }
 }

@@ -35,6 +35,8 @@ public class CollisionSystem extends IteratingSystem {
         renderer = r;
         camera = v.getCamera();
         POSSIBLE_COLLISIONS = new Array<>();
+
+        isDebugging = debug;
     }
 
     public CollisionSystem(Viewport v) {
