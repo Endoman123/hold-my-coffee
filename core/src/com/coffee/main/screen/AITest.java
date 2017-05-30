@@ -20,8 +20,12 @@ public class AITest extends ScreenAdapter {
     private final Viewport VIEWPORT;
     private final ShapeRenderer SHAPE_RENDERER;
     private final PooledEngine ENGINE;
+
     private Entity player;
     private Entity bossShip;
+
+    private float readyTimer = 5;
+    private boolean ready = false;
 
     public AITest() {
         Application app = (Application) Gdx.app.getApplicationListener();
@@ -48,12 +52,24 @@ public class AITest extends ScreenAdapter {
         ENGINE.addEntity(player);
         ENGINE.addEntity(bossShip);
 
-        ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200, ENGINE));
         ENGINE.addEntity(EntityFactory.createParticleGenerator());
+
+        ENGINE.getSystem(PlayerSystem.class).setProcessing(false);
+        ENGINE.getSystem(AISystem.class).setProcessing(false);
     }
 
     @Override
     public void render(float delta) {
+        if (readyTimer <= 0 && !ready) {
+            ENGINE.getSystem(PlayerSystem.class).setProcessing(true);
+            ENGINE.getSystem(AISystem.class).setProcessing(true);
+
+            ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200, ENGINE));
+            ready = true;
+        } else {
+            readyTimer -= delta;
+        }
+
         ENGINE.update(delta);
     }
 

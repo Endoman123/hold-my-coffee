@@ -818,7 +818,7 @@ public class EntityFactory {
         TABLE.addAction(new Action() {
             @Override
             public boolean act(float delta) {
-                HEALTH_LBL.setText(HEALTH.health + " / " + HEALTH.MAX_HEALTH);
+                HEALTH_LBL.setText("BOSS: " + HEALTH.getHealthPercent() * 100 + "%");
                 return false;
             }
         });
