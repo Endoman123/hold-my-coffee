@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.main.screen.*;
 import com.coffee.util.Assets;
+import com.kotcrab.vis.ui.VisUI;
 
 /**
  * The main application class.
@@ -27,8 +28,10 @@ public class Application extends Game {
 
 	private boolean assetsLoaded = false;
 
+
 	@Override
-	public void create () {
+	public void create () { 		VisUI.load();
+
 		System.out.println("Created");
 
 		Gdx.graphics.setWindowedMode(450, 800);
