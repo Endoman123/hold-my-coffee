@@ -13,6 +13,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
@@ -21,6 +24,9 @@ import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
 import com.coffee.util.Mapper;
 import com.kotcrab.vis.ui.util.ColorUtils;
+import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
 
 /**
  * Builder class that automates the creation of entities and
@@ -77,6 +83,7 @@ public class EntityFactory {
         final PlayerComponent PLAYER = new PlayerComponent();
         final HealthComponent HEALTH = new HealthComponent(100, .2f);
         final ColliderComponent COLLIDER = new ColliderComponent();
+        final GUIComponent GUI = new GUIComponent();
         final InputComponent INPUT;
 
         // Initialize MovmementComponent
@@ -183,9 +190,50 @@ public class EntityFactory {
 
         INPUT = new InputComponent(ip);
 
+        //GUI Component
+        GUI.canvas = new Stage(viewport, batch);
+
+        final VisTable TABLE = new VisTable();
+
+        final VisLabel HEALTH_LBL = new VisLabel("100 / 100"); //BlaceholBer  Boyo
+        final VisLabel FIRE_RATE_ID = new VisLabel("Fire Rate:");
+        final Array<VisImage> FIRE_RATE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()});
+        final VisLabel BULLET_DAMAGE_ID = new VisLabel("Damage:");
+        final Array<VisImage> BULLET_DAMAGE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()});
+
+        TABLE.addAction(new Action() {
+            @Override
+            public boolean act(float delta) {
+                for (int i = 0; i < PLAYER.upFireRate; i++) {
+                    FIRE_RATE_BOOSTS.get(i).setDrawable(new TextureRegionDrawable(goAtlas.findRegion("up_arrow")));
+                }
+                for (int i = 0; i < PLAYER.upBulletDamage; i++) {
+                    BULLET_DAMAGE_BOOSTS.get(i).setDrawable(new TextureRegionDrawable(goAtlas.findRegion("up_arrow")));
+                }
+                HEALTH_LBL.setText(HEALTH.health + " / " + HEALTH.MAX_HEALTH);
+                return false;
+            }
+        });
+
+        TABLE.top().left().pad(10).setFillParent(true);
+        TABLE.moveBy(0, -GUI.canvas.getHeight() / 20); //move table down to avoid overlap with boss
+        TABLE.add(HEALTH_LBL).left().padBottom(GUI.canvas.getWidth() / 40).row();
+        TABLE.add(FIRE_RATE_ID).padRight(GUI.canvas.getWidth() / 40);
+        for (VisImage i : FIRE_RATE_BOOSTS)
+            TABLE.add(i);
+        TABLE.padBottom(GUI.canvas.getWidth() / 40).row();
+        TABLE.add(BULLET_DAMAGE_ID).padRight(GUI.canvas.getWidth() / 40);
+        for (VisImage i : BULLET_DAMAGE_BOOSTS)
+            TABLE.add(i);
+        //TABLE.debug();
+
+        GUI.canvas.addActor(TABLE);
+
+
         PLAYER.bulletsPerSecond = 3;
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER).add(HEALTH);
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER).add(HEALTH).add(GUI);
     }
 
     /**
@@ -636,6 +684,7 @@ public class EntityFactory {
         final HealthComponent HEALTH = new HealthComponent(10000, .2f);
         final ColliderComponent COLLIDER = new ColliderComponent();
         final AIComponent AI = new AIComponent();
+        final GUIComponent GUI = new GUIComponent();
 
         // Initialize MovmementComponent
         MOVEMENT.rotSpeed = 2;
@@ -687,6 +736,25 @@ public class EntityFactory {
         AI.lerpSpeed = 1.6f;
         AI.state = -1;
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI);
+        //GUI Component
+        GUI.canvas = new Stage(viewport, batch);
+
+        final VisTable TABLE = new VisTable();
+
+        final VisLabel HEALTH_LBL = new VisLabel("100 / 100"); //BlaceholBer  Boyo
+        TABLE.addAction(new Action() {
+            @Override
+            public boolean act(float delta) {
+                HEALTH_LBL.setText(HEALTH.health + " / " + HEALTH.MAX_HEALTH);
+                return false;
+            }
+        });
+        TABLE.top().pad(10).setFillParent(true);
+        TABLE.add(HEALTH_LBL).center().fill();
+        //TABLE.debug();
+
+        GUI.canvas.addActor(TABLE);
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI).add(GUI);
     }
 }

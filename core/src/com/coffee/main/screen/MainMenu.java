@@ -17,7 +17,6 @@ import com.coffee.entity.systems.SpawnerSystem;
 import com.coffee.main.Application;
 import com.coffee.util.Assets;
 import com.coffee.util.Mapper;
-import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -34,8 +33,6 @@ public class MainMenu extends ScreenAdapter {
 
         ENGINE = new PooledEngine();
         final TextureAtlas UI_ATLAS = Assets.MANAGER.get(Assets.UI.ATLAS);
-
-        VisUI.load();
 
         ENGINE.addSystem(new GUISystem());
         ENGINE.addSystem(new LifetimeSystem());

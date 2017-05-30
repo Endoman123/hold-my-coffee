@@ -23,8 +23,6 @@ public class AITest extends ScreenAdapter {
     private Entity player;
     private Entity bossShip;
 
-    private float debugTimer;
-
     public AITest() {
         Application app = (Application) Gdx.app.getApplicationListener();
 
@@ -34,10 +32,11 @@ public class AITest extends ScreenAdapter {
         SHAPE_RENDERER = app.getShapeRenderer();
 
         ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
+        ENGINE.addSystem(new GUISystem());
         ENGINE.addSystem(new BulletSystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
         ENGINE.addSystem(new CollisionSystem(VIEWPORT));
-        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        //ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
@@ -48,6 +47,7 @@ public class AITest extends ScreenAdapter {
 
         ENGINE.addEntity(player);
         ENGINE.addEntity(bossShip);
+
         ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200, ENGINE));
         ENGINE.addEntity(EntityFactory.createParticleGenerator());
     }
