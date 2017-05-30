@@ -6,6 +6,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -191,10 +193,9 @@ public class EntityFactory {
      *
      * @param x      the x-coordinate of the bullet
      * @param y      the y-coordinate of the bullet
-     * @param rot    the rotation of the bullet
      * @return an {@code Entity} with all the necessary components for a bullet
      */
-    public static Entity createPlayerBullet(float x, float y, float rot) {
+    public static Entity createPlayerBullet(float x, float y) {
         final Entity E = pooledEngine.createEntity();
         final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
         final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
@@ -212,7 +213,7 @@ public class EntityFactory {
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
         TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
         TRANSFORM.POSITION.set(x - main.getOriginX(), y - main.getOriginY());
-        TRANSFORM.rotation = rot;
+        TRANSFORM.rotation = 90;
 
         // Initialize MovementComponent
         MOVEMENT.moveSpeed = 10;
@@ -580,17 +581,34 @@ public class EntityFactory {
 
     /**
      * Creates a particle generator that simulates traveling through space.
+     * This also acts as a background for the game.
      *
      * @return an {@link Entity} with a {@link SpawnerComponent} configured to spawn stars, asteroids, etc.
      */
     public static Entity createParticleGenerator() {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
+        final SpriteComponent SPRITE = new SpriteComponent();
         final SpawnerComponent SPAWNER;
 
-        TRANSFORM.SIZE.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        // Initialize SpriteComponent
+        final Pixmap PIX = new Pixmap((int)viewport.getWorldWidth(), (int)viewport.getWorldHeight(), Pixmap.Format.RGBA8888);
+        final Texture TEX;
+        final Sprite SPR;
+
+        PIX.setColor(0, 0, 10, 255);
+        PIX.fill();
+        TEX = new Texture(PIX);
+        SPR = new Sprite(TEX);
+
+        SPR.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+        SPR.setOriginCenter();
+        SPRITE.SPRITES.add(SPR);
+        SPRITE.zIndex = -999;
+
+        TRANSFORM.SIZE.setSize(SPR.getWidth(), SPR.getHeight());
         TRANSFORM.POSITION.set(0, 0);
-        TRANSFORM.ORIGIN.set(TRANSFORM.SIZE.width / 2f, TRANSFORM.SIZE.height / 2f);
+        TRANSFORM.ORIGIN.set(SPR.getOriginX(), SPR.getOriginY());
 
         SPAWNER = new SpawnerComponent(() -> {
             Array<Entity> entities = new Array<>();
@@ -607,7 +625,7 @@ public class EntityFactory {
         SPAWNER.spawnRateMin = 0.02;
         SPAWNER.spawnRateMax = 0.05;
 
-        return E.add(TRANSFORM).add(SPAWNER);
+        return E.add(TRANSFORM).add(SPAWNER).add(SPRITE);
     }
 
     public static Entity createBossShip(float x, float y) {

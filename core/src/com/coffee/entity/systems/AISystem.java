@@ -39,7 +39,8 @@ public class AISystem extends IteratingSystem {
                             MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
                             MathUtils.random(VIEWPORT.getWorldHeight() * 2.0f / 3.0f, VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height)
                     );
-                } while (AI.BEGIN_POS.dst(AI.END_POS) <= 100);
+                } while (AI.BEGIN_POS.dst2(AI.END_POS) <= 1000);
+
                 AI.actionTimer = 0;
                 AI.lerpTimer = 0;
                 AI.state = -1;
@@ -58,12 +59,11 @@ public class AISystem extends IteratingSystem {
                     }
 
                     AI.fireTimer = 0;
-                }
-
-                if (AI.actionTimer == 5) {
-                    AI.state = 0;
-                } else {
                     AI.state = 2;
+
+                    if (AI.actionTimer == 5) {
+                        AI.state = 0;
+                    }
                 }
                 break;
             case 2: // Attack style 1.2
@@ -80,12 +80,10 @@ public class AISystem extends IteratingSystem {
                     }
 
                     AI.fireTimer = 0;
-                }
-
-                if (AI.actionTimer == 5) {
-                    AI.state = 0;
-                } else {
                     AI.state = 1;
+
+                    if (AI.actionTimer == 5)
+                        AI.state = 0;
                 }
                 break;
             default: // Move to position, then begin attacking

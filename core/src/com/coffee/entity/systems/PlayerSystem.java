@@ -58,100 +58,85 @@ public class PlayerSystem extends IteratingSystem {
                 case 1:
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 8,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 8,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
                     break;
 
                 case 2:
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 16,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 16,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
                     break;
 
                 case 3:
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 8,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 24,
-                            transform.POSITION.y + transform.SIZE.height - 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height - 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 8,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 24,
-                            transform.POSITION.y + transform.SIZE.height - 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height - 10
                     ));
                     break;
 
                 case 4:
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 16,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x + 32,
-                            transform.POSITION.y + transform.SIZE.height - 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height - 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 16,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
 
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x - 32,
-                            transform.POSITION.y + transform.SIZE.height - 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height - 10
                     ));
                     break;
 
                 default:
                     getEngine().addEntity(EntityFactory.createPlayerBullet(
                             transform.POSITION.x + transform.ORIGIN.x,
-                            transform.POSITION.y + transform.SIZE.height + 10,
-                            90
+                            transform.POSITION.y + transform.SIZE.height + 10
                     ));
                     break;
             }
