@@ -39,7 +39,7 @@ public class PlayerTest extends ScreenAdapter {
         ENGINE.addSystem(new CollisionSystem(app.getShapeRenderer(), VIEWPORT, true));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
 
-        player = EntityFactory.createPlayer();
+        player = EntityFactory.createPlayer(0, 0);
         ENGINE.addEntity(player);
     }
 

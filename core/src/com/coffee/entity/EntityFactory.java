@@ -67,9 +67,11 @@ public class EntityFactory {
      * Creates a player that can move and shoot. Note that you need to add the
      * {@link InputProcessor} to the game's {@link InputMultiplexer}; this builder does not do so.
      *
+     * @param x the x-coordinate to start the player at
+     * @param y the y-coordinate to start the player at
      * @return a player {@code Entity} that can move, shoot, and be killed.
      */
-    public static Entity createPlayer() {
+    public static Entity createPlayer(float x, float y) {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
@@ -92,6 +94,7 @@ public class EntityFactory {
         // Initialize TransformComponent
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
         TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
 
         // Initialize ColliderComponent
         COLLIDER.handler = new CollisionHandler() {
@@ -207,7 +210,7 @@ public class EntityFactory {
         Sprite main = goAtlas.createSprite("bullet");
         main.setOrigin(main.getWidth(), main.getHeight() / 2);
         SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -99;
+        SPRITE.zIndex = -10;
 
         // Initialize TransformComponent
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
@@ -270,9 +273,10 @@ public class EntityFactory {
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("bullet_large");
-        main.setOrigin(main.getWidth() / 2, main.getHeight() / 2);
+        main.setSize(24, 24);
+        main.setOriginCenter();
         SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -99;
+        SPRITE.zIndex = -2;
 
         // Initialize TransformComponent
         TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
@@ -315,6 +319,75 @@ public class EntityFactory {
         });
         COLLIDER.BODY.setOrigin(8, 8);
         COLLIDER.BODY.setRotation(rot);
+        COLLIDER.solid = false;
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
+    }
+
+    /**
+     * Creates an energy ball with a velocity of 3 at the specified location.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param dir    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBall(float x, float y, float dir) {
+        final Entity E = pooledEngine.createEntity();
+        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
+        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
+        final BulletComponent BULLET = pooledEngine.createComponent(BulletComponent.class);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("energy_ball");
+        main.setColor(Color.PURPLE);
+        main.setSize(16, 16);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 3;
+        MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
+        MOVEMENT.MOVEMENT_NORMAL.setAngle(dir);
+
+        // Initialize ColliderComponent
+        COLLIDER.handler = new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+                if (Mapper.PLAYER.has(entity)) {
+                    HealthComponent health = Mapper.HEALTH.get(entity);
+
+                    health.health -= BULLET.damage;
+                    pooledEngine.removeEntity(E);
+                }
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+
+            }
+        };
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                TRANSFORM.SIZE.width / 2f,0,
+                TRANSFORM.SIZE.width / 2f,TRANSFORM.SIZE.height / 2f,
+                0,TRANSFORM.SIZE.height / 2f
+        });
+        COLLIDER.BODY.setOrigin(TRANSFORM.SIZE.width / 4f, TRANSFORM.SIZE.height / 4f);
+        COLLIDER.BODY.setRotation(dir);
         COLLIDER.solid = false;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
@@ -394,7 +467,7 @@ public class EntityFactory {
         SPRITE.SPRITES.add(base);
         SPRITE.SPRITES.add(up);
 
-        SPRITE.zIndex = -10;
+        SPRITE.zIndex = -3;
 
         // Set up TransformComponent
         TRANSFORM.SIZE.setSize(base.getWidth(), base.getHeight());
@@ -553,7 +626,7 @@ public class EntityFactory {
 
         // Create star sprite
         Sprite main = new Sprite(goAtlas.createSprite("star1"));
-        float temp = (float)Math.pow(MathUtils.random(), 0.5);
+        float temp = (float)Math.pow(MathUtils.random(), 1);
         Color tint = ColorUtils.HSVtoRGB(MathUtils.lerp(0, 300, temp), (int)MathUtils.lerp(25, 0, temp), 100);
         float size = MathUtils.lerp(1, 6, (100 - z) / 100f);
 
@@ -596,7 +669,7 @@ public class EntityFactory {
         final Texture TEX;
         final Sprite SPR;
 
-        PIX.setColor(0, 0, 10, 255);
+        PIX.setColor(0, 0, 10 / 255f, 1);
         PIX.fill();
         TEX = new Texture(PIX);
         SPR = new Sprite(TEX);
@@ -633,7 +706,7 @@ public class EntityFactory {
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
-        final HealthComponent HEALTH = new HealthComponent(10000, .2f);
+        final HealthComponent HEALTH = new HealthComponent(5000, .2f);
         final ColliderComponent COLLIDER = new ColliderComponent();
         final AIComponent AI = new AIComponent();
 

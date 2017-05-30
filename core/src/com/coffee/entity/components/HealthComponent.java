@@ -35,4 +35,13 @@ public class HealthComponent implements Component {
         health = MAX_HEALTH;
         INVINCIBILITY_DURATION = duration;
     }
+
+    /**
+     * Gets the percent of health.
+     *
+     * @return {@code health / MAX_HEALTH}
+     */
+    public float getHealthPercent() {
+        return health / (float) MAX_HEALTH;
+    }
 }

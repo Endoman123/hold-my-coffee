@@ -33,58 +33,73 @@ public class AISystem extends IteratingSystem {
         // region State Machine
         switch (AI.state) {
             case 0: // Reset states
-                AI.BEGIN_POS.set(TRANSFORM.POSITION);
-                do {
-                    AI.END_POS.set(
-                            MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
-                            MathUtils.random(VIEWPORT.getWorldHeight() * 2.0f / 3.0f, VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height)
-                    );
-                } while (AI.BEGIN_POS.dst2(AI.END_POS) <= 1000);
+                if (AI.actionTimer <= 0) {
+                    AI.BEGIN_POS.set(TRANSFORM.POSITION);
+                    do {
+                        AI.END_POS.set(
+                                MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
+                                MathUtils.random(VIEWPORT.getWorldHeight() * 2.0f / 3.0f, VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height)
+                        );
+                    } while (AI.BEGIN_POS.dst2(AI.END_POS) <= 1000);
 
-                AI.actionTimer = 0;
-                AI.lerpTimer = 0;
-                AI.state = -1;
+                    AI.actionTimer = 0;
+                    AI.lerpTimer = 0;
+                    AI.state = -1;
+                } else
+                    AI.actionTimer -= deltaTime;
                 break;
-            case 1: // Attack style 1.1
-                AI.actionTimer = MathUtils.clamp(AI.actionTimer + deltaTime, 0, 5);
-                AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
+            case 1: // Attack style 1
+                AI.fireTimer += deltaTime;
 
-                if (AI.fireTimer == 0.5) {
-                    for (int i = 0; i < 9; i++) {
-                        float deg = 180 + i * 20;
+                if (AI.fireTimer >= 0.1f) {
+                    for (int i = 0; i < 6; i++) {
+                        float deg = AI.actionTimer * 25 + i * 60;
                         float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                         float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                        getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                        getEngine().addEntity(EntityFactory.createEnemyBall(xPlace, yPlace, deg));
                     }
 
                     AI.fireTimer = 0;
-                    AI.state = 2;
+                    AI.actionTimer++;
 
-                    if (AI.actionTimer == 5) {
+                    if (AI.actionTimer == 30) {
+                        AI.actionTimer = 3;
                         AI.state = 0;
                     }
                 }
                 break;
-            case 2: // Attack style 1.2
-                AI.actionTimer = MathUtils.clamp(AI.actionTimer + deltaTime, 0, 5);
-                AI.fireTimer = MathUtils.clamp(AI.fireTimer + deltaTime, 0, 0.5f);
+            case 2: // Attack style 2.1
+                AI.fireTimer += deltaTime;
 
-                if (AI.fireTimer == 0.5) {
-                    for (int i = 0; i < 9; i++) {
-                        float deg = 190 + i * 20;
-                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+                if (AI.fireTimer >= 0.3) {
+                    if (AI.actionTimer % 2 == 0)
+                        for (int i = 0; i < 17; i++) {
+                            float deg = 190 + i * 10;
+                            float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                            float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                        getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
-                    }
+                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                        }
+                    else
+                        for (int i = 0; i < 16; i++) {
+                            float deg = 195 + i * 10;
+                            float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                            float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                        }
 
                     AI.fireTimer = 0;
-                    AI.state = 1;
+                    AI.actionTimer++;
 
-                    if (AI.actionTimer == 5)
+                    if (AI.actionTimer == 10) {
+                        AI.actionTimer = 1;
                         AI.state = 0;
+                    }
                 }
+                break;
+            case 3: // don't use
                 break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
@@ -95,8 +110,15 @@ public class AISystem extends IteratingSystem {
                         MathUtils.lerp(AI.BEGIN_POS.y, AI.END_POS.y, perc)
                 );
 
-                if (AI.lerpTimer == 1)
-                    AI.state = 1;
+                if (AI.lerpTimer == 1) {
+                    if (HEALTH.getHealthPercent() >= 0.66) {
+                        AI.state = 1;
+                        AI.lerpSpeed = 1.6f;
+                    } else {
+                        AI.state = 2;
+                        AI.lerpSpeed = 2.6f;
+                    }
+                }
         }
         // endregion
 
