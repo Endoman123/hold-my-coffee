@@ -29,5 +29,7 @@ public class HealthSystem extends IteratingSystem {
         }
 
         health.isInvicible = health.invincibilityTimer > 0;
+
+        health.health = MathUtils.clamp(health.health, 0, health.MAX_HEALTH);
     }
 }

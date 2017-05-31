@@ -401,10 +401,12 @@ public class EntityFactory {
 
         // Initialize BulletComponent
         BULLET.handler = (float dt) -> {
-          if (MOVEMENT.moveSpeed > 2)
-              MOVEMENT.moveSpeed -= dt * 3;
-          if (MOVEMENT.moveSpeed < 2)
-              MOVEMENT.moveSpeed = 2;
+            if (MOVEMENT.moveSpeed != 2) {
+                if (MOVEMENT.moveSpeed > 2)
+                    MOVEMENT.moveSpeed -= dt * 3;
+                if (MOVEMENT.moveSpeed < 2)
+                    MOVEMENT.moveSpeed = 2;
+            }
         };
 
         return E;
@@ -775,7 +777,7 @@ public class EntityFactory {
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
-        final HealthComponent HEALTH = new HealthComponent(50000, .2f);
+        final HealthComponent HEALTH = new HealthComponent(10000, .2f);
         final ColliderComponent COLLIDER = new ColliderComponent();
         final AIComponent AI = new AIComponent();
         final GUIComponent GUI = new GUIComponent();
@@ -860,8 +862,6 @@ public class EntityFactory {
         TABLE.debug();
 
         GUI.canvas.addActor(TABLE);
-
-        HEALTH.health = 10000;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI).add(GUI);
     }

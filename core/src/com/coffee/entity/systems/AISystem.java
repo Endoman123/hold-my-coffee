@@ -23,7 +23,6 @@ public class AISystem extends IteratingSystem {
         VIEWPORT = v;
     }
 
-
     public void processEntity(Entity entity, float deltaTime) {
         final AIComponent AI = Mapper.AI.get(entity);
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
