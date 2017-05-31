@@ -47,7 +47,7 @@ public class AISystem extends IteratingSystem {
                 } else
                     AI.actionTimer -= deltaTime;
                 break;
-            case 1: // Attack style 1
+            case 1: // Attack style 1: Spiral death thing
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.1f) {
@@ -68,7 +68,7 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 2: // Attack style 2
+            case 2: // Attack style 2: Cone
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.15) {
@@ -101,7 +101,47 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 3: // TODO create this state
+            case 3: // spray in front attack
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.01f) {
+                    float deg = 257.5f + MathUtils.random(25);
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    getEngine().addEntity(EntityFactory.createEnemyBulletFast(xPlace, yPlace, deg));
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 60) {
+                        AI.actionTimer = 1;
+                        AI.state = 0;
+                    }
+                }
+
+                break;
+            case 4: // transparent attack
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.1f) {
+                    for (int i = 0; i < 6; i++) {
+                        float deg = AI.actionTimer * 7 + i * 60;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createEnemyBulletFade(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 100) {
+                        AI.actionTimer = 3;
+                        AI.state = 0;
+                    }
+                }
+
                 break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
@@ -116,6 +156,12 @@ public class AISystem extends IteratingSystem {
                     if (HEALTH.getHealthPercent() >= 0.66) {
                         AI.state = 1;
                         AI.lerpSpeed = 1.6f;
+                    } else  if (HEALTH.getHealthPercent() >= 0.43) {
+                        AI.state = 3;
+                        AI.lerpSpeed = 4f;
+                    } else if (HEALTH.getHealthPercent() >= 0.23) {
+                            AI.state = 4;
+                            AI.lerpSpeed = 1f;
                     } else {
                         AI.state = 2;
                         AI.lerpSpeed = 2.6f;

@@ -413,6 +413,100 @@ public class EntityFactory {
     }
 
     /**
+     * Creates a bullet with a velocity of 10 at the specified location.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletFast(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.BODY.setOrigin(8, 8);
+        COLLIDER.BODY.setRotation(rot);
+
+        Mapper.MOVEMENT.get(E).moveSpeed = 10;
+
+        return E;
+    }
+
+    /**
+     * Creates a bullet with a velocity of 6 at the specified location. Becomes more transparent over time.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletFade(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+
+        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.BODY.setOrigin(8, 8);
+        COLLIDER.BODY.setRotation(rot);
+
+        // Initialize BulletComponent
+        Mapper.BULLET.get(E).handler  = (float dt) -> {
+            SpriteComponent sprite = Mapper.SPRITE.get(E);
+            sprite.SPRITES.get(0).setColor(
+                    sprite.SPRITES.get(0).getColor().r,
+                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().g - dt, 0, 1),
+                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().b - dt, 0, 1),
+                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().a - dt / 20f, 0, 1)
+            );
+        };
+
+        return E;
+    }
+
+    /**
      * Creates an energy ball with a velocity of 3 at the specified location.
      *
      * @param x      the x-coordinate of the bullet
