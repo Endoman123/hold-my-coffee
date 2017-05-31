@@ -99,7 +99,29 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 3: // don't use
+            case 3: // spray in front attack
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.01f) {
+                    System.out.println("running!");
+
+                    float deg = 257.5f + MathUtils.random(25);
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    Entity temp = EntityFactory.createEnemyBullet(xPlace, yPlace, deg);
+                    Mapper.MOVEMENT.get(temp).moveSpeed = 10;
+                    getEngine().addEntity(temp);
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 60) {
+                        AI.actionTimer = 1;
+                        AI.state = 0;
+                    }
+                }
+
                 break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
@@ -114,6 +136,9 @@ public class AISystem extends IteratingSystem {
                     if (HEALTH.getHealthPercent() >= 0.66) {
                         AI.state = 1;
                         AI.lerpSpeed = 1.6f;
+                    } else  if (HEALTH.getHealthPercent() >= 0.33) {
+                        AI.state = 3;
+                        AI.lerpSpeed = 4f;
                     } else {
                         AI.state = 2;
                         AI.lerpSpeed = 2.6f;
