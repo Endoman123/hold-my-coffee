@@ -157,11 +157,14 @@ public class AISystem extends IteratingSystem {
 
                 if (AI.lerpTimer == 1) {
                     if (HEALTH.getHealthPercent() >= 0.66) {
-                        AI.state = 4;
+                        AI.state = 1;
                         AI.lerpSpeed = 1.6f;
-                    } else  if (HEALTH.getHealthPercent() >= 0.33) {
+                    } else  if (HEALTH.getHealthPercent() >= 0.43) {
                         AI.state = 3;
                         AI.lerpSpeed = 4f;
+                    } else if (HEALTH.getHealthPercent() >= 0.23) {
+                            AI.state = 4;
+                            AI.lerpSpeed = 1f;
                     } else {
                         AI.state = 2;
                         AI.lerpSpeed = 2.6f;
