@@ -20,8 +20,9 @@ public class Mapper {
     public static final ComponentMapper<PlayerComponent> PLAYER = ComponentMapper.getFor(PlayerComponent.class);
     public static final ComponentMapper<InputComponent> INPUT = ComponentMapper.getFor(InputComponent.class);
     public static final ComponentMapper<HealthComponent> HEALTH = ComponentMapper.getFor(HealthComponent.class);
-    public static final ComponentMapper<LifetimeComponent> PARTICLE = ComponentMapper.getFor(LifetimeComponent.class);
+    public static final ComponentMapper<LifetimeComponent> LIFETIME = ComponentMapper.getFor(LifetimeComponent.class);
     public static final ComponentMapper<AIComponent> AI = ComponentMapper.getFor(AIComponent.class);
+    public static final ComponentMapper<BulletComponent> BULLET = ComponentMapper.getFor(BulletComponent.class);
 
 
 }

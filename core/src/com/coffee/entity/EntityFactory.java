@@ -8,6 +8,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -15,7 +16,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
@@ -37,7 +41,7 @@ public class EntityFactory {
     private static Viewport viewport;
     private static SpriteBatch batch;
     private static InputMultiplexer inputMultiplexer;
-    private static TextureAtlas goAtlas;
+    private static TextureAtlas goAtlas, uiAtlas;
     private static PooledEngine pooledEngine;
 
     // Boolean to check if the factory has already been pre-initialized.
@@ -54,7 +58,9 @@ public class EntityFactory {
             viewport = app.getViewport();
             batch = app.getBatch();
             inputMultiplexer = app.getInputMultiplexer();
+
             goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
+            uiAtlas = Assets.MANAGER.get(Assets.UI.ATLAS);
 
             initialized = true;
         }
@@ -197,44 +203,52 @@ public class EntityFactory {
         GUI.canvas = new Stage(viewport, batch);
 
         final VisTable TABLE = new VisTable();
+        final Array<VisImage>
+                FIRE_RATE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()}),
+                BULLET_DAMAGE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()});
+        final VisLabel
+                FIRE_RATE_ID = new VisLabel("Fire Rate:"),
+                BULLET_DAMAGE_ID = new VisLabel("Damage:");
+        final VisImage
+                CONTAINER = new VisImage(uiAtlas.createPatch("bar_container")),
+                FILL = new VisImage(uiAtlas.createPatch("bar_fill"));
+        final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
+        final NinePatch BACK = uiAtlas.createPatch("hud_back");
 
-        final VisLabel HEALTH_LBL = new VisLabel("100 / 100"); //BlaceholBer  Boyo
-        final VisLabel FIRE_RATE_ID = new VisLabel("Fire Rate:");
-        final Array<VisImage> FIRE_RATE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()});
-        final VisLabel BULLET_DAMAGE_ID = new VisLabel("Damage:");
-        final Array<VisImage> BULLET_DAMAGE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()});
+        BACK.setColor(Color.DARK_GRAY);
+        FILL.setColor(Color.GREEN);
 
         TABLE.addAction(new Action() {
             @Override
             public boolean act(float delta) {
-                for (int i = 0; i < PLAYER.upFireRate; i++) {
+                for (int i = 0; i < PLAYER.upFireRate; i++)
                     FIRE_RATE_BOOSTS.get(i).setDrawable(new TextureRegionDrawable(goAtlas.findRegion("up_arrow")));
-                }
-                for (int i = 0; i < PLAYER.upBulletDamage; i++) {
+
+                for (int i = 0; i < PLAYER.upBulletDamage; i++)
                     BULLET_DAMAGE_BOOSTS.get(i).setDrawable(new TextureRegionDrawable(goAtlas.findRegion("up_arrow")));
-                }
-                HEALTH_LBL.setText(HEALTH.health + " / " + HEALTH.MAX_HEALTH);
+
+                FILL.setBounds(4, 4, (CONTAINER.getWidth() - 9) * HEALTH.getHealthPercent(), CONTAINER.getHeight() - 9);
                 return false;
             }
         });
 
-        TABLE.top().left().pad(10).setFillParent(true);
-        TABLE.moveBy(0, -GUI.canvas.getHeight() / 20); //move table down to avoid overlap with boss
-        TABLE.add(HEALTH_LBL).left().padBottom(GUI.canvas.getWidth() / 40).row();
+        TABLE.setBackground(new NinePatchDrawable(BACK));
+        TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
+        TABLE.add(HEALTH_BAR).expand().top().left().size(150, 24);
+        /*TABLE.add(HEALTH_LBL).left().padBottom(GUI.canvas.getWidth() / 40).row();
         TABLE.add(FIRE_RATE_ID).padRight(GUI.canvas.getWidth() / 40);
         for (VisImage i : FIRE_RATE_BOOSTS)
             TABLE.add(i);
         TABLE.padBottom(GUI.canvas.getWidth() / 40).row();
         TABLE.add(BULLET_DAMAGE_ID).padRight(GUI.canvas.getWidth() / 40);
         for (VisImage i : BULLET_DAMAGE_BOOSTS)
-            TABLE.add(i);
-        //TABLE.debug();
+            TABLE.add(i);*/
+        TABLE.debug();
 
         GUI.canvas.addActor(TABLE);
 
-
+        // Initialize PlayerComponent
         PLAYER.bulletsPerSecond = 3;
-
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER).add(HEALTH).add(GUI);
     }
@@ -303,34 +317,13 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
 
-    /**
-     * Creates a bullet with a velocity of 8 at the specified location.
-     *
-     * @param x      the x-coordinate of the bullet
-     * @param y      the y-coordinate of the bullet
-     * @param rot    the rotation of the bullet
-     * @return an {@code Entity} with all the necessary components for a bullet
-     */
-    public static Entity createEnemyBullet(float x, float y, float rot) {
+    public static Entity createEnemyDamagable(float x, float y, float rot) {
         final Entity E = pooledEngine.createEntity();
         final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
         final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
         final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
         final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
         final BulletComponent BULLET = pooledEngine.createComponent(BulletComponent.class);
-
-        // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("bullet_large");
-        main.setSize(24, 24);
-        main.setOriginCenter();
-        SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -2;
-
-        // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
-        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
-        TRANSFORM.rotation = rot;
 
         // Initialize MovementComponent
         MOVEMENT.moveSpeed = 4;
@@ -359,6 +352,44 @@ public class EntityFactory {
 
             }
         };
+        COLLIDER.solid = false;
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
+    }
+
+    /**
+     * Creates a bullet with a velocity of 8 at the specified location.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBullet(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 7;
+
+        // Set up collider
         COLLIDER.BODY.setVertices(new float[]{
                 0,0,
                 16,0,
@@ -367,9 +398,110 @@ public class EntityFactory {
         });
         COLLIDER.BODY.setOrigin(8, 8);
         COLLIDER.BODY.setRotation(rot);
-        COLLIDER.solid = false;
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
+        // Initialize BulletComponent
+        BULLET.handler = (float dt) -> {
+          if (MOVEMENT.moveSpeed > 2)
+              MOVEMENT.moveSpeed -= dt * 3;
+          if (MOVEMENT.moveSpeed < 2)
+              MOVEMENT.moveSpeed = 2;
+        };
+
+        return E;
+    }
+
+    /**
+     * Creates a bullet with a velocity of 10 at the specified location.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletFast(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.BODY.setOrigin(8, 8);
+        COLLIDER.BODY.setRotation(rot);
+
+        Mapper.MOVEMENT.get(E).moveSpeed = 10;
+
+        return E;
+    }
+
+    /**
+     * Creates a bullet with a velocity of 6 at the specified location. Becomes more transparent over time.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletFade(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+
+        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.BODY.setOrigin(8, 8);
+        COLLIDER.BODY.setRotation(rot);
+
+        // Initialize BulletComponent
+        Mapper.BULLET.get(E).handler  = (float dt) -> {
+            SpriteComponent sprite = Mapper.SPRITE.get(E);
+            sprite.SPRITES.get(0).setColor(
+                    sprite.SPRITES.get(0).getColor().r,
+                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().g - dt, 0, 1),
+                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().b - dt, 0, 1),
+                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().a - dt / 20f, 0, 1)
+            );
+        };
+
+        return E;
     }
 
     /**
@@ -381,16 +513,16 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createEnemyBall(float x, float y, float dir) {
-        final Entity E = pooledEngine.createEntity();
-        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
-        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
-        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
-        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
-        final BulletComponent BULLET = pooledEngine.createComponent(BulletComponent.class);
+        final Entity E = createEnemyDamagable(x, y, dir);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        final BulletComponent BULLET = Mapper.BULLET.get(E);
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("energy_ball");
-        main.setColor(Color.PURPLE);
+        main.setColor(191 / 255f, 106 / 255f, 221 / 255f, 1);
         main.setSize(16, 16);
         main.setOriginCenter();
         SPRITE.SPRITES.add(main);
@@ -403,42 +535,18 @@ public class EntityFactory {
 
         // Initialize MovementComponent
         MOVEMENT.moveSpeed = 3;
-        MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
-        MOVEMENT.MOVEMENT_NORMAL.setAngle(dir);
 
         // Initialize ColliderComponent
-        COLLIDER.handler = new CollisionHandler() {
-            @Override
-            public void enterCollision(Entity entity) {
-                if (Mapper.PLAYER.has(entity)) {
-                    HealthComponent health = Mapper.HEALTH.get(entity);
-
-                    health.health -= BULLET.damage;
-                    pooledEngine.removeEntity(E);
-                }
-            }
-
-            @Override
-            public void whileCollision(Entity entity) {
-
-            }
-
-            @Override
-            public void exitCollision(Entity entity) {
-
-            }
-        };
         COLLIDER.BODY.setVertices(new float[]{
                 0,0,
-                TRANSFORM.SIZE.width / 2f,0,
-                TRANSFORM.SIZE.width / 2f,TRANSFORM.SIZE.height / 2f,
-                0,TRANSFORM.SIZE.height / 2f
+                TRANSFORM.SIZE.width / 1.41421356f,0,
+                TRANSFORM.SIZE.width / 1.41421356f,TRANSFORM.SIZE.height / 1.41421356f,
+                0,TRANSFORM.SIZE.height / 1.41421356f
         });
-        COLLIDER.BODY.setOrigin(TRANSFORM.SIZE.width / 4f, TRANSFORM.SIZE.height / 4f);
+        COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
         COLLIDER.BODY.setRotation(dir);
-        COLLIDER.solid = false;
 
-        return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
+        return E;
     }
 
     /**
@@ -749,12 +857,19 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(SPAWNER).add(SPRITE);
     }
 
+    /**
+     * Creates a boss entity complete with AI, displayable GUI, and other things.
+     *
+     * @param x the x-coordinate to spawn the enemy at
+     * @param y the y-coordinate to spawn the enemy at
+     * @return the boss {@code Entity} with all the necessary components needed to be a boss
+     */
     public static Entity createBossShip(float x, float y) {
         final Entity E = new Entity();
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
-        final HealthComponent HEALTH = new HealthComponent(5000, .2f);
+        final HealthComponent HEALTH = new HealthComponent(50000, .2f);
         final ColliderComponent COLLIDER = new ColliderComponent();
         final AIComponent AI = new AIComponent();
         final GUIComponent GUI = new GUIComponent();
@@ -812,21 +927,35 @@ public class EntityFactory {
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
 
-        final VisTable TABLE = new VisTable();
+        final VisImage
+                CONTAINER = new VisImage(uiAtlas.createPatch("bar_container")),
+                FILL = new VisImage(uiAtlas.createPatch("bar_fill"));
 
-        final VisLabel HEALTH_LBL = new VisLabel("100 / 100"); //BlaceholBer  Boyo
+        final VisTable TABLE = new VisTable();
+        final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
+        final VisLabel HEALTH_LBL = new VisLabel("BOSS");
+
+        CONTAINER.setFillParent(true);
+        FILL.setColor(Color.PURPLE);
+        HEALTH_LBL.setAlignment(Align.center);
+
         TABLE.addAction(new Action() {
             @Override
             public boolean act(float delta) {
-                HEALTH_LBL.setText("BOSS: " + HEALTH.getHealthPercent() * 100 + "%");
+                FILL.setPosition(4, 4);
+                FILL.setSize((CONTAINER.getWidth() - 9) * HEALTH.getHealthPercent(), CONTAINER.getHeight() - 9);
                 return false;
             }
         });
-        TABLE.top().pad(10).setFillParent(true);
-        TABLE.add(HEALTH_LBL).center().fill();
-        //TABLE.debug();
+
+        TABLE.top().pad(20).setFillParent(true);
+        TABLE.add(HEALTH_LBL).expandX().fillX().row();
+        TABLE.add(HEALTH_BAR).size(300, 20);
+        TABLE.debug();
 
         GUI.canvas.addActor(TABLE);
+
+        //HEALTH.health = 10000;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI).add(GUI);
     }
