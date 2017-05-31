@@ -16,7 +16,7 @@ public class LifetimeSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
-        LifetimeComponent particle = Mapper.PARTICLE.get(entity);
+        LifetimeComponent particle = Mapper.LIFETIME.get(entity);
 
         particle.timer -= deltaTime;
 

@@ -3,6 +3,7 @@ package com.coffee.entity.components;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Pool;
+import com.coffee.util.BulletHandler;
 
 /**
  * {@link Component} to keep track of how much damage an {@link Entity}
@@ -11,12 +12,12 @@ import com.badlogic.gdx.utils.Pool;
  * @author Jared Tulayan
  */
 public class BulletComponent implements Component, Pool.Poolable {
-    public Entity owner;
+    public BulletHandler handler;
     public double damage = 10;
 
     @Override
     public void reset() {
-        owner = null;
+        handler = null;
         damage = 10;
     }
 }

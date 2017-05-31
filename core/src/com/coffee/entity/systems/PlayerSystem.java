@@ -47,7 +47,7 @@ public class PlayerSystem extends IteratingSystem {
             player.up = 0;
         if (player.left == 1 && transform.POSITION.x + move.moveSpeed * deltaTime < 0)
             player.left = 0;
-        if (player.down == 1 && transform.POSITION.y - move.moveSpeed * deltaTime < 0)
+        if (player.down == 1 && transform.POSITION.y - move.moveSpeed * deltaTime < 64)
             player.down = 0;
         if (player.right == 1 && transform.POSITION.x + move.moveSpeed * deltaTime > GAME_SIZE.width - transform.SIZE.width)
             player.right = 0;

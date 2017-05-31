@@ -53,7 +53,7 @@ public class AISystem extends IteratingSystem {
 
                 if (AI.fireTimer >= 0.1f) {
                     for (int i = 0; i < 6; i++) {
-                        float deg = AI.actionTimer * 25 + i * 60;
+                        float deg = AI.actionTimer * 7 + i * 60;
                         float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                         float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
@@ -63,16 +63,16 @@ public class AISystem extends IteratingSystem {
                     AI.fireTimer = 0;
                     AI.actionTimer++;
 
-                    if (AI.actionTimer == 30) {
+                    if (AI.actionTimer == 200) {
                         AI.actionTimer = 3;
                         AI.state = 0;
                     }
                 }
                 break;
-            case 2: // Attack style 2.1
+            case 2: // Attack style 2
                 AI.fireTimer += deltaTime;
 
-                if (AI.fireTimer >= 0.3) {
+                if (AI.fireTimer >= 0.15) {
                     if (AI.actionTimer % 2 == 0)
                         for (int i = 0; i < 17; i++) {
                             float deg = 190 + i * 10;
@@ -93,13 +93,16 @@ public class AISystem extends IteratingSystem {
                     AI.fireTimer = 0;
                     AI.actionTimer++;
 
-                    if (AI.actionTimer == 10) {
+                    if (AI.actionTimer == 20) {
                         AI.actionTimer = 1;
-                        AI.state = 0;
+                        if (MathUtils.randomBoolean(0.1f))
+                            AI.state = 1;
+                        else
+                            AI.state = 0;
                     }
                 }
                 break;
-            case 3: // don't use
+            case 3: // TODO create this state
                 break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
