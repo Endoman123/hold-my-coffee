@@ -81,7 +81,7 @@ public class AISystem extends IteratingSystem {
                             float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                             float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                            getEngine().addEntity(EntityFactory.createEnemyBulletSlows(xPlace, yPlace, deg));
                         }
                     else
                         for (int i = 0; i < 16; i++) {
@@ -89,7 +89,7 @@ public class AISystem extends IteratingSystem {
                             float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                             float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                            getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                            getEngine().addEntity(EntityFactory.createEnemyBulletSlows(xPlace, yPlace, deg));
                         }
 
                     AI.fireTimer = 0;
@@ -117,7 +117,7 @@ public class AISystem extends IteratingSystem {
                     AI.fireTimer = 0;
                     AI.actionTimer++;
 
-                    if (AI.actionTimer == 60) {
+                    if (AI.actionTimer == 55) {
                         AI.actionTimer = 1;
                         AI.state = 0;
                     }
@@ -146,6 +146,54 @@ public class AISystem extends IteratingSystem {
                 }
 
                 break;
+            case 5: // varying bullet amount cone
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.5f) {
+                    int numBulletsShot = MathUtils.random(3, 20);
+                    for (int i = 0; i < numBulletsShot; i++) {
+                        float deg = 190 + i * (160 / numBulletsShot);
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 30) {
+                        AI.actionTimer = 3;
+                        AI.state = 0;
+                    }
+                }
+
+                break;
+            case 6: // Bullet Laser
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.001f) {
+                    //float deg = 257.5f + MathUtils.random(25);
+                    float posVal;
+                        posVal = (TRANSFORM.POSITION.cpy().x - AI.BEGIN_POS.cpy().x + 10) % 20;
+
+                    float deg = 260 + posVal;
+
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    getEngine().addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, deg));
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 250) {
+                        AI.actionTimer = 1;
+                        AI.state = 0;
+                    }
+                }
+
+                break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
                 float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
@@ -157,7 +205,7 @@ public class AISystem extends IteratingSystem {
 
                 if (AI.lerpTimer == 1) {
                     if (HEALTH.getHealthPercent() >= 0.75) {
-                        AI.state = 1;
+                        AI.state = 6;
                         AI.lerpSpeed = 1.6f;
                     } else if (HEALTH.getHealthPercent() >= 0.50) {
                         AI.state = 3;
