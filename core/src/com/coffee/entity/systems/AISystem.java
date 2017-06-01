@@ -64,7 +64,10 @@ public class AISystem extends IteratingSystem {
 
                     if (AI.actionTimer == 200) {
                         AI.actionTimer = 3;
-                        AI.state = 0;
+                        if (MathUtils.randomBoolean(0.1f))
+                            AI.state = 3;
+                        else
+                            AI.state = 0;
                     }
                 }
                 break;
@@ -95,7 +98,7 @@ public class AISystem extends IteratingSystem {
                     if (AI.actionTimer == 20) {
                         AI.actionTimer = 1;
                         if (MathUtils.randomBoolean(0.1f))
-                            AI.state = 1;
+                            AI.state = 4;
                         else
                             AI.state = 0;
                     }
@@ -153,15 +156,15 @@ public class AISystem extends IteratingSystem {
                 );
 
                 if (AI.lerpTimer == 1) {
-                    if (HEALTH.getHealthPercent() >= 0.66) {
+                    if (HEALTH.getHealthPercent() >= 0.75) {
                         AI.state = 1;
                         AI.lerpSpeed = 1.6f;
-                    } else  if (HEALTH.getHealthPercent() >= 0.43) {
+                    } else if (HEALTH.getHealthPercent() >= 0.50) {
                         AI.state = 3;
                         AI.lerpSpeed = 4f;
-                    } else if (HEALTH.getHealthPercent() >= 0.23) {
-                            AI.state = 4;
-                            AI.lerpSpeed = 1f;
+                    } else if (HEALTH.getHealthPercent() >= 0.25) {
+                        AI.state = 4;
+                        AI.lerpSpeed = 1f;
                     } else {
                         AI.state = 2;
                         AI.lerpSpeed = 2.6f;

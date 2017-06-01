@@ -8,7 +8,6 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -16,7 +15,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
@@ -28,9 +27,6 @@ import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
 import com.coffee.util.Mapper;
 import com.kotcrab.vis.ui.util.ColorUtils;
-import com.kotcrab.vis.ui.widget.VisImage;
-import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisTable;
 
 /**
  * Builder class that automates the creation of entities and
@@ -202,20 +198,22 @@ public class EntityFactory {
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
 
-        final VisTable TABLE = new VisTable();
-        final Array<VisImage>
-                FIRE_RATE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()}),
-                BULLET_DAMAGE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()});
-        final VisLabel
-                FIRE_RATE_ID = new VisLabel("Fire Rate:"),
-                BULLET_DAMAGE_ID = new VisLabel("Damage:");
-        final VisImage
-                CONTAINER = new VisImage(uiAtlas.createPatch("bar_container")),
-                FILL = new VisImage(uiAtlas.createPatch("bar_fill"));
-        final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
-        final NinePatch BACK = uiAtlas.createPatch("hud_back");
+        final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
 
-        BACK.setColor(Color.DARK_GRAY);
+        final Table TABLE = new Table();
+        final Array<Image>
+                FIRE_RATE_BOOSTS = new Array<Image>(new Image[] {new Image(), new Image(), new Image(), new Image(), new Image()}),
+                BULLET_DAMAGE_BOOSTS = new Array<Image>(new Image[] {new Image(), new Image(), new Image(), new Image(), new Image()});
+        final Label
+                FIRE_RATE_ID = new Label("Fire Rate:", SKIN),
+                BULLET_DAMAGE_ID = new Label("Damage:", SKIN);
+        final Image
+                CONTAINER = new Image(SKIN.getDrawable("bar_container")),
+                FILL = new Image(SKIN.getDrawable("bar_fill"));
+        final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
+        final NinePatchDrawable BACK = (NinePatchDrawable) SKIN.getDrawable("hud_back");
+
+        BACK.getPatch().setColor(Color.DARK_GRAY);
         FILL.setColor(Color.GREEN);
 
         TABLE.addAction(new Action() {
@@ -232,7 +230,8 @@ public class EntityFactory {
             }
         });
 
-        TABLE.setBackground(new NinePatchDrawable(BACK));
+        TABLE.setSkin(SKIN);
+        TABLE.setBackground(BACK);
         TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
         TABLE.add(HEALTH_BAR).expand().top().left().size(150, 24);
         /*TABLE.add(HEALTH_LBL).left().padBottom(GUI.canvas.getWidth() / 40).row();
@@ -929,13 +928,15 @@ public class EntityFactory {
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
 
-        final VisImage
-                CONTAINER = new VisImage(uiAtlas.createPatch("bar_container")),
-                FILL = new VisImage(uiAtlas.createPatch("bar_fill"));
+        final Image
+                CONTAINER = new Image(uiAtlas.createPatch("bar_container")),
+                FILL = new Image(uiAtlas.createPatch("bar_fill"));
 
-        final VisTable TABLE = new VisTable();
+        final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
+
+        final Table TABLE = new Table();
         final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
-        final VisLabel HEALTH_LBL = new VisLabel("BOSS");
+        final Label HEALTH_LBL = new Label("BOSS", SKIN);
 
         CONTAINER.setFillParent(true);
         FILL.setColor(Color.PURPLE);
@@ -950,6 +951,7 @@ public class EntityFactory {
             }
         });
 
+        TABLE.setSkin(SKIN);
         TABLE.top().pad(20).setFillParent(true);
         TABLE.add(HEALTH_LBL).expandX().fillX().row();
         TABLE.add(HEALTH_BAR).size(300, 20);
