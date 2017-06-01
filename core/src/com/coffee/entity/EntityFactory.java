@@ -400,6 +400,105 @@ public class EntityFactory {
         COLLIDER.BODY.setRotation(rot);
 
         // Initialize BulletComponent
+        BULLET.handler = (float dt) -> {};
+
+        return E;
+    }
+
+    /**
+     * Creates a bullet with a velocity of 10 at the specified location. Does only 2 damage.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createWeakFastEnemyBullet(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 10;
+
+        // Initialize BulletComponent
+        BULLET.damage = 2;
+
+        // Set up collider
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.BODY.setOrigin(8, 8);
+        COLLIDER.BODY.setRotation(rot);
+
+        // Initialize BulletComponent
+        BULLET.handler = (float dt) -> {};
+
+        return E;
+    }
+
+    /**
+     * Creates a bullet with a velocity of 8 at the specified location, that slows over time
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletSlows(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 7;
+
+        // Set up collider
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.BODY.setOrigin(8, 8);
+        COLLIDER.BODY.setRotation(rot);
+
+        // Initialize BulletComponent
         BULLET.handler = (float dt) -> {
             if (MOVEMENT.moveSpeed != 2) {
                 if (MOVEMENT.moveSpeed > 2)
@@ -501,6 +600,57 @@ public class EntityFactory {
                     MathUtils.clamp(sprite.SPRITES.get(0).getColor().b - dt, 0, 1),
                     MathUtils.clamp(sprite.SPRITES.get(0).getColor().a - dt / 20f, 0, 1)
             );
+        };
+
+        return E;
+    }
+
+    /**
+     * Creates a bullet with a velocity of 1 at the specified location. Spins and gets faster.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletSpin(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(x, y, rot);
+
+        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("bullet_large");
+        main.setSize(24, 24);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 1;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                16,0,
+                16,16,
+                0,16
+        });
+        COLLIDER.BODY.setOrigin(8, 8);
+        COLLIDER.BODY.setRotation(rot);
+
+        // Initialize BulletComponent
+        Mapper.BULLET.get(E).handler  = (float dt) -> {
+            Mapper.MOVEMENT.get(E).rotSpeed += dt;
+            Mapper.MOVEMENT.get(E).moveSpeed += dt;
         };
 
         return E;
@@ -956,6 +1106,8 @@ public class EntityFactory {
         TABLE.debug();
 
         GUI.canvas.addActor(TABLE);
+
+        //HEALTH.health = (int) (HEALTH.MAX_HEALTH * .30);
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI).add(GUI);
     }
