@@ -1,6 +1,7 @@
 package com.coffee.entity;
 
 import com.badlogic.ashley.core.*;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -655,10 +656,11 @@ public class EntityFactory {
         SpriteComponent SPRITE = Mapper.SPRITE.get(E);
         ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
         MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        BulletComponent BULLET = Mapper.BULLET.get(E);
 
         // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("bullet_large");
-        //main.setColor(Color.BLUE);
+        Sprite main = goAtlas.createSprite("energy_ball");
+        main.setColor(122 / 255f, 1, 104 / 255f, 1);
         main.setSize(24, 24);
         main.setOriginCenter();
         SPRITE.SPRITES.add(main);
@@ -684,47 +686,45 @@ public class EntityFactory {
         COLLIDER.BODY.setRotation(rot);
 
         // Initialize BulletComponent
-        Mapper.BULLET.get(E).damage = 5;
+        BULLET.damage = 5;
+
         /*
         Slows down when bullet's speed is between 0 (exclusive) and 4.
         Slowly turns towards player when speed is 0.
         When it faces player, it changes speed to 6, and changes to red.
          */
-        Mapper.BULLET.get(E).handler  = (float dt) -> {
-            if (MOVEMENT.moveSpeed > 0 && MOVEMENT.moveSpeed <= 4) // slow down slowly
-                MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt * 4, 0, 999);
-            else if (MOVEMENT.moveSpeed == 0) { //turn towards
-                float targetDirection = 0;
-                float currentDirection = 0;
+        BULLET.handler  = (float dt) -> {
+            if (MOVEMENT.moveSpeed > 0 && MOVEMENT.moveSpeed <= 4) { // slow down slowly
+                MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt * 4, 0, MOVEMENT.moveSpeed);
+                if (MOVEMENT.moveSpeed == 0)
+                    BULLET.timer = 1;
+            } else if (MOVEMENT.moveSpeed == 0) { // Move towards player
+                if (BULLET.timer > 0) {
+                    BULLET.timer -= dt;
+                    if (BULLET.timer <= 0)
+                        BULLET.timer = -1;
+                } else if (BULLET.timer == -1) {
+                    final ImmutableArray<Entity> PLAYERS = pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get());
+                    final Vector2
+                            LOC = new Vector2(TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN)),
+                            TARGET = new Vector2();
 
-                if (pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).size() != 0) { //there is a player
-                    final Entity PLAYER = pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).first();
+                    if (PLAYERS.size() > 0 && Mapper.TRANSFORM.has(PLAYERS.first())) { // If there is a player to target
+                        final TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
+                        TARGET.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
+                    }
 
-                    final Vector2 PLAYER_POS = Mapper.TRANSFORM.get(PLAYER).POSITION.cpy();
-                    PLAYER_POS.add(Mapper.TRANSFORM.get(PLAYER).ORIGIN.cpy());
+                    float theta = MathUtils.atan2(TARGET.y - LOC.y, TARGET.x - LOC.x);
 
-                    targetDirection = (float) Math.toDegrees(Math.atan2(
-                            (PLAYER_POS.y) - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y),
-                            (PLAYER_POS.x) - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x)));
-                    targetDirection = (targetDirection + 360) % 360; //remove negative angle
-                } else { //no player / player dead
-                    targetDirection = 0;
+                    MOVEMENT.moveSpeed = 6;
+                    MOVEMENT.MOVEMENT_NORMAL.setAngleRad(theta);
                 }
-                currentDirection = MOVEMENT.MOVEMENT_NORMAL.angle();
-
-                if ((currentDirection > targetDirection - 3) && (currentDirection < targetDirection + 3)) { //move towards player
-                   MOVEMENT.moveSpeed = 6;
-                } else { //rotate gradually
-                    MOVEMENT.MOVEMENT_NORMAL.setAngle(MathUtils.lerp(currentDirection, targetDirection, dt * 10));
-                    TRANSFORM.rotation = MathUtils.lerp(currentDirection, targetDirection, dt * 10);
-                }
-            } else { //head at player while lerping color
-                SpriteComponent sprite = Mapper.SPRITE.get(E);
-                sprite.SPRITES.get(0).setColor(
-                        sprite.SPRITES.get(0).getColor().r,
-                        MathUtils.clamp(sprite.SPRITES.get(0).getColor().g - dt * 2, 0, 1),
-                        MathUtils.clamp(sprite.SPRITES.get(0).getColor().b - dt * 2, 0, 1),
-                        MathUtils.clamp(sprite.SPRITES.get(0).getColor().a - dt, 0, 1)
+            } else if (MOVEMENT.moveSpeed == 6) {
+                SPRITE.SPRITES.get(0).setColor(
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r + dt, 0, 1),
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt, 0, 1),
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt, 0, 1),
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().a - dt * 0.5f, 0, 1)
                 );
             }
         };

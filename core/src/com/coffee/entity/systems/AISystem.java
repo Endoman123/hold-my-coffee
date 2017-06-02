@@ -96,11 +96,13 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer++;
 
                     if (AI.actionTimer == 20) {
-                        AI.actionTimer = 1;
-                        if (MathUtils.randomBoolean(0.1f))
+                        if (MathUtils.randomBoolean(0.1f)) {
+                            AI.actionTimer = 0;
                             AI.state = 4;
-                        else
+                        } else {
+                            AI.actionTimer = 1;
                             AI.state = 0;
+                        }
                     }
                 }
                 break;
@@ -199,7 +201,7 @@ public class AISystem extends IteratingSystem {
 
                 if (AI.fireTimer >= 0.1f) {
                     for (int i = 0; i < 6; i++) {
-                        float deg = AI.actionTimer * 7 + i * 60;
+                        float deg = 220 + i * 20;
                         float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                         float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
@@ -209,12 +211,11 @@ public class AISystem extends IteratingSystem {
                     AI.fireTimer = 0;
                     AI.actionTimer++;
 
-                    if (AI.actionTimer == 15) {
+                    if (AI.actionTimer == 1) {
                         AI.actionTimer = 3;
                         AI.state = 0;
                     }
                 }
-
                 break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
@@ -227,17 +228,17 @@ public class AISystem extends IteratingSystem {
 
                 if (AI.lerpTimer == 1) {
                     if (HEALTH.getHealthPercent() >= 0.75) {
-                        AI.state = 7;
+                        AI.state = 5;
                         AI.lerpSpeed = 1.6f;
                     } else if (HEALTH.getHealthPercent() >= 0.50) {
                         AI.state = 3;
-                        AI.lerpSpeed = 4f;
+                        AI.lerpSpeed = 2.4f;
                     } else if (HEALTH.getHealthPercent() >= 0.25) {
                         AI.state = 4;
-                        AI.lerpSpeed = 1f;
+                        AI.lerpSpeed = 3.2f;
                     } else {
                         AI.state = 2;
-                        AI.lerpSpeed = 2.6f;
+                        AI.lerpSpeed = 4f;
                     }
                 }
         }
