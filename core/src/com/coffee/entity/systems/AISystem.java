@@ -47,7 +47,7 @@ public class AISystem extends IteratingSystem {
                 } else
                     AI.actionTimer -= deltaTime;
                 break;
-            case 1: // Attack style 1: Spiral death thing
+            case 1: // Simple spiral
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.1f) {
@@ -71,7 +71,7 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 2: // Attack style 2: Cone
+            case 2: // Cone
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.15) {
@@ -104,7 +104,7 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 3: // spray in front attack
+            case 3: // Random Spray
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.01f) {
@@ -124,7 +124,7 @@ public class AISystem extends IteratingSystem {
                 }
 
                 break;
-            case 4: // transparent attack
+            case 4: // Spiral thing part 2
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.1f) {
@@ -146,7 +146,7 @@ public class AISystem extends IteratingSystem {
                 }
 
                 break;
-            case 5: // varying bullet amount cone
+            case 5: // Other cone
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.5f) {
@@ -169,7 +169,7 @@ public class AISystem extends IteratingSystem {
                 }
 
                 break;
-            case 6: // Bullet Laser
+            case 6: // Laser
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.001f) {

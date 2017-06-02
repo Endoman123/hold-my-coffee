@@ -62,8 +62,9 @@ public class MainMenu extends ScreenAdapter {
         GUI.canvas.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (((Button) actor).isChecked()) {
+                if (((Button) actor).isPressed()) {
                     if (actor == START) {
+                        System.out.println("GO!");
                         APP.setScreen(new AITest());
                         APP.getScreen().dispose();
                     }
