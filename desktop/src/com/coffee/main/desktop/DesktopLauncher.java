@@ -8,7 +8,7 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
-		config.vSyncEnabled = false;
+		// config.vSyncEnabled = false;
 
 		new LwjglApplication(new Application(), config);
 	}

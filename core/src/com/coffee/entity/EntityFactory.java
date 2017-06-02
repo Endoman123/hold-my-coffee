@@ -85,13 +85,13 @@ public class EntityFactory {
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
         final PlayerComponent PLAYER = new PlayerComponent();
-        final HealthComponent HEALTH = new HealthComponent(100, .2f);
+        final HealthComponent HEALTH = new HealthComponent();
         final ColliderComponent COLLIDER = new ColliderComponent();
         final GUIComponent GUI = new GUIComponent();
         final InputComponent INPUT;
 
         // Initialize MovmementComponent
-        MOVEMENT.moveSpeed = 4;
+        MOVEMENT.moveSpeed = 5;
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("player");
@@ -200,21 +200,44 @@ public class EntityFactory {
 
         final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
 
-        final Table TABLE = new Table();
+        final Table
+            TABLE = new Table(),
+            HEALTH_STATS = new Table();
+
         final Array<Image>
-                FIRE_RATE_BOOSTS = new Array<Image>(new Image[] {new Image(), new Image(), new Image(), new Image(), new Image()}),
-                BULLET_DAMAGE_BOOSTS = new Array<Image>(new Image[] {new Image(), new Image(), new Image(), new Image(), new Image()});
+                FIRE_RATE_BOOSTS = new Array<Image>(new Image[] {
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image()
+                }),
+                BULLET_DAMAGE_BOOSTS = new Array<Image>(new Image[] {
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image(),
+                    new Image()
+                });
+
         final Label
                 FIRE_RATE_ID = new Label("Fire Rate:", SKIN),
-                BULLET_DAMAGE_ID = new Label("Damage:", SKIN);
+                BULLET_DAMAGE_ID = new Label("Damage:", SKIN),
+                LIFE_COUNTER = new Label("", SKIN);
+
         final Image
                 CONTAINER = new Image(SKIN.getDrawable("bar_container")),
-                FILL = new Image(SKIN.getDrawable("bar_fill"));
-        final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
+                FILL = new Image(SKIN.getDrawable("bar_fill")),
+                LIFE = new Image(goAtlas.findRegion("player"));
+
+        final Stack
+            HEALTH_BAR = new Stack(CONTAINER, FILL);
+
         final NinePatchDrawable BACK = (NinePatchDrawable) SKIN.getDrawable("hud_back");
 
         BACK.getPatch().setColor(Color.DARK_GRAY);
         FILL.setColor(Color.GREEN);
+
 
         TABLE.addAction(new Action() {
             @Override
@@ -225,15 +248,25 @@ public class EntityFactory {
                 for (int i = 0; i < PLAYER.upBulletDamage; i++)
                     BULLET_DAMAGE_BOOSTS.get(i).setDrawable(new TextureRegionDrawable(goAtlas.findRegion("up_arrow")));
 
+                LIFE_COUNTER.setText("= " + PLAYER.lives);
+
                 FILL.setBounds(4, 4, (CONTAINER.getWidth() - 9) * HEALTH.getHealthPercent(), CONTAINER.getHeight() - 9);
                 return false;
             }
         });
 
+        HEALTH_STATS.add(HEALTH_BAR).expand().top().left().fillX().height(24).colspan(8).padBottom(5).row();
+        HEALTH_STATS.add(LIFE).size(20).colspan(1);
+        HEALTH_STATS.add(LIFE_COUNTER).colspan(7).align(Align.left);
+
         TABLE.setSkin(SKIN);
         TABLE.setBackground(BACK);
         TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
-        TABLE.add(HEALTH_BAR).expand().top().left().size(150, 24);
+        TABLE.add(HEALTH_STATS).expand().align(Align.left).width(160);
+
+/*        TABLE.add(LIFE).size(16, 16).align(Align.left).colspan(1);
+        TABLE.add(LIFE_COUNTER).height(16).align(Align.left).colspan(2);*/
+
         /*TABLE.add(HEALTH_LBL).left().padBottom(GUI.canvas.getWidth() / 40).row();
         TABLE.add(FIRE_RATE_ID).padRight(GUI.canvas.getWidth() / 40);
         for (VisImage i : FIRE_RATE_BOOSTS)
@@ -242,7 +275,7 @@ public class EntityFactory {
         TABLE.add(BULLET_DAMAGE_ID).padRight(GUI.canvas.getWidth() / 40);
         for (VisImage i : BULLET_DAMAGE_BOOSTS)
             TABLE.add(i);*/
-        TABLE.debug();
+        //TABLE.setDebug(true, true);
 
         GUI.canvas.addActor(TABLE);
 
@@ -289,8 +322,10 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.AI.has(entity)) {
                     HealthComponent health = Mapper.HEALTH.get(entity);
-                    health.health -= BULLET.damage;
-                    pooledEngine.removeEntity(E);
+                    if (health.invincibilityTimer <= 0) {
+                        health.health -= BULLET.damage;
+                        pooledEngine.removeEntity(E);
+                    }
                 }
             }
 
@@ -336,8 +371,10 @@ public class EntityFactory {
                 if (Mapper.PLAYER.has(entity)) {
                     HealthComponent health = Mapper.HEALTH.get(entity);
 
-                    health.health -= BULLET.damage;
-                    pooledEngine.removeEntity(E);
+                    if (health.invincibilityTimer <= 0) {
+                        health.health -= BULLET.damage;
+                        pooledEngine.removeEntity(E);
+                    }
                 }
             }
 
@@ -725,24 +762,21 @@ public class EntityFactory {
             // Spawn at the top of the screen. Make sure that it isn't out of the reach of the player.
             float spawnX = MathUtils.random(REF.getWidth(), viewport.getWorldWidth() - REF.getWidth() * 2);
             float spawnY = viewport.getWorldHeight() + 32;
-            int randomPowerUpSpawned = (int) ((Math.random() * 3));
 
-            switch (randomPowerUpSpawned) {
-                case 0: //health power up
-                    spawnedEntities.add(createDamagePowerUp(spawnX, spawnY, ENGINE));
-                    break;
-                case 1: //speed power up
-                    spawnedEntities.add(createSpeedPowerUp(spawnX, spawnY, ENGINE));
-                    break;
-                case 2: //create fire rate up
-                    spawnedEntities.add(createFireRatePowerUp(spawnX, spawnY, ENGINE));
-                    break;
-            }
+            if (MathUtils.randomBoolean(0.5f))
+                spawnedEntities.add(createDamagePowerUp(spawnX, spawnY, ENGINE));
+            else if (MathUtils.randomBoolean(0.5f))
+                spawnedEntities.add(createSpeedPowerUp(spawnX, spawnY, ENGINE));
+            else
+                spawnedEntities.add(createFireRatePowerUp(spawnX, spawnY, ENGINE));
 
             return spawnedEntities;
         });
-        SPAWNER.spawnRateMin = 2;
-        SPAWNER.spawnRateMax = 4;
+
+        SPAWNER.spawnRateMin = 20;
+        SPAWNER.spawnRateMax = 40;
+
+        SPAWNER.timer = MathUtils.random(SPAWNER.spawnRateMin, SPAWNER.spawnRateMax);
 
         return E.add(TRANSFORM).add(SPAWNER);
     }
@@ -816,7 +850,7 @@ public class EntityFactory {
         COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-                if (Mapper.PLAYER.has(entity)) {
+                if (Mapper.PLAYER.has(entity) && Mapper.HEALTH.get(entity).getHealthPercent() > 0) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
                     if (player.upBulletDamage < 4) {
                         player.upBulletDamage++;
@@ -854,7 +888,7 @@ public class EntityFactory {
         COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-                if (Mapper.PLAYER.has(entity)) {
+                if (Mapper.PLAYER.has(entity) && Mapper.HEALTH.get(entity).getHealthPercent() > 0) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
                     if (player.upFireRate < 4) {
                         player.upFireRate++;
@@ -892,11 +926,13 @@ public class EntityFactory {
         COLLIDER.handler = new CollisionHandler() {
             @Override
             public void enterCollision(Entity entity) {
-                if (Mapper.PLAYER.has(entity)) {
-                    MovementComponent move = Mapper.MOVEMENT.get(entity);
-                    // move.moveSpeed = MathUtils.clamp(move.moveSpeed + .5, 0, 7.5);
-                    System.out.println("Speed Up : " + move.moveSpeed);
-                    ENGINE.removeEntity(E);
+                if (Mapper.PLAYER.has(entity) && Mapper.HEALTH.get(entity).getHealthPercent() > 0) {
+                    PlayerComponent player = Mapper.PLAYER.get(entity);
+
+                    if (player.upSpeed < 4) {
+                        player.upSpeed++;
+                        ENGINE.removeEntity(E);
+                    }
                 }
             }
 
@@ -1002,8 +1038,8 @@ public class EntityFactory {
             return entities;
         });
 
-        SPAWNER.spawnRateMin = 0.02;
-        SPAWNER.spawnRateMax = 0.05;
+        SPAWNER.spawnRateMin = 0.02f;
+        SPAWNER.spawnRateMax = 0.05f;
 
         return E.add(TRANSFORM).add(SPAWNER).add(SPRITE);
     }
@@ -1020,7 +1056,7 @@ public class EntityFactory {
         final TransformComponent TRANSFORM = new TransformComponent();
         final MovementComponent MOVEMENT = new MovementComponent();
         final SpriteComponent SPRITE = new SpriteComponent();
-        final HealthComponent HEALTH = new HealthComponent(10000, .2f);
+        final HealthComponent HEALTH = new HealthComponent();
         final ColliderComponent COLLIDER = new ColliderComponent();
         final AIComponent AI = new AIComponent();
         final GUIComponent GUI = new GUIComponent();
@@ -1075,6 +1111,9 @@ public class EntityFactory {
         AI.lerpSpeed = 1.6f;
         AI.state = -1;
 
+        // Initialize HealthComponent
+        HEALTH.health = HEALTH.maxHealth = 10000;
+
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
 
@@ -1086,7 +1125,7 @@ public class EntityFactory {
 
         final Table TABLE = new Table();
         final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
-        final Label HEALTH_LBL = new Label("BOSS", SKIN);
+        final Label HEALTH_LBL = new Label("BOSS", SKIN, "title");
 
         CONTAINER.setFillParent(true);
         FILL.setColor(Color.PURPLE);
@@ -1105,11 +1144,11 @@ public class EntityFactory {
         TABLE.top().pad(20).setFillParent(true);
         TABLE.add(HEALTH_LBL).expandX().fillX().row();
         TABLE.add(HEALTH_BAR).size(300, 20);
-        TABLE.debug();
+        // TABLE.debug();
 
         GUI.canvas.addActor(TABLE);
 
-        //HEALTH.health = (int) (HEALTH.MAX_HEALTH * .30);
+        //HEALTH.health = (int) (HEALTH.maxHealth * .30);
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI).add(GUI);
     }

@@ -4,8 +4,8 @@ com.badlogic.gdx.graphics.Color: {
 	light_grey: { r: 0.8, g: 0.8, b: 0.8, a: 1 },
 	white: { r: 1, g: 1, b: 1, a: 1 },
 	red: { r: 1, a: 1 },
-	grey: { r: 0.7, g: 0.7, b: 0.7, a: 1 },
-	black: { a: 1 }
+	black: { a: 1 },
+	grey: { r: 0.7, g: 0.7, b: 0.7, a: 1 }
 },
 com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	font_consolab_16pt: { file: font_consolab_16pt.fnt },
@@ -75,21 +75,13 @@ com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	}
 },
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
-	optional: {
-		font: font_f_ffforwa_14pt,
-		fontColor: { a: 1, b: 0.7, g: 0.7, r: 0.7 }
-	},
 	default: {
-		font: font_f_ffforwa_14pt,
+		font: font_consolab_16pt,
 		fontColor: { a: 1, b: 1, g: 1, r: 1 }
-	},
-	error: {
-		font: font_f_ffforwa_14pt,
-		fontColor: { a: 1, r: 1 }
 	},
 	title: {
 		font: font_f_ffforwa_14pt,
-		fontColor: { a: 1, b: 0.8, g: 0.8, r: 0.8 }
+		fontColor: { a: 1, b: 1, g: 1, r: 1 }
 	}
 },
 com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
