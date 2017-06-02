@@ -1,14 +1,10 @@
 package com.coffee.entity;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.core.*;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -16,7 +12,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
@@ -28,9 +24,6 @@ import com.coffee.util.Assets;
 import com.coffee.util.CollisionHandler;
 import com.coffee.util.Mapper;
 import com.kotcrab.vis.ui.util.ColorUtils;
-import com.kotcrab.vis.ui.widget.VisImage;
-import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisTable;
 
 /**
  * Builder class that automates the creation of entities and
@@ -202,20 +195,22 @@ public class EntityFactory {
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
 
-        final VisTable TABLE = new VisTable();
-        final Array<VisImage>
-                FIRE_RATE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()}),
-                BULLET_DAMAGE_BOOSTS = new Array<VisImage>(new VisImage[] {new VisImage(), new VisImage(), new VisImage(), new VisImage(), new VisImage()});
-        final VisLabel
-                FIRE_RATE_ID = new VisLabel("Fire Rate:"),
-                BULLET_DAMAGE_ID = new VisLabel("Damage:");
-        final VisImage
-                CONTAINER = new VisImage(uiAtlas.createPatch("bar_container")),
-                FILL = new VisImage(uiAtlas.createPatch("bar_fill"));
-        final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
-        final NinePatch BACK = uiAtlas.createPatch("hud_back");
+        final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
 
-        BACK.setColor(Color.DARK_GRAY);
+        final Table TABLE = new Table();
+        final Array<Image>
+                FIRE_RATE_BOOSTS = new Array<Image>(new Image[] {new Image(), new Image(), new Image(), new Image(), new Image()}),
+                BULLET_DAMAGE_BOOSTS = new Array<Image>(new Image[] {new Image(), new Image(), new Image(), new Image(), new Image()});
+        final Label
+                FIRE_RATE_ID = new Label("Fire Rate:", SKIN),
+                BULLET_DAMAGE_ID = new Label("Damage:", SKIN);
+        final Image
+                CONTAINER = new Image(SKIN.getDrawable("bar_container")),
+                FILL = new Image(SKIN.getDrawable("bar_fill"));
+        final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
+        final NinePatchDrawable BACK = (NinePatchDrawable) SKIN.getDrawable("hud_back");
+
+        BACK.getPatch().setColor(Color.DARK_GRAY);
         FILL.setColor(Color.GREEN);
 
         TABLE.addAction(new Action() {
@@ -232,7 +227,8 @@ public class EntityFactory {
             }
         });
 
-        TABLE.setBackground(new NinePatchDrawable(BACK));
+        TABLE.setSkin(SKIN);
+        TABLE.setBackground(BACK);
         TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
         TABLE.add(HEALTH_BAR).expand().top().left().size(150, 24);
         /*TABLE.add(HEALTH_LBL).left().padBottom(GUI.canvas.getWidth() / 40).row();
@@ -316,6 +312,7 @@ public class EntityFactory {
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
+
 
     public static Entity createEnemyDamagable(float x, float y, float rot) {
         final Entity E = pooledEngine.createEntity();
@@ -606,14 +603,15 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a bullet with a velocity of 1 at the specified location. Spins and gets faster.
+     * Creates a bullet with a velocity of 4 at the specified location. It slows, points at the player
+     * then moves towards them while becoming transparent.
      *
      * @param x      the x-coordinate of the bullet
      * @param y      the y-coordinate of the bullet
      * @param rot    the rotation of the bullet
      * @return an {@code Entity} with all the necessary components for a bullet
      */
-    public static Entity createEnemyBulletSpin(float x, float y, float rot) {
+    public static Entity createHomingEnemyBullet(float x, float y, float rot) {
         final Entity E = createEnemyDamagable(x, y, rot);
 
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
@@ -623,6 +621,7 @@ public class EntityFactory {
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("bullet_large");
+        //main.setColor(Color.BLUE);
         main.setSize(24, 24);
         main.setOriginCenter();
         SPRITE.SPRITES.add(main);
@@ -635,7 +634,7 @@ public class EntityFactory {
         TRANSFORM.rotation = rot;
 
         // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 1;
+        MOVEMENT.moveSpeed = 4;
 
         // Initialize ColliderComponent
         COLLIDER.BODY.setVertices(new float[]{
@@ -648,9 +647,42 @@ public class EntityFactory {
         COLLIDER.BODY.setRotation(rot);
 
         // Initialize BulletComponent
+        /*
+        Slows down when bullet's speed is between 0 (exclusive) and 4.
+        Slowly turns towards player when speed is 0.
+        When it faces player, it changes speed to 6, and changes to red.
+         */
         Mapper.BULLET.get(E).handler  = (float dt) -> {
-            Mapper.MOVEMENT.get(E).rotSpeed += dt;
-            Mapper.MOVEMENT.get(E).moveSpeed += dt;
+            if (MOVEMENT.moveSpeed > 0 && MOVEMENT.moveSpeed <= 4) // slow down slowly
+                MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt * 2, 0, 999);
+            else if (MOVEMENT.moveSpeed == 0) { //turn towards
+                if (pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).size() == 0) return;
+                final Entity PLAYER = pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).first();
+
+                final Vector2 PLAYER_POS = Mapper.TRANSFORM.get(PLAYER).POSITION.cpy();
+                PLAYER_POS.add(Mapper.TRANSFORM.get(PLAYER).ORIGIN.cpy());
+
+                float targetDirection = (float) Math.toDegrees(Math.atan2(
+                        (PLAYER_POS.y) - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y),
+                        (PLAYER_POS.x) - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x)));
+                targetDirection = (targetDirection + 360) % 360; //remove negative angle
+                float currentDirection = MOVEMENT.MOVEMENT_NORMAL.angle();
+
+                if ((currentDirection > targetDirection - 10) && (currentDirection < targetDirection + 10)) { //move towards player
+                   MOVEMENT.moveSpeed = 6;
+                } else { //rotate gradually
+                    MOVEMENT.MOVEMENT_NORMAL.setAngle(MathUtils.lerp(currentDirection, targetDirection, dt * 10));
+                    TRANSFORM.rotation = MathUtils.lerp(currentDirection, targetDirection, dt * 10);
+                }
+            } else { //head at player while lerping color
+                SpriteComponent sprite = Mapper.SPRITE.get(E);
+                sprite.SPRITES.get(0).setColor(
+                        sprite.SPRITES.get(0).getColor().r,
+                        MathUtils.clamp(sprite.SPRITES.get(0).getColor().g - dt * 2, 0, 1),
+                        MathUtils.clamp(sprite.SPRITES.get(0).getColor().b - dt * 2, 0, 1),
+                        MathUtils.clamp(sprite.SPRITES.get(0).getColor().a - dt, 0, 1)
+                );
+            }
         };
 
         return E;
@@ -1079,13 +1111,15 @@ public class EntityFactory {
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
 
-        final VisImage
-                CONTAINER = new VisImage(uiAtlas.createPatch("bar_container")),
-                FILL = new VisImage(uiAtlas.createPatch("bar_fill"));
+        final Image
+                CONTAINER = new Image(uiAtlas.createPatch("bar_container")),
+                FILL = new Image(uiAtlas.createPatch("bar_fill"));
 
-        final VisTable TABLE = new VisTable();
+        final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
+
+        final Table TABLE = new Table();
         final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
-        final VisLabel HEALTH_LBL = new VisLabel("BOSS");
+        final Label HEALTH_LBL = new Label("BOSS", SKIN);
 
         CONTAINER.setFillParent(true);
         FILL.setColor(Color.PURPLE);
@@ -1100,6 +1134,7 @@ public class EntityFactory {
             }
         });
 
+        TABLE.setSkin(SKIN);
         TABLE.top().pad(20).setFillParent(true);
         TABLE.add(HEALTH_LBL).expandX().fillX().row();
         TABLE.add(HEALTH_BAR).size(300, 20);

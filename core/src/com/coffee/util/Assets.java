@@ -3,6 +3,7 @@ package com.coffee.util;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 /**
  * {@link AssetManager} wrapper class that contains some {@link AssetDescriptor}s
@@ -19,21 +20,23 @@ public class Assets {
     static {
         MANAGER = new AssetManager();
 
-        MANAGER.load(GameObjects.ATLAS);
         MANAGER.load(UI.ATLAS);
+        MANAGER.load(UI.SKIN);
+        MANAGER.load(GameObjects.ATLAS);
     }
 
     /**
      * Subclass containing {@link AssetDescriptor}s for game object textures
      */
     public static class GameObjects {
-        public static AssetDescriptor<TextureAtlas> ATLAS = new AssetDescriptor<TextureAtlas>("gameobjects.pack", TextureAtlas.class);
+        public static AssetDescriptor<TextureAtlas> ATLAS = new AssetDescriptor<>("gameobjects.pack", TextureAtlas.class);
     }
 
     /**
      * Subclass containing {@link AssetDescriptor}s for ui textures
      */
     public static class UI {
-        public static AssetDescriptor<TextureAtlas> ATLAS = new AssetDescriptor<TextureAtlas>("ui.pack", TextureAtlas.class);
+        public static AssetDescriptor<TextureAtlas> ATLAS = new AssetDescriptor<>("uiskin.atlas", TextureAtlas.class);
+        public static AssetDescriptor<Skin> SKIN = new AssetDescriptor<>("uiskin.json", Skin.class);
     }
 }

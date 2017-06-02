@@ -64,7 +64,10 @@ public class AISystem extends IteratingSystem {
 
                     if (AI.actionTimer == 200) {
                         AI.actionTimer = 3;
-                        AI.state = 0;
+                        if (MathUtils.randomBoolean(0.1f))
+                            AI.state = 3;
+                        else
+                            AI.state = 0;
                     }
                 }
                 break;
@@ -95,7 +98,7 @@ public class AISystem extends IteratingSystem {
                     if (AI.actionTimer == 20) {
                         AI.actionTimer = 1;
                         if (MathUtils.randomBoolean(0.1f))
-                            AI.state = 1;
+                            AI.state = 4;
                         else
                             AI.state = 0;
                     }
@@ -191,6 +194,28 @@ public class AISystem extends IteratingSystem {
                 }
 
                 break;
+            case 7: // invisible homing bullets
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.1f) {
+                    for (int i = 0; i < 6; i++) {
+                        float deg = AI.actionTimer * 7 + i * 60;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createHomingEnemyBullet(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 15) {
+                        AI.actionTimer = 3;
+                        AI.state = 0;
+                    }
+                }
+
+                break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
                 float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
@@ -201,15 +226,15 @@ public class AISystem extends IteratingSystem {
                 );
 
                 if (AI.lerpTimer == 1) {
-                    if (HEALTH.getHealthPercent() >= 0.66) {
-                        AI.state = MathUtils.random(2, 6);
+                    if (HEALTH.getHealthPercent() >= 0.75) {
+                        AI.state = 7;
                         AI.lerpSpeed = 1.6f;
-                    } else  if (HEALTH.getHealthPercent() >= 0.43) {
+                    } else if (HEALTH.getHealthPercent() >= 0.50) {
                         AI.state = 3;
                         AI.lerpSpeed = 4f;
-                    } else if (HEALTH.getHealthPercent() >= 0.23) {
-                            AI.state = 4;
-                            AI.lerpSpeed = 1f;
+                    } else if (HEALTH.getHealthPercent() >= 0.25) {
+                        AI.state = 4;
+                        AI.lerpSpeed = 1f;
                     } else {
                         AI.state = 2;
                         AI.lerpSpeed = 2.6f;

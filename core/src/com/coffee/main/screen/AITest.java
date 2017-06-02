@@ -3,6 +3,7 @@ package com.coffee.main.screen;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -24,7 +25,7 @@ public class AITest extends ScreenAdapter {
     private Entity player;
     private Entity bossShip;
 
-    private float readyTimer = 5;
+    private float readyTimer = 3; //decreased from 5 cuz impatient
     private boolean ready = false;
 
     public AITest() {
@@ -70,6 +71,10 @@ public class AITest extends ScreenAdapter {
         } else {
             readyTimer -= delta;
         }
+
+        //DEBUG TODO remove this
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F))
+            System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
 
         ENGINE.update(delta);
     }

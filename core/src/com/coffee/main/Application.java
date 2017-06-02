@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.main.screen.*;
 import com.coffee.util.Assets;
-import com.kotcrab.vis.ui.VisUI;
 
 /**
  * The main application class.
@@ -30,7 +29,8 @@ public class Application extends Game {
 
 
 	@Override
-	public void create () { 		VisUI.load();
+	public void create () {
+		//VisUI.load();
 
 		System.out.println("Created");
 
@@ -104,14 +104,14 @@ public class Application extends Game {
 
 				if (testScreens.size == 0) {
 					testScreens.addAll(
+							new MainMenu(),
+							new AITest(),
 							new CollisionTest(),
 							new DrawSystemTest(),
 							new PlayerTest(),
 							new ViewportTest(),
 							new PowerUpTest(),
-							new StarsTest(),
-							new MainMenu(),
-							new AITest()
+							new StarsTest()
 					);
 
 					// Set the screen beforehand
