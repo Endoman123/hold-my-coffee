@@ -684,6 +684,7 @@ public class EntityFactory {
         COLLIDER.BODY.setRotation(rot);
 
         // Initialize BulletComponent
+        Mapper.BULLET.get(E).damage = 5;
         /*
         Slows down when bullet's speed is between 0 (exclusive) and 4.
         Slowly turns towards player when speed is 0.
@@ -691,21 +692,27 @@ public class EntityFactory {
          */
         Mapper.BULLET.get(E).handler  = (float dt) -> {
             if (MOVEMENT.moveSpeed > 0 && MOVEMENT.moveSpeed <= 4) // slow down slowly
-                MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt * 2, 0, 999);
+                MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt * 4, 0, 999);
             else if (MOVEMENT.moveSpeed == 0) { //turn towards
-                if (pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).size() == 0) return;
-                final Entity PLAYER = pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).first();
+                float targetDirection = 0;
+                float currentDirection = 0;
 
-                final Vector2 PLAYER_POS = Mapper.TRANSFORM.get(PLAYER).POSITION.cpy();
-                PLAYER_POS.add(Mapper.TRANSFORM.get(PLAYER).ORIGIN.cpy());
+                if (pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).size() != 0) { //there is a player
+                    final Entity PLAYER = pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get()).first();
 
-                float targetDirection = (float) Math.toDegrees(Math.atan2(
-                        (PLAYER_POS.y) - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y),
-                        (PLAYER_POS.x) - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x)));
-                targetDirection = (targetDirection + 360) % 360; //remove negative angle
-                float currentDirection = MOVEMENT.MOVEMENT_NORMAL.angle();
+                    final Vector2 PLAYER_POS = Mapper.TRANSFORM.get(PLAYER).POSITION.cpy();
+                    PLAYER_POS.add(Mapper.TRANSFORM.get(PLAYER).ORIGIN.cpy());
 
-                if ((currentDirection > targetDirection - 10) && (currentDirection < targetDirection + 10)) { //move towards player
+                    targetDirection = (float) Math.toDegrees(Math.atan2(
+                            (PLAYER_POS.y) - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y),
+                            (PLAYER_POS.x) - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x)));
+                    targetDirection = (targetDirection + 360) % 360; //remove negative angle
+                } else { //no player / player dead
+                    targetDirection = 0;
+                }
+                currentDirection = MOVEMENT.MOVEMENT_NORMAL.angle();
+
+                if ((currentDirection > targetDirection - 3) && (currentDirection < targetDirection + 3)) { //move towards player
                    MOVEMENT.moveSpeed = 6;
                 } else { //rotate gradually
                     MOVEMENT.MOVEMENT_NORMAL.setAngle(MathUtils.lerp(currentDirection, targetDirection, dt * 10));
