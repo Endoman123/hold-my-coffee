@@ -213,6 +213,27 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
+            case 8: // Shoot bullet laser bursts
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.1f) {
+                    for (int i = 0; i < 3; i++) {
+                        float deg = 240 + i * 30;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createEnemyBulletExplodingMoving(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 1) {
+                        AI.actionTimer = 3;
+                        AI.state = 0;
+                    }
+                }
+                break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
                 float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
@@ -224,7 +245,7 @@ public class AISystem extends IteratingSystem {
 
                 if (AI.lerpTimer == 1) {
                     if (HEALTH.getHealthPercent() >= 0.75) {
-                        AI.state = 5;
+                        AI.state = 8;
                         AI.lerpSpeed = 1.6f;
                     } else if (HEALTH.getHealthPercent() >= 0.50) {
                         AI.state = 3;

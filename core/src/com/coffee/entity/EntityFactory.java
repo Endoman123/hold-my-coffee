@@ -731,6 +731,100 @@ public class EntityFactory {
     }
 
     /**
+     * Creates a bullet that moves then bursts into more bullets
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletExplodingMoving(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(rot);
+
+        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        BulletComponent BULLET = Mapper.BULLET.get(E);
+        MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("energy_ball");
+        main.setSize(32, 32);
+        main.setOriginCenter();
+        main.setScale(0);
+        main.setColor(Color.CYAN);
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = MathUtils.random(.8f, 2.2f);
+
+        // Initialize ColliderComponent
+        COLLIDER.handler = new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+                if (Mapper.PLAYER.has(entity)) {
+                    HealthComponent health = Mapper.HEALTH.get(entity);
+
+                    health.health -= BULLET.damage;
+                }
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+
+            }
+        };
+
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                TRANSFORM.SIZE.width / 1.41421356f,0,
+                TRANSFORM.SIZE.width / 1.41421356f,TRANSFORM.SIZE.height / 1.41421356f,
+                0,TRANSFORM.SIZE.height / 1.41421356f
+        });
+        COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
+        COLLIDER.BODY.setRotation(rot);
+
+        // Initialize BulletComponent
+        BULLET.handler = (float dt) -> {
+            if (BULLET.timer > 2 && BULLET.timer <= 4) { //shrink
+                BULLET.timer -= dt;
+                float scale = MathUtils.clamp((4 - BULLET.timer) / 2f, 0, 1);
+                main.setScale(scale);
+                COLLIDER.BODY.setScale(scale, scale);
+
+            } else if (BULLET.timer > 0 && BULLET.timer <= 2) { //shoot at center of screen
+                BULLET.timer -= dt;
+                MOVEMENT.moveSpeed = 0;
+
+                float theta = MathUtils.radiansToDegrees * MathUtils.atan2(viewport.getWorldHeight() / 2 - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y), viewport.getWorldWidth() / 2 - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x));
+                float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta * MathUtils.degreesToRadians);
+                float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta * MathUtils.degreesToRadians);
+                engine.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta));
+
+            } else { //remove
+                engine.removeEntity(E);
+            }
+
+        };
+
+        BULLET.timer = 4;
+
+        return E;
+    }
+
+    /**
      * Creates a bullet with a velocity of 4 at the specified location. It slows, points at the player
      * then moves towards them while becoming transparent.
      *
@@ -1243,7 +1337,7 @@ public class EntityFactory {
 
         // Initialize HealthComponent
         HEALTH.maxHealth = 10000;
-        HEALTH.health = 7000;
+        HEALTH.health = 10000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
