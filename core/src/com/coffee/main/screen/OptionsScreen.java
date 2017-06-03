@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.Align;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.GUIComponent;
 import com.coffee.entity.systems.*;
@@ -18,18 +18,18 @@ import com.coffee.util.Assets;
 import com.coffee.util.Mapper;
 
 /**
- * @author Phillip O'Reggio
+ * @author Jared Tulayan
  */
-public class MainMenu extends ScreenAdapter {
+public class OptionsScreen extends ScreenAdapter {
     private final PooledEngine ENGINE;
     private final Entity GUIEntity;
 
-    public MainMenu() {
+    public OptionsScreen() {
         final Application APP = (Application) Gdx.app.getApplicationListener();
 
         ENGINE = new PooledEngine();
 
-        // region MainMenu entity
+        // region Menu entity
         final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
         final TextureAtlas UI_ATLAS = Assets.MANAGER.get(Assets.UI.ATLAS);
 
@@ -43,45 +43,37 @@ public class MainMenu extends ScreenAdapter {
         final GUIComponent GUI = new GUIComponent();
         GUI.canvas = new Stage(APP.getViewport(), APP.getBatch());
 
-        final Table TABLE = new Table();
-        final Image TITLE = new Image(SKIN.getDrawable("title"));
-        final TextButton
-                START = new TextButton("START", SKIN),
-                OPTIONS = new TextButton("OPTIONS", SKIN),
-                EXIT = new TextButton("EXIT", SKIN);
+        final Table
+                TABLE = new Table(),
+                OPTIONS = new Table();
+        final Label TITLE = new Label("OPTIONS", SKIN, "title");
+        final TextButton BACK = new TextButton("BACK", SKIN);
 
         TABLE.setSkin(SKIN);
-        TITLE.setScaling(Scaling.fit);
+        TITLE.setAlignment(Align.center);
 
         TABLE.center().pad(50).setFillParent(true);
-        TABLE.add(TITLE).expand().fill().colspan(2).row();
-        TABLE.add(START).fillX().pad(10, 10, 10, 5);
-        TABLE.add(OPTIONS).fillX().pad(10, 5, 10, 10).row();
-        TABLE.add(EXIT).expandX().fillX().colspan(2).pad(0, 10, 10, 10);
+        TABLE.add(TITLE).expandX().fillX().row();
+        TABLE.add(OPTIONS).expand().fill().pad(10).row();
+        TABLE.add(BACK).fillX();
 
-        GUI.canvas.addListener(new ChangeListener() {
+        TABLE.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (((Button) actor).isPressed()) {
-                    if (actor == START) {
-                        APP.setScreen(new AITest());
-                        APP.getScreen().dispose();
-                    } else if (actor == OPTIONS) {
-                        APP.setScreen(new OptionsScreen());
-                        APP.getScreen().dispose();
-                    } else if (actor == EXIT) {
-                        Gdx.app.exit();
-                    }
+                if (((Button)actor).isPressed() && actor == BACK) {
+                    APP.setScreen(new MainMenu());
+                    APP.getScreen().dispose();
                 }
             }
         });
 
         GUI.canvas.addActor(TABLE);
         GUIEntity.add(GUI);
+        TABLE.setDebug(true, true);
         // endregion
 
         ENGINE.addEntity(GUIEntity);
-        ENGINE.addEntity(EntityFactory.createParticleGenerator());
+        // ENGINE.addEntity(EntityFactory.createParticleGenerator());
     }
 
     @Override

@@ -59,7 +59,7 @@ public class PowerUpTest extends ScreenAdapter {
     public void show() {
         Application app = (Application) Gdx.app.getApplicationListener();
 
-        EntityFactory.setPooledEngine(ENGINE);
+        EntityFactory.setEngine(ENGINE);
         app.getInputMultiplexer().addProcessor(Mapper.INPUT.get(player).PROCESSOR);
     }
 

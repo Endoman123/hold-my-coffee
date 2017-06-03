@@ -106,21 +106,17 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 3: // Random Spray
+            case 3: // Charge to explosion
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.01f) {
-                    float deg = 257.5f + MathUtils.random(25);
-                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                    getEngine().addEntity(EntityFactory.createEnemyBulletFast(xPlace, yPlace, deg));
+                    getEngine().addEntity(EntityFactory.createEnemyBulletExploding(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
 
                     AI.fireTimer = 0;
                     AI.actionTimer++;
 
-                    if (AI.actionTimer == 55) {
-                        AI.actionTimer = 1;
+                    if (AI.actionTimer == 1) {
+                        AI.actionTimer = 4;
                         AI.state = 0;
                     }
                 }

@@ -55,7 +55,7 @@ public class StarsTest extends ScreenAdapter {
     }
 
     public void show() {
-        EntityFactory.setPooledEngine(ENGINE);
+        EntityFactory.setEngine(ENGINE);
     }
 
     @Override

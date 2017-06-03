@@ -27,13 +27,8 @@ public class Application extends Game {
 
 	private boolean assetsLoaded = false;
 
-
 	@Override
 	public void create () {
-		//VisUI.load();
-
-		System.out.println("Created");
-
 		Gdx.graphics.setWindowedMode(450, 800);
 
 		// Initialize global stuff before all the Screen stuff
@@ -43,6 +38,10 @@ public class Application extends Game {
 		shapeRenderer = new ShapeRenderer();
 
 		shapeRenderer.setAutoShapeType(true);
+
+		Assets.MANAGER.load(Assets.UI.SKIN);
+		Assets.MANAGER.load(Assets.UI.ATLAS);
+		Assets.MANAGER.load(Assets.GameObjects.ATLAS);
 
 		// An input listener to exit the game and toggle fullscreen
 		inputMultiplexer.addProcessor(new InputAdapter() {
@@ -118,12 +117,37 @@ public class Application extends Game {
 					setScreen(testScreens.get(curTest));
 				}
 			}
+		}
+		/*
+		if (!assetsLoaded) {
+			assetsLoaded = Assets.MANAGER.update();
+
+			if (assetsLoaded) {
+				EntityFactory.init();
+
+				if (testScreens.size == 0) {
+					testScreens.addAll(
+							new MainMenu(),
+							new AITest(),
+							new CollisionTest(),
+							new DrawSystemTest(),
+							new PlayerTest(),
+							new ViewportTest(),
+							new PowerUpTest(),
+							new StarsTest()
+					);
+
+					// Set the screen beforehand
+					setScreen(testScreens.get(curTest));
+				}
+			}
 
 			System.out.println(assetsLoaded ?
 					"Assets loaded!" :
 					"Loading assets... " + Assets.MANAGER.getProgress() * 100 + "%"
 			);
 		}
+*/
 
 		if (getScreen() != null) {
 			Gdx.gl.glClearColor(0, 0, 0, 1);

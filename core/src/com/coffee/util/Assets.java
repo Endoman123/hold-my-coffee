@@ -14,15 +14,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 public class Assets {
     public static final AssetManager MANAGER;
 
-
-    // Initialize the asset manager by constructing it
-    // and placing all the assets into the loading queue.
+    // Initialize the asset manager by constructing it.
     static {
         MANAGER = new AssetManager();
-
-        MANAGER.load(UI.ATLAS);
-        MANAGER.load(UI.SKIN);
-        MANAGER.load(GameObjects.ATLAS);
     }
 
     /**

@@ -36,7 +36,7 @@ public class EntityFactory {
     private static SpriteBatch batch;
     private static InputMultiplexer inputMultiplexer;
     private static TextureAtlas goAtlas, uiAtlas;
-    private static PooledEngine pooledEngine;
+    private static PooledEngine engine;
 
     // Boolean to check if the factory has already been pre-initialized.
     private static boolean initialized = false;
@@ -65,8 +65,8 @@ public class EntityFactory {
      *
      * @param p the {@code PooledEngine} to use for pooling and creating poolable {@code Entity}s
      */
-    public static void setPooledEngine(PooledEngine p) {
-        pooledEngine = p;
+    public static void setEngine(PooledEngine p) {
+        engine = p;
     }
 
     /**
@@ -291,12 +291,12 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createPlayerBullet(float x, float y) {
-        final Entity E = pooledEngine.createEntity();
-        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
-        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
-        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
-        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
-        final BulletComponent BULLET = pooledEngine.createComponent(BulletComponent.class);
+        final Entity E = engine.createEntity();
+        final TransformComponent TRANSFORM = engine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = engine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = engine.createComponent(SpriteComponent.class);
+        final ColliderComponent COLLIDER = engine.createComponent(ColliderComponent.class);
+        final BulletComponent BULLET = engine.createComponent(BulletComponent.class);
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("bullet");
@@ -322,7 +322,7 @@ public class EntityFactory {
                     HealthComponent health = Mapper.HEALTH.get(entity);
                     if (health.invincibilityTimer <= 0) {
                         health.health -= BULLET.damage;
-                        pooledEngine.removeEntity(E);
+                        engine.removeEntity(E);
                     }
                 }
             }
@@ -349,14 +349,13 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
 
-
-    public static Entity createEnemyDamagable(float x, float y, float rot) {
-        final Entity E = pooledEngine.createEntity();
-        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
-        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
-        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
-        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
-        final BulletComponent BULLET = pooledEngine.createComponent(BulletComponent.class);
+    public static Entity createEnemyDamagable(float rot) {
+        final Entity E = engine.createEntity();
+        final TransformComponent TRANSFORM = engine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = engine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = engine.createComponent(SpriteComponent.class);
+        final ColliderComponent COLLIDER = engine.createComponent(ColliderComponent.class);
+        final BulletComponent BULLET = engine.createComponent(BulletComponent.class);
 
         // Initialize MovementComponent
         MOVEMENT.moveSpeed = 4;
@@ -372,7 +371,7 @@ public class EntityFactory {
 
                     if (health.invincibilityTimer <= 0) {
                         health.health -= BULLET.damage;
-                        pooledEngine.removeEntity(E);
+                        engine.removeEntity(E);
                     }
                 }
             }
@@ -401,7 +400,7 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createEnemyBullet(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(x, y, rot);
+        final Entity E = createEnemyDamagable(rot);
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -449,7 +448,7 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createWeakFastEnemyBullet(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(x, y, rot);
+        final Entity E = createEnemyDamagable(rot);
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -500,7 +499,7 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createEnemyBulletSlows(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(x, y, rot);
+        final Entity E = createEnemyDamagable(rot);
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -555,7 +554,7 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createEnemyBulletFast(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(x, y, rot);
+        final Entity E = createEnemyDamagable(rot);
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         SpriteComponent SPRITE = Mapper.SPRITE.get(E);
         ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
@@ -597,7 +596,7 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createEnemyBulletFade(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(x, y, rot);
+        final Entity E = createEnemyDamagable(rot);
 
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -627,7 +626,7 @@ public class EntityFactory {
         COLLIDER.BODY.setRotation(rot);
 
         // Initialize BulletComponent
-        Mapper.BULLET.get(E).handler  = (float dt) -> {
+        Mapper.BULLET.get(E).handler = (float dt) -> {
             SpriteComponent sprite = Mapper.SPRITE.get(E);
             sprite.SPRITES.get(0).setColor(
                     sprite.SPRITES.get(0).getColor().r,
@@ -636,6 +635,97 @@ public class EntityFactory {
                     MathUtils.clamp(sprite.SPRITES.get(0).getColor().a - dt / 20f, 0, 1)
             );
         };
+
+        return E;
+    }
+
+    /**
+     * Creates a bullet with a velocity of 6 at the specified location. Becomes more transparent over time.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param rot    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBulletExploding(float x, float y, float rot) {
+        final Entity E = createEnemyDamagable(rot);
+
+        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        BulletComponent BULLET = Mapper.BULLET.get(E);
+        MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("energy_ball");
+        main.setSize(64, 64);
+        main.setOriginCenter();
+        main.setScale(0);
+        main.setColor(Color.CYAN);
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = rot;
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 0;
+
+        // Initialize ColliderComponent
+        COLLIDER.handler = new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+                if (Mapper.PLAYER.has(entity)) {
+                    HealthComponent health = Mapper.HEALTH.get(entity);
+
+                    health.health -= BULLET.damage;
+                }
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+
+            }
+        };
+
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                TRANSFORM.SIZE.width / 1.41421356f,0,
+                TRANSFORM.SIZE.width / 1.41421356f,TRANSFORM.SIZE.height / 1.41421356f,
+                0,TRANSFORM.SIZE.height / 1.41421356f
+        });
+        COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
+        COLLIDER.BODY.setRotation(rot);
+
+        // Initialize BulletComponent
+        BULLET.handler = (float dt) -> {
+            if (BULLET.timer > 0) {
+                BULLET.timer -= dt;
+                float scale = MathUtils.clamp(3 - BULLET.timer, 0, 1);
+                main.setScale(scale);
+                COLLIDER.BODY.setScale(scale, scale);
+                if (BULLET.timer <= 0) {
+                    for (int i = 0; i < 20; i++) {
+                        float deg = 257.5f + MathUtils.random(25);
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        engine.addEntity(EntityFactory.createEnemyBulletFast(xPlace, yPlace, deg));
+                    }
+                    engine.removeEntity(E);
+                }
+            }
+        };
+
+        BULLET.timer = 3;
 
         return E;
     }
@@ -650,7 +740,7 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createHomingEnemyBullet(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(x, y, rot);
+        final Entity E = createEnemyDamagable(rot);
 
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -704,7 +794,7 @@ public class EntityFactory {
                     if (BULLET.timer <= 0)
                         BULLET.timer = -1;
                 } else if (BULLET.timer == -1) {
-                    final ImmutableArray<Entity> PLAYERS = pooledEngine.getEntitiesFor(Family.one(PlayerComponent.class).get());
+                    final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.one(PlayerComponent.class).get());
                     final Vector2
                             LOC = new Vector2(TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN)),
                             TARGET = new Vector2();
@@ -741,7 +831,7 @@ public class EntityFactory {
      * @return an {@code Entity} with all the necessary components for a bullet
      */
     public static Entity createEnemyBall(float x, float y, float dir) {
-        final Entity E = createEnemyDamagable(x, y, dir);
+        final Entity E = createEnemyDamagable(dir);
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
         final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
         final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
@@ -830,12 +920,12 @@ public class EntityFactory {
      *         to make any powerup (sans the {@code ColliderComponent}).
      */
     public static Entity createBasePowerUp(float x, float y) {
-        final Entity E = pooledEngine.createEntity();
-        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
-        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
-        final ColliderComponent COLLIDER = pooledEngine.createComponent(ColliderComponent.class);
-        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
-        final LifetimeComponent LIFETIME = pooledEngine.createComponent(LifetimeComponent.class);
+        final Entity E = engine.createEntity();
+        final TransformComponent TRANSFORM = engine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = engine.createComponent(MovementComponent.class);
+        final ColliderComponent COLLIDER = engine.createComponent(ColliderComponent.class);
+        final SpriteComponent SPRITE = engine.createComponent(SpriteComponent.class);
+        final LifetimeComponent LIFETIME = engine.createComponent(LifetimeComponent.class);
 
         //Set up Sprite Component
         Sprite
@@ -998,11 +1088,11 @@ public class EntityFactory {
      *         with its size & speed made proportional to its depth
      */
     public static Entity createStar(float x, float y, int z) {
-        final Entity E = pooledEngine.createEntity();
-        final TransformComponent TRANSFORM = pooledEngine.createComponent(TransformComponent.class);
-        final MovementComponent MOVEMENT = pooledEngine.createComponent(MovementComponent.class);
-        final SpriteComponent SPRITE = pooledEngine.createComponent(SpriteComponent.class);
-        final LifetimeComponent LIFETIME = pooledEngine.createComponent(LifetimeComponent.class);
+        final Entity E = engine.createEntity();
+        final TransformComponent TRANSFORM = engine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = engine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = engine.createComponent(SpriteComponent.class);
+        final LifetimeComponent LIFETIME = engine.createComponent(LifetimeComponent.class);
 
         // Clamp z between 0 and 100
         z = MathUtils.clamp(z, 0, 100);
@@ -1152,7 +1242,8 @@ public class EntityFactory {
         AI.state = -1;
 
         // Initialize HealthComponent
-        HEALTH.health = HEALTH.maxHealth = 10000;
+        HEALTH.maxHealth = 10000;
+        HEALTH.health = 7000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
