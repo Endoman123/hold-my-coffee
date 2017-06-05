@@ -35,7 +35,8 @@ public class EntityFactory {
     private static Viewport viewport;
     private static SpriteBatch batch;
     private static InputMultiplexer inputMultiplexer;
-    private static TextureAtlas goAtlas, uiAtlas;
+    private static TextureAtlas goAtlas;
+    private static Skin uiSkin;
     private static PooledEngine engine;
 
     // Boolean to check if the factory has already been pre-initialized.
@@ -54,7 +55,7 @@ public class EntityFactory {
             inputMultiplexer = app.getInputMultiplexer();
 
             goAtlas = Assets.MANAGER.get(Assets.GameObjects.ATLAS);
-            uiAtlas = Assets.MANAGER.get(Assets.UI.ATLAS);
+            uiSkin = Assets.MANAGER.get(Assets.UI.SKIN);
 
             initialized = true;
         }
@@ -69,6 +70,7 @@ public class EntityFactory {
         engine = p;
     }
 
+    // region Player Stuff
     /**
      * Creates a player that can move and shoot. Note that you need to add the
      * {@link InputProcessor} to the game's {@link InputMultiplexer}; this builder does not do so.
@@ -196,8 +198,6 @@ public class EntityFactory {
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
 
-        final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
-
         final Table
             TABLE = new Table(),
             HEALTH_STATS = new Table();
@@ -219,23 +219,22 @@ public class EntityFactory {
                 });
 
         final Label
-                FIRE_RATE_ID = new Label("Fire Rate:", SKIN),
-                BULLET_DAMAGE_ID = new Label("Damage:", SKIN),
-                LIFE_COUNTER = new Label("", SKIN);
+                FIRE_RATE_ID = new Label("Fire Rate:", uiSkin),
+                BULLET_DAMAGE_ID = new Label("Damage:", uiSkin),
+                LIFE_COUNTER = new Label("", uiSkin);
 
         final Image
-                CONTAINER = new Image(SKIN.getDrawable("bar_container")),
-                FILL = new Image(SKIN.getDrawable("bar_fill")),
+                CONTAINER = new Image(uiSkin.getDrawable("bar_container")),
+                FILL = new Image(uiSkin.getDrawable("bar_fill")),
                 LIFE = new Image(goAtlas.findRegion("player"));
 
         final Stack
             HEALTH_BAR = new Stack(CONTAINER, FILL);
 
-        final NinePatchDrawable BACK = (NinePatchDrawable) SKIN.getDrawable("hud_back");
+        final NinePatchDrawable BACK = new NinePatchDrawable(uiSkin.getAtlas().createPatch("button_up"));
 
         BACK.getPatch().setColor(Color.DARK_GRAY);
         FILL.setColor(Color.GREEN);
-
 
         TABLE.addAction(new Action() {
             @Override
@@ -257,10 +256,11 @@ public class EntityFactory {
         HEALTH_STATS.add(LIFE).size(20).colspan(1);
         HEALTH_STATS.add(LIFE_COUNTER).colspan(7).align(Align.left);
 
-        TABLE.setSkin(SKIN);
+        TABLE.setSkin(uiSkin);
         TABLE.setBackground(BACK);
         TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
         TABLE.add(HEALTH_STATS).expand().align(Align.left).width(160);
+        //TABLE.setDebug(true, true);
 
 /*        TABLE.add(LIFE).size(16, 16).align(Align.left).colspan(1);
         TABLE.add(LIFE_COUNTER).height(16).align(Align.left).colspan(2);*/
@@ -273,7 +273,7 @@ public class EntityFactory {
         TABLE.add(BULLET_DAMAGE_ID).padRight(GUI.canvas.getWidth() / 40);
         for (VisImage i : BULLET_DAMAGE_BOOSTS)
             TABLE.add(i);*/
-        //TABLE.setDebug(true, true);
+
 
         GUI.canvas.addActor(TABLE);
 
@@ -348,7 +348,9 @@ public class EntityFactory {
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
+    // endregion
 
+    // region Enemy Damagables
     public static Entity createEnemyDamagable(float rot) {
         final Entity E = engine.createEntity();
         final TransformComponent TRANSFORM = engine.createComponent(TransformComponent.class);
@@ -816,7 +818,6 @@ public class EntityFactory {
             } else { //remove
                 engine.removeEntity(E);
             }
-
         };
 
         BULLET.timer = 4;
@@ -916,6 +917,7 @@ public class EntityFactory {
         return E;
     }
 
+
     /**
      * Creates an energy ball with a velocity of 3 at the specified location.
      *
@@ -960,7 +962,9 @@ public class EntityFactory {
 
         return E;
     }
+    // endregion
 
+    // region Powerups
     /**
      * Create a spawner that randomly spawns power-ups
      *
@@ -1171,7 +1175,9 @@ public class EntityFactory {
 
         return E;
     }
+    // endregion
 
+    // region Particles
     /**
      * Creates a star entity.
      *
@@ -1267,6 +1273,7 @@ public class EntityFactory {
 
         return E.add(TRANSFORM).add(SPAWNER).add(SPRITE);
     }
+    // endregion
 
     /**
      * Creates a boss entity complete with AI, displayable GUI, and other things.
@@ -1343,14 +1350,12 @@ public class EntityFactory {
         GUI.canvas = new Stage(viewport, batch);
 
         final Image
-                CONTAINER = new Image(uiAtlas.createPatch("bar_container")),
-                FILL = new Image(uiAtlas.createPatch("bar_fill"));
-
-        final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
+                CONTAINER = new Image(uiSkin.getPatch("bar_container")),
+                FILL = new Image(uiSkin.getPatch("bar_fill"));
 
         final Table TABLE = new Table();
         final Stack HEALTH_BAR = new Stack(CONTAINER, FILL);
-        final Label HEALTH_LBL = new Label("BOSS", SKIN, "title");
+        final Label HEALTH_LBL = new Label("BOSS", uiSkin, "title");
 
         CONTAINER.setFillParent(true);
         FILL.setColor(Color.PURPLE);
@@ -1365,7 +1370,7 @@ public class EntityFactory {
             }
         });
 
-        TABLE.setSkin(SKIN);
+        TABLE.setSkin(uiSkin);
         TABLE.top().pad(20).setFillParent(true);
         TABLE.add(HEALTH_LBL).expandX().fillX().row();
         TABLE.add(HEALTH_BAR).size(300, 20);

@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.main.screen.*;
 import com.coffee.util.Assets;
+import com.coffee.util.OptionsManager;
 
 /**
  * The main application class.
@@ -29,7 +30,7 @@ public class Application extends Game {
 
 	@Override
 	public void create () {
-		Gdx.graphics.setWindowedMode(450, 800);
+		OptionsManager.init();
 
 		// Initialize global stuff before all the Screen stuff
 		batch = new SpriteBatch(5120);
@@ -47,39 +48,14 @@ public class Application extends Game {
 		inputMultiplexer.addProcessor(new InputAdapter() {
 			@Override
 			public boolean keyDown(int keycode) {
-				int s = curTest;
+				//int s = curTest;
 				switch(keycode) {
 					case Input.Keys.F11:
-						Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
-						if (Gdx.graphics.isFullscreen())
-							Gdx.graphics.setWindowedMode(450, 800);
-						else {
-							Gdx.graphics.setFullscreenMode(mode);
-						}
-						break;
-					case Input.Keys.ESCAPE:
-						Gdx.app.exit();
-						break;
-					case Input.Keys.LEFT_BRACKET:
-						if (testScreens != null) {
-							curTest--;
-							if (curTest < 0)
-								curTest = testScreens.size - 1;
-						}
-						break;
-					case Input.Keys.RIGHT_BRACKET:
-						if (testScreens != null) {
-							curTest++;
-							if (curTest >= testScreens.size)
-								curTest = 0;
-						}
+						OptionsManager.fullscreen = !OptionsManager.fullscreen;
+						OptionsManager.update();
 						break;
 					default:
 						return false;
-				}
-
-				if (s != curTest) {
-					setScreen(testScreens.get(curTest));
 				}
 
 				return true;
@@ -118,36 +94,6 @@ public class Application extends Game {
 				}
 			}
 		}
-		/*
-		if (!assetsLoaded) {
-			assetsLoaded = Assets.MANAGER.update();
-
-			if (assetsLoaded) {
-				EntityFactory.init();
-
-				if (testScreens.size == 0) {
-					testScreens.addAll(
-							new MainMenu(),
-							new AITest(),
-							new CollisionTest(),
-							new DrawSystemTest(),
-							new PlayerTest(),
-							new ViewportTest(),
-							new PowerUpTest(),
-							new StarsTest()
-					);
-
-					// Set the screen beforehand
-					setScreen(testScreens.get(curTest));
-				}
-			}
-
-			System.out.println(assetsLoaded ?
-					"Assets loaded!" :
-					"Loading assets... " + Assets.MANAGER.getProgress() * 100 + "%"
-			);
-		}
-*/
 
 		if (getScreen() != null) {
 			Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -182,5 +128,41 @@ public class Application extends Game {
 	public void resize(int width, int height) {
 		super.resize(width, height);
 		viewport.update(width, height, true);
+	}
+
+	/**
+	 * An {@link InputProcessor} specifically made for switching through test screens.
+	 * Do not implement in final game.
+	 */
+	private final class DebugInput extends InputAdapter {
+		@Override
+		public boolean keyDown(int keycode) {
+			int s = curTest;
+			switch (keycode) {
+				case Input.Keys.ESCAPE:
+					Gdx.app.exit();
+					break;
+				case Input.Keys.LEFT_BRACKET:
+					if (testScreens != null) {
+						curTest--;
+						if (curTest < 0)
+							curTest = testScreens.size - 1;
+					}
+					break;
+				case Input.Keys.RIGHT_BRACKET:
+					if (testScreens != null) {
+						curTest++;
+						if (curTest >= testScreens.size)
+							curTest = 0;
+					}
+					break;
+				default:
+					return false;
+			}
+				if (s != curTest)
+					setScreen(testScreens.get(curTest));
+
+				return true;
+		}
 	}
 }
