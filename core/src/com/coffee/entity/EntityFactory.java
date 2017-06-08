@@ -949,6 +949,75 @@ public class EntityFactory {
 
 
     /**
+     * Creates an energy ball with a velocity of 3 at the specified location. Periodically changes direction.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param dir    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBallShifter(float x, float y, float dir) {
+        final Entity E = createEnemyDamagable(dir);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("energy_ball");
+        //main.setColor(191 / 255f, 106 / 255f, 221 / 255f, 1);
+        main.setColor(221 / 255f, 66f / 255f, 121f / 255f, 1);
+        main.setSize(16, 16);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 3;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0,0,
+                TRANSFORM.SIZE.width / 1.41421356f,0,
+                TRANSFORM.SIZE.width / 1.41421356f,TRANSFORM.SIZE.height / 1.41421356f,
+                0,TRANSFORM.SIZE.height / 1.41421356f
+        });
+        COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
+        COLLIDER.BODY.setRotation(dir);
+
+        // Initialize BulletComponent
+        BULLET.handler = (float dt) -> {
+            /*
+            BULLET.timer += dt;
+            if (BULLET.timer >= 1 && BULLET.state == 0) {
+                MOVEMENT.MOVEMENT_NORMAL.rotate(90);
+                BULLET.state = 1;
+                BULLET.timer = 0;
+            } else if (BULLET.timer >= 1 && BULLET.state == 0) {
+                MOVEMENT.MOVEMENT_NORMAL.rotate(-90);
+                BULLET.state = 0;
+                BULLET.timer = 0;
+            }
+            */
+            SPRITE.SPRITES.get(0).setColor(
+                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r - dt / 20f, 0, 1),
+                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt / 15f, 0, 1),
+                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b + dt / 2f, 0, 1),
+                    SPRITE.SPRITES.get(0).getColor().a
+                    );
+            MOVEMENT.MOVEMENT_NORMAL.rotate(dt * 20);
+        };
+
+        return E;
+    }
+
+    /**
      * Creates an energy ball with a velocity of 3 at the specified location.
      *
      * @param x      the x-coordinate of the bullet

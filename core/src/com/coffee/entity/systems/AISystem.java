@@ -29,7 +29,8 @@ public class AISystem extends IteratingSystem {
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
         final MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
         final HealthComponent HEALTH = Mapper.HEALTH.get(entity);
-
+        //states should get harder with higher index numbers
+        //TODO Chain attacks at harder difficulties
         // region State Machine
         switch (AI.state) {
             case 0: // Reset states
@@ -48,7 +49,23 @@ public class AISystem extends IteratingSystem {
                 } else
                     AI.actionTimer -= deltaTime;
                 break;
-            case 1: // Simple spiral
+            case 1: // Charge to explosion
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.01f) {
+                    getEngine().addEntity(EntityFactory.createEnemyBulletExploding(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer >= 1) {
+                        AI.actionTimer = 4;
+                        AI.state = 0;
+                    }
+                }
+
+                break;
+            case 2: // Simple spiral
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.1f) {
@@ -63,16 +80,84 @@ public class AISystem extends IteratingSystem {
                     AI.fireTimer = 0;
                     AI.actionTimer++;
 
-                    if (AI.actionTimer == 200) {
+                    if (AI.actionTimer == 150) {
                         AI.actionTimer = 3;
                         if (MathUtils.randomBoolean(0.1f))
-                            AI.state = 3;
+                            AI.state = 1;
                         else
                             AI.state = 0;
                     }
                 }
                 break;
-            case 2: // Cone
+            case 3: // Laser
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.001f) {
+                    //float deg = 257.5f + MathUtils.random(25);
+                    float posVal;
+                    posVal = (TRANSFORM.POSITION.cpy().x - AI.BEGIN_POS.cpy().x + 10) % 20;
+
+                    float deg = 260 + posVal;
+
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    getEngine().addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, deg));
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 250) {
+                        AI.actionTimer = 1;
+                        AI.state = 0;
+                    }
+                }
+
+                break;
+            case 4: // invisible homing bullets
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.1f) {
+                    for (int i = 0; i < 6; i++) {
+                        float deg = 220 + i * 20;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createHomingEnemyBullet(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 1) {
+                        AI.actionTimer = 3;
+                        AI.state = 0;
+                    }
+                }
+                break;
+            case 5: // Spiral thing part 2
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.1f) {
+                    for (int i = 0; i < 6; i++) {
+                        float deg = AI.actionTimer * 7 + i * 60;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createEnemyBulletFade(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 100) {
+                        AI.actionTimer = 3;
+                        AI.state = 0;
+                    }
+                }
+
+                break;
+            case 6: // Cone
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.15) {
@@ -107,92 +192,6 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 3: // Charge to explosion
-                AI.fireTimer += deltaTime;
-
-                if (AI.fireTimer >= 0.01f) {
-                    getEngine().addEntity(EntityFactory.createEnemyBulletExploding(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
-
-                    AI.fireTimer = 0;
-                    AI.actionTimer++;
-
-                    if (AI.actionTimer == 1) {
-                        AI.actionTimer = 4;
-                        AI.state = 0;
-                    }
-                }
-
-                break;
-            case 4: // Spiral thing part 2
-                AI.fireTimer += deltaTime;
-
-                if (AI.fireTimer >= 0.1f) {
-                    for (int i = 0; i < 6; i++) {
-                        float deg = AI.actionTimer * 7 + i * 60;
-                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                        getEngine().addEntity(EntityFactory.createEnemyBulletFade(xPlace, yPlace, deg));
-                    }
-
-                    AI.fireTimer = 0;
-                    AI.actionTimer++;
-
-                    if (AI.actionTimer == 100) {
-                        AI.actionTimer = 3;
-                        AI.state = 0;
-                    }
-                }
-
-                break;
-            case 5: // Other cone
-                AI.fireTimer += deltaTime;
-
-                if (AI.fireTimer >= 0.5f) {
-                    int numBulletsShot = MathUtils.random(3, 20);
-                    for (int i = 0; i < numBulletsShot; i++) {
-                        float deg = 190 + i * (160 / numBulletsShot);
-                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                        getEngine().addEntity(EntityFactory.createEnemyBullet(xPlace, yPlace, deg));
-                    }
-
-                    AI.fireTimer = 0;
-                    AI.actionTimer++;
-
-                    if (AI.actionTimer == 30) {
-                        AI.actionTimer = 3;
-                        AI.state = 0;
-                    }
-                }
-
-                break;
-            case 6: // Laser
-                AI.fireTimer += deltaTime;
-
-                if (AI.fireTimer >= 0.001f) {
-                    //float deg = 257.5f + MathUtils.random(25);
-                    float posVal;
-                        posVal = (TRANSFORM.POSITION.cpy().x - AI.BEGIN_POS.cpy().x + 10) % 20;
-
-                    float deg = 260 + posVal;
-
-                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                    getEngine().addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, deg));
-
-                    AI.fireTimer = 0;
-                    AI.actionTimer++;
-
-                    if (AI.actionTimer == 250) {
-                        AI.actionTimer = 1;
-                        AI.state = 0;
-                    }
-                }
-
-                break;
             case 7: // invisible homing bullets
                 AI.fireTimer += deltaTime;
 
@@ -214,7 +213,31 @@ public class AISystem extends IteratingSystem {
                     }
                 }
                 break;
-            case 8: // Shoot bullet laser bursts
+            case 8: // Tougher homing
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.1f) {
+                    for (int i = 0; i < 6; i++) {
+                        float deg = AI.actionTimer * 7 + i * 60;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createHomingEnemyBullet(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 9) {
+                        AI.actionTimer = 2;
+                        if (MathUtils.randomBoolean(0.1f))
+                            AI.state = 9;
+                        else
+                            AI.state = 0;
+                    }
+                }
+                break;
+            case 9: // Shoot bullet laser bursts
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.1f) {
@@ -237,10 +260,38 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer++;
 
                     if (AI.actionTimer == 1) {
-                        AI.actionTimer = 3;
+                        AI.actionTimer = 4;
                         AI.state = 0;
                     }
                 }
+                break;
+            case 10: // Shifting spiral
+                AI.fireTimer += deltaTime;
+
+                if (AI.fireTimer >= 0.25f) {
+                    for (int i = 0; i < 6; i++) {
+                        float deg = AI.actionTimer * 7 + i * 60;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        getEngine().addEntity(EntityFactory.createEnemyBallShifter(xPlace, yPlace, deg));
+                    }
+
+                    AI.fireTimer = 0;
+                    AI.actionTimer++;
+
+                    if (AI.actionTimer == 50) {
+                        AI.actionTimer = 3;
+                        if (MathUtils.randomBoolean(0.1f))
+                            AI.state = 3;
+                        else
+                            AI.state = 0;
+                    }
+                }
+                break;
+            case 11: // Fake out
+                    AI.actionTimer = .05f;
+                    AI.state = 0;
                 break;
             default: // Move to position, then begin attacking
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
@@ -253,17 +304,29 @@ public class AISystem extends IteratingSystem {
 
                 if (AI.lerpTimer == 1) {
                     if (HEALTH.getHealthPercent() >= 0.75) {
-                        AI.state = 8;
+                        AI.state = MathUtils.random(1, 4);
                         AI.lerpSpeed = 1.6f;
                     } else if (HEALTH.getHealthPercent() >= 0.50) {
-                        AI.state = 3;
+                        AI.state = MathUtils.random(2, 6);
                         AI.lerpSpeed = 2.4f;
                     } else if (HEALTH.getHealthPercent() >= 0.25) {
-                        AI.state = 4;
+                        if (MathUtils.randomBoolean(.1f))
+                            AI.state = 11; //Fake out
+                        else
+                            AI.state = MathUtils.random(1, 7);
                         AI.lerpSpeed = 3.2f;
-                    } else {
-                        AI.state = 2;
+                    } else if (HEALTH.getHealthPercent() >= 0.1125) {
+                        if (MathUtils.randomBoolean(.3f))
+                            AI.state = 11; //Fake out
+                        else
+                            AI.state = MathUtils.random(6, 10);
                         AI.lerpSpeed = 4f;
+                    } else {
+                        if (MathUtils.randomBoolean(.4f))
+                            AI.state = 11; //Fake out
+                        else
+                            AI.state = MathUtils.random(1, 10);
+                        AI.lerpSpeed = MathUtils.random(2f, 4.8f);
                     }
                 }
         }
