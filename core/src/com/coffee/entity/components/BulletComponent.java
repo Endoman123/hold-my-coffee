@@ -15,11 +15,13 @@ public class BulletComponent implements Component, Pool.Poolable {
     public BulletHandler handler;
     public float timer;
     public double damage = 10;
+    public int state = 0;
 
     @Override
     public void reset() {
         handler = null;
         damage = 10;
         timer = 0;
+        state = 0;
     }
 }

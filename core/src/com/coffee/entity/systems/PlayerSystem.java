@@ -142,6 +142,12 @@ public class PlayerSystem extends IteratingSystem {
                 player.shootTimer = 1;
             }
 
+            // Flash the player every frame when invincible
+            if (health.invincible && health.invincibilityTimer % 1 == 0)
+                sprite.SPRITES.get(0).setAlpha(0);
+            else
+                sprite.SPRITES.get(0).setAlpha(1);
+
             // Update position
             move.moveSpeed = MathUtils.lerp(3, 5, player.upSpeed / 4.0f);
             move.MOVEMENT_NORMAL.set(player.right - player.left, player.up - player.down);
@@ -155,13 +161,14 @@ public class PlayerSystem extends IteratingSystem {
                     player.bulletsPerSecond = 3;
                     transform.POSITION.set(GAME_SIZE.width / 2 - transform.ORIGIN.x, 128 - transform.ORIGIN.y);
 
-                    health.invincibilityTimer = health.invincibilityDuration;
+                    health.respawnTimer = health.respawnDuration;
                     player.revive = true;
-                } else if (health.invincibilityTimer == 0) { // Become alive again
+                } else if (health.respawnTimer == 0) { // Wait to revive, then respawn.
+                    System.out.println("Revive!");
+                    player.lives--;
+                    health.invincibilityTimer = health.invincibilityDuration;
                     health.health = health.maxHealth;
                     sprite.SPRITES.first().setAlpha(1);
-                    player.lives--;
-                    System.out.println("Revive!");
                     player.revive = false;
                 }
             } else { // If we dead, just remove enough so that we can keep the gui but we are still dead.

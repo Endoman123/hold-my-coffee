@@ -105,6 +105,10 @@ public class EntityFactory {
         TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
         TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
 
+        // Initialize HealthComponent
+        HEALTH.invincibilityDuration = 5;
+        HEALTH.respawnDuration = 5;
+
         // Initialize ColliderComponent
         COLLIDER.handler = new CollisionHandler() {
             @Override
@@ -371,7 +375,7 @@ public class EntityFactory {
                 if (Mapper.PLAYER.has(entity)) {
                     HealthComponent health = Mapper.HEALTH.get(entity);
 
-                    if (health.invincibilityTimer <= 0) {
+                    if (!health.invincible) {
                         health.health -= BULLET.damage;
                         engine.removeEntity(E);
                     }
@@ -751,7 +755,7 @@ public class EntityFactory {
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("energy_ball");
-        main.setSize(32, 32);
+        main.setSize(48, 48);
         main.setOriginCenter();
         main.setScale(0);
         main.setColor(Color.CYAN);
@@ -765,7 +769,7 @@ public class EntityFactory {
         TRANSFORM.rotation = rot;
 
         // Initialize MovementComponent
-        MOVEMENT.moveSpeed = MathUtils.random(.8f, 2.2f);
+        MOVEMENT.moveSpeed = MathUtils.random(.8f, 5f);
 
         // Initialize ColliderComponent
         COLLIDER.handler = new CollisionHandler() {
@@ -800,23 +804,49 @@ public class EntityFactory {
 
         // Initialize BulletComponent
         BULLET.handler = (float dt) -> {
-            if (BULLET.timer > 2 && BULLET.timer <= 4) { //shrink
-                BULLET.timer -= dt;
-                float scale = MathUtils.clamp((4 - BULLET.timer) / 2f, 0, 1);
-                main.setScale(scale);
-                COLLIDER.BODY.setScale(scale, scale);
+            switch(BULLET.state) {
+                case 0: // Shrinking stage
+                    BULLET.timer -= dt;
 
-            } else if (BULLET.timer > 0 && BULLET.timer <= 2) { //shoot at center of screen
-                BULLET.timer -= dt;
-                MOVEMENT.moveSpeed = 0;
+                    float scale = MathUtils.clamp((4 - BULLET.timer) / 2f, 0, 1);
+                    main.setScale(scale);
+                    COLLIDER.BODY.setScale(scale, scale);
+                    MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt / 4f, 0, 1);
 
-                float theta = MathUtils.radiansToDegrees * MathUtils.atan2(viewport.getWorldHeight() / 2 - (TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y), viewport.getWorldWidth() / 2 - (TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x));
-                float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta * MathUtils.degreesToRadians);
-                float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta * MathUtils.degreesToRadians);
-                engine.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta));
+                    if (BULLET.timer <= 0) {
+                        final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.all(PlayerComponent.class, TransformComponent.class).get());
+                        final Vector2
+                                TARGET = new Vector2(),
+                                CENTER = new Vector2();
 
-            } else { //remove
-                engine.removeEntity(E);
+                        CENTER.set(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+
+                        if (PLAYERS.size() > 0) {
+                            final TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
+                            TARGET.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
+                        }
+
+                        TRANSFORM.rotation = MathUtils.radDeg * MathUtils.atan2(TARGET.y - CENTER.y, TARGET.x - CENTER.x);
+
+                        BULLET.timer = 2;
+                        BULLET.state++;
+                    }
+                    break;
+                case 1: // Shooting at the player stage
+                    BULLET.timer -= dt;
+                    MOVEMENT.moveSpeed = 0;
+
+                    float theta = (float) TRANSFORM.rotation;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta * MathUtils.degreesToRadians);
+                    engine.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta));
+
+                    if (BULLET.timer <= 0) {
+                        BULLET.state++;
+                    }
+                    break;
+                default:
+                    engine.removeEntity(E);
             }
         };
 

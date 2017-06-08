@@ -1,7 +1,7 @@
 package com.coffee.util;
 
 /**
- * Interface that allows for some active bullet maneuvers and processes
+ * Interface that allows for some active bullet maneuvers and processes.
  *
  * @author Jared Tulayan
  */

@@ -64,7 +64,7 @@ public class MainMenu extends ScreenAdapter {
             public void changed(ChangeEvent event, Actor actor) {
                 if (((Button) actor).isPressed()) {
                     if (actor == START) {
-                        APP.setScreen(new AITest());
+                        APP.setScreen(new GameScreen());
                         APP.getScreen().dispose();
                     } else if (actor == OPTIONS) {
                         APP.setScreen(new OptionsScreen());
