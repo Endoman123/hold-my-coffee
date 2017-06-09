@@ -315,7 +315,7 @@ public class EntityFactory {
         TRANSFORM.rotation = 90;
 
         // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 10;
+        MOVEMENT.moveSpeed = 20;
         MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
 
         // Initialize ColliderComponent
@@ -1051,13 +1051,76 @@ public class EntityFactory {
 
         // Initialize ColliderComponent
         COLLIDER.BODY.setVertices(new float[]{
-                0,0,
-                TRANSFORM.SIZE.width / 1.41421356f,0,
-                TRANSFORM.SIZE.width / 1.41421356f,TRANSFORM.SIZE.height / 1.41421356f,
-                0,TRANSFORM.SIZE.height / 1.41421356f
+                0, 0,
+                TRANSFORM.SIZE.width / 1.41421356f, 0,
+                TRANSFORM.SIZE.width / 1.41421356f, TRANSFORM.SIZE.height / 1.41421356f,
+                0, TRANSFORM.SIZE.height / 1.41421356f
         });
         COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
         COLLIDER.BODY.setRotation(dir);
+
+        return E;
+    }
+
+    /**
+     * Creates an energy ball with a velocity of 3 at the specified location that explodes into more balls.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param dir    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEnemyBallExploding(float x, float y, float dir) {
+        final Entity E = createEnemyDamagable(dir);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("energy_ball");
+        main.setColor(Color.CHARTREUSE/*191 / 255f, 106 / 255f, 221 / 255f, 1*/);
+        main.setSize(32, 32);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 3;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0, 0,
+                TRANSFORM.SIZE.width / 1.41421356f, 0,
+                TRANSFORM.SIZE.width / 1.41421356f, TRANSFORM.SIZE.height / 1.41421356f,
+                0, TRANSFORM.SIZE.height / 1.41421356f
+        });
+        COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
+        COLLIDER.BODY.setRotation(dir);
+
+        BULLET.handler = (float dt) -> {
+            BULLET.timer -= dt;
+
+            if (BULLET.timer <= 0) {
+                float rand = MathUtils.random(359);
+                for (int i = 0; i < 5; i++) {
+                    float theta = i * 72f;
+                    Vector2 loc = TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN);
+                    Entity BALL = createEnemyBall(loc.x, loc.y, theta + rand);
+                    Mapper.MOVEMENT.get(BALL).moveSpeed = 2;
+                    engine.addEntity(BALL);
+                    engine.removeEntity(E);
+                }
+            }
+        };
+
+        BULLET.timer = MathUtils.random(1, 2);
 
         return E;
     }
@@ -1442,8 +1505,8 @@ public class EntityFactory {
         AI.state = -1;
 
         // Initialize HealthComponent
-        HEALTH.maxHealth = 10000;
-        HEALTH.health = 10000;
+        HEALTH.maxHealth = 35000;
+        HEALTH.health = 35000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
