@@ -1013,6 +1013,7 @@ public class EntityFactory {
                     SPRITE.SPRITES.get(0).getColor().a
                     );
             MOVEMENT.MOVEMENT_NORMAL.rotate(dt * 20);
+            MOVEMENT.moveSpeed += dt * 2;
         };
 
         return E;
@@ -1376,79 +1377,6 @@ public class EntityFactory {
     // endregion
 
     // region BossActions
-
-    /**
-     * @return {@link BossActionHandler} that resets AIComponent of the boss
-     */
-    public static BossActionHandler reset() {
-        return (Entity entity, float deltaTime) -> {
-            AIComponent AI = Mapper.AI.get(entity);
-            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
-
-            if (AI.actionTimer <= 0) {
-                AI.BEGIN_POS.set(TRANSFORM.POSITION);
-                do {
-                    AI.END_POS.set(
-                            MathUtils.random(viewport.getWorldWidth() - TRANSFORM.SIZE.width),
-                            MathUtils.random(viewport.getWorldHeight() * 2.0f / 3.0f, viewport.getWorldHeight() - TRANSFORM.SIZE.height)
-                    );
-                } while (AI.BEGIN_POS.dst2(AI.END_POS) <= 1000);
-
-                AI.actionTimer = 0;
-                AI.lerpTimer = 0;
-                AI.state = 1;
-            } else
-                AI.actionTimer -= deltaTime;
-        };
-    }
-
-    /**
-     * @return {@link BossActionHandler} that moves the Boss, then sets its action index.
-     */
-    public static BossActionHandler moveThenAttack() {
-        return (Entity entity, float deltaTime) -> {
-            AIComponent AI = Mapper.AI.get(entity);
-            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
-            HealthComponent HEALTH = Mapper.HEALTH.get(entity);
-
-            AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
-            float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
-
-            TRANSFORM.POSITION.set(
-                    MathUtils.lerp(AI.BEGIN_POS.x, AI.END_POS.x, perc),
-                    MathUtils.lerp(AI.BEGIN_POS.y, AI.END_POS.y, perc)
-            );
-
-            if (AI.lerpTimer == 1) {
-                if (HEALTH.getHealthPercent() >= 0.75) {
-                    AI.state = MathUtils.random(1, 4);
-                    AI.lerpSpeed = 1.6f;
-                } else if (HEALTH.getHealthPercent() >= 0.50) {
-                    AI.state = MathUtils.random(2, 6);
-                    AI.lerpSpeed = 2.4f;
-                } else if (HEALTH.getHealthPercent() >= 0.25) {
-                    if (MathUtils.randomBoolean(.1f))
-                        AI.state = AI.ACTIONS.size - 1; //Fake out
-                    else
-                        AI.state = MathUtils.random(1, 7);
-                    AI.lerpSpeed = 3.2f;
-                } else if (HEALTH.getHealthPercent() >= 0.1125) {
-                    if (MathUtils.randomBoolean(.175f))
-                        AI.state = AI.ACTIONS.size - 1; //Fake out
-                    else
-                        AI.state = MathUtils.random(6, 10);
-                    AI.lerpSpeed = 4f;
-                } else {
-                    if (MathUtils.randomBoolean(.3f))
-                        AI.state = AI.ACTIONS.size - 1; //Fake out
-                    else
-                        AI.state = MathUtils.random(1, 10);
-                    AI.lerpSpeed = MathUtils.random(2f, 4.8f);
-                }
-            }
-        };
-    }
-
     /**
      * @return {@link BossActionHandler} that creates a ball that explodes into bullets
      */
@@ -1460,14 +1388,15 @@ public class EntityFactory {
             AI.fireTimer += deltaTime;
 
             if (AI.fireTimer >= 0.01f) {
-                engine.addEntity(EntityFactory.createEnemyBulletExploding(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
+                if (AI.actionTimer < 1)
+                    engine.addEntity(EntityFactory.createEnemyBulletExploding(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
 
                 AI.fireTimer = 0;
                 AI.actionTimer++;
 
-                if (AI.actionTimer >= 1) {
-                        AI.actionTimer = 4;
-                        AI.state = 0;
+                if (AI.actionTimer >= 10) {
+                    AI.actionTimer = 4;
+                    AI.state = -2;
                 }
             }
         };
@@ -1495,8 +1424,8 @@ public class EntityFactory {
                 AI.fireTimer = 0;
                 AI.actionTimer++;
 
-                if (AI.actionTimer == 150) {
-                    AI.state = 0;
+                if (AI.actionTimer == 75) {
+                    AI.state = -2;
                     AI.actionTimer = 1;
                 }
             }
@@ -1510,6 +1439,8 @@ public class EntityFactory {
         return (Entity entity, float deltaTime) -> {
             AIComponent AI = Mapper.AI.get(entity);
             TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
 
             if (AI.fireTimer >= 0.001f) {
                 //float deg = 257.5f + MathUtils.random(25);
@@ -1528,7 +1459,7 @@ public class EntityFactory {
 
                 if (AI.actionTimer == 250) {
                     AI.actionTimer = 1;
-                    AI.state = 0;
+                    AI.state = -2;
                 }
             }
         };
@@ -1558,13 +1489,8 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 1) {
-                    if (MathUtils.randomBoolean((1f - HEALTH.getHealthPercent()))) {
-                        AI.state = 7;
-                        AI.actionTimer = 0;
-                    } else {
-                        AI.actionTimer = 3;
-                        AI.state = 0;
-                    }
+                    AI.actionTimer = 3;
+                    AI.state = -2;
                 }
             }
         };
@@ -1594,13 +1520,8 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 100) {
-                    if (MathUtils.randomBoolean((1f - HEALTH.getHealthPercent()) / 3f)) {
-                        AI.state = 3;
-                        AI.actionTimer = 0;
-                    } else {
-                        AI.actionTimer = 3;
-                        AI.state = 0;
-                    }
+                    AI.actionTimer = 3;
+                    AI.state = -2;
                 }
             }
         };
@@ -1639,13 +1560,8 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 20) {
-                    if (MathUtils.randomBoolean((1f - HEALTH.getHealthPercent()) / 5f)) {
-                        AI.actionTimer = 0;
-                        AI.state = 4;
-                    } else {
-                        AI.actionTimer = 1;
-                        AI.state = 0;
-                    }
+                    AI.actionTimer = 1;
+                    AI.state = -2;
                 }
             }
         };
@@ -1675,14 +1591,8 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 9) {
-                    AI.actionTimer = 2;
-                    if (MathUtils.randomBoolean(0.25f)) {
-                        AI.state = 9;
-                        AI.actionTimer = 0;
-                    } else {
-                        AI.state = 0;
-                        AI.actionTimer = 0;
-                    }
+                    AI.state = -2;
+                    AI.actionTimer = 0;
                 }
             }
         };
@@ -1720,7 +1630,7 @@ public class EntityFactory {
 
                 if (AI.actionTimer == 1) {
                     AI.actionTimer = 4;
-                    AI.state = 0;
+                    AI.state = -2;
                 }
             }
         };
@@ -1750,14 +1660,8 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 50) {
-                    AI.actionTimer = 3;
-                    if (MathUtils.randomBoolean(0.4f)) {
-                        AI.state = 9;
-                        AI.actionTimer = 0;
-                    } else {
-                        AI.state = 0;
-                        AI.actionTimer = 1;
-                    }
+                    AI.state = -2;
+                    AI.actionTimer = 1;
                 }
             }
         };
@@ -1771,7 +1675,7 @@ public class EntityFactory {
             AIComponent AI = Mapper.AI.get(entity);
 
             AI.actionTimer = .05f;
-            AI.state = 0;
+            AI.state = -2;
         };
     }
 
@@ -1855,13 +1759,12 @@ public class EntityFactory {
                 cone(),
                 tougherHomingBullet(),
                 laserBulletBurst(),
-                shiftingSpiral(),
-                fakeOut()
+                shiftingSpiral()
         );
 
         // Initialize HealthComponent
-        HEALTH.maxHealth = 10000;
-        HEALTH.health = 10000;
+        HEALTH.maxHealth = 5000;//10000;
+        HEALTH.health = 5000;//10000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);

@@ -11,15 +11,16 @@ import com.coffee.util.BossActionHandler;
  * @author Phillip O'Reggio
  */
 public class AIComponent implements Component, Pool.Poolable{
-    /** Index 0 is reserved for reset and Index 1 is reserved for move then attack. */
+    /** Index 0 is reserved for the fake out */
     public final Array<BossActionHandler> ACTIONS;
     public final Vector2 BEGIN_POS, END_POS, TARGET_LOC;
     public float lerpTimer, lerpSpeed, actionTimer, fireTimer;
+    /** -1 : move then attack   -2 : reset */
     public int state;
 
     public AIComponent() {
         ACTIONS = new Array<>();
-        ACTIONS.addAll(EntityFactory.reset(), EntityFactory.moveThenAttack());
+        ACTIONS.add(EntityFactory.fakeOut());
 
         END_POS = new Vector2();
         BEGIN_POS = new Vector2();
@@ -33,7 +34,7 @@ public class AIComponent implements Component, Pool.Poolable{
 
     public void reset() {
         ACTIONS.clear();
-        ACTIONS.addAll(EntityFactory.reset(), EntityFactory.moveThenAttack());
+        ACTIONS.add(EntityFactory.fakeOut());
 
         END_POS.setZero();
         BEGIN_POS.setZero();
