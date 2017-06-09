@@ -1013,7 +1013,7 @@ public class EntityFactory {
                     SPRITE.SPRITES.get(0).getColor().a
                     );
             MOVEMENT.MOVEMENT_NORMAL.rotate(dt * 20);
-            MOVEMENT.moveSpeed += dt * 2;
+            MOVEMENT.moveSpeed += dt;
         };
 
         return E;
@@ -1396,7 +1396,7 @@ public class EntityFactory {
 
                 if (AI.actionTimer >= 10) {
                     AI.actionTimer = 4;
-                    AI.state = -2;
+                    AI.state = -3;
                 }
             }
         };
@@ -1425,7 +1425,7 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 75) {
-                    AI.state = -2;
+                    AI.state = -3;
                     AI.actionTimer = 1;
                 }
             }
@@ -1489,8 +1489,8 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 1) {
-                    AI.actionTimer = 3;
-                    AI.state = -2;
+                    AI.actionTimer = 1;
+                    AI.state = -3;
                 }
             }
         };
@@ -1520,8 +1520,8 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 100) {
-                    AI.actionTimer = 3;
-                    AI.state = -2;
+                    AI.actionTimer = 2;
+                    AI.state = -3;
                 }
             }
         };
@@ -1591,7 +1591,7 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 9) {
-                    AI.state = -2;
+                    AI.state = -3;
                     AI.actionTimer = 0;
                 }
             }
@@ -1647,7 +1647,7 @@ public class EntityFactory {
 
             AI.fireTimer += deltaTime;
 
-            if (AI.fireTimer >= 0.175) {
+            if (AI.fireTimer >= 0.125) {
                 for (int i = 0; i < 6; i++) {
                     float deg = AI.actionTimer * 7 + i * 60;
                     float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
@@ -1660,7 +1660,7 @@ public class EntityFactory {
                 AI.actionTimer++;
 
                 if (AI.actionTimer == 50) {
-                    AI.state = -2;
+                    AI.state = -3;
                     AI.actionTimer = 1;
                 }
             }
@@ -1749,11 +1749,11 @@ public class EntityFactory {
         );
         AI.BEGIN_POS.set(TRANSFORM.POSITION);
         AI.lerpSpeed = 1.6f;
-        AI.state = 1;
+        AI.state = -2;
         AI.ACTIONS.addAll(
                 chargeToExplosion(),
-                simpleSpiral(),
                 laser(),
+                simpleSpiral(),
                 invisibleHomingBullets(),
                 tempestBloom(),
                 cone(),
