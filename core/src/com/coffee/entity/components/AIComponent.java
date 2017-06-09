@@ -24,7 +24,7 @@ public class AIComponent implements Component, Pool.Poolable{
 
         END_POS = new Vector2();
         BEGIN_POS = new Vector2();
-        TARGET_LOC = new Vector2();
+        TARGET_LOC = new Vector2(-999, -999);
         lerpTimer = 0;
         lerpSpeed = 1;
         actionTimer = 0;
@@ -38,7 +38,7 @@ public class AIComponent implements Component, Pool.Poolable{
 
         END_POS.setZero();
         BEGIN_POS.setZero();
-        TARGET_LOC.setZero();
+        TARGET_LOC.set(-999, -999);
         lerpTimer = 0;
         lerpSpeed = 1;
         actionTimer = 0;

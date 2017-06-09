@@ -4,12 +4,11 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.coffee.entity.components.AIComponent;
-import com.coffee.entity.components.HealthComponent;
-import com.coffee.entity.components.MovementComponent;
-import com.coffee.entity.components.TransformComponent;
+import com.coffee.entity.components.*;
 import com.coffee.util.Mapper;
 
 /**
@@ -17,10 +16,14 @@ import com.coffee.util.Mapper;
  */
 public class AISystem extends IteratingSystem {
     public final Viewport VIEWPORT;
+    public final Vector2 DEF, TEMP;
+
 
     public AISystem(Viewport v) {
         super(Family.all(AIComponent.class).get());
         VIEWPORT = v;
+        DEF = new Vector2(-999, -999);
+        TEMP = new Vector2();
     }
 
     public void processEntity(Entity entity, float deltaTime) {
@@ -120,10 +123,8 @@ public class AISystem extends IteratingSystem {
 
         // endregion
 
-        if (HEALTH.health <= 0) {
+        if (HEALTH.health <= 0)
             getEngine().removeEntity(entity);
-            System.out.println("dead boi");
-        }
     }
 
     /**
