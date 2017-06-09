@@ -31,6 +31,7 @@ public class AISystem extends IteratingSystem {
         final HealthComponent HEALTH = Mapper.HEALTH.get(entity);
         //states should get harder with higher index numbers
         //TODO Chain attacks at harder difficulties
+
         // region State Machine
         switch (AI.state) {
             case 0: // Reset states
@@ -59,8 +60,13 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer++;
 
                     if (AI.actionTimer >= 1) {
-                        AI.actionTimer = 4;
-                        AI.state = 0;
+                        if (MathUtils.randomBoolean((1f - HEALTH.getHealthPercent()) / 3f)) {
+                            AI.state = 3;
+                            AI.actionTimer = 1;
+                        } else {
+                            AI.actionTimer = 4;
+                            AI.state = 0;
+                        }
                     }
                 }
 
@@ -81,11 +87,8 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer++;
 
                     if (AI.actionTimer == 150) {
-                        AI.actionTimer = 3;
-                        if (MathUtils.randomBoolean(0.1f))
-                            AI.state = 1;
-                        else
-                            AI.state = 0;
+                        AI.state = 0;
+                        AI.actionTimer = 1;
                     }
                 }
                 break;
@@ -130,12 +133,17 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer++;
 
                     if (AI.actionTimer == 1) {
-                        AI.actionTimer = 3;
-                        AI.state = 0;
+                        if (MathUtils.randomBoolean((1f - HEALTH.getHealthPercent()))) {
+                            AI.state = 7;
+                            AI.actionTimer = 0;
+                        } else {
+                            AI.actionTimer = 3;
+                            AI.state = 0;
+                        }
                     }
                 }
                 break;
-            case 5: // Spiral thing part 2
+            case 5: // Spiral thing that fades part 2
                 AI.fireTimer += deltaTime;
 
                 if (AI.fireTimer >= 0.1f) {
@@ -151,8 +159,13 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer++;
 
                     if (AI.actionTimer == 100) {
-                        AI.actionTimer = 3;
-                        AI.state = 0;
+                        if (MathUtils.randomBoolean((1f - HEALTH.getHealthPercent()) / 3f)) {
+                            AI.state = 3;
+                            AI.actionTimer = 0;
+                        } else {
+                            AI.actionTimer = 3;
+                            AI.state = 0;
+                        }
                     }
                 }
 
@@ -182,7 +195,7 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer++;
 
                     if (AI.actionTimer == 20) {
-                        if (MathUtils.randomBoolean(0.1f)) {
+                        if (MathUtils.randomBoolean((1f - HEALTH.getHealthPercent()) / 5f)) {
                             AI.actionTimer = 0;
                             AI.state = 4;
                         } else {
@@ -207,7 +220,7 @@ public class AISystem extends IteratingSystem {
                     AI.fireTimer = 0;
                     AI.actionTimer++;
 
-                    if (AI.actionTimer == 1) {
+                    if (AI.actionTimer >= 1) {
                         AI.actionTimer = 3;
                         AI.state = 0;
                     }
@@ -230,10 +243,13 @@ public class AISystem extends IteratingSystem {
 
                     if (AI.actionTimer == 9) {
                         AI.actionTimer = 2;
-                        if (MathUtils.randomBoolean(0.1f))
+                        if (MathUtils.randomBoolean(0.25f)) {
                             AI.state = 9;
-                        else
+                            AI.actionTimer = 0;
+                        } else {
                             AI.state = 0;
+                            AI.actionTimer = 0;
+                        }
                     }
                 }
                 break;
@@ -268,7 +284,7 @@ public class AISystem extends IteratingSystem {
             case 10: // Shifting spiral
                 AI.fireTimer += deltaTime;
 
-                if (AI.fireTimer >= 0.25f) {
+                if (AI.fireTimer >= 0.175) {
                     for (int i = 0; i < 6; i++) {
                         float deg = AI.actionTimer * 7 + i * 60;
                         float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
@@ -282,10 +298,13 @@ public class AISystem extends IteratingSystem {
 
                     if (AI.actionTimer == 50) {
                         AI.actionTimer = 3;
-                        if (MathUtils.randomBoolean(0.1f))
-                            AI.state = 3;
-                        else
+                        if (MathUtils.randomBoolean(0.4f)) {
+                            AI.state = 9;
+                            AI.actionTimer = 0;
+                        } else {
                             AI.state = 0;
+                            AI.actionTimer = 1;
+                        }
                     }
                 }
                 break;
@@ -316,13 +335,13 @@ public class AISystem extends IteratingSystem {
                             AI.state = MathUtils.random(1, 7);
                         AI.lerpSpeed = 3.2f;
                     } else if (HEALTH.getHealthPercent() >= 0.1125) {
-                        if (MathUtils.randomBoolean(.3f))
+                        if (MathUtils.randomBoolean(.175f))
                             AI.state = 11; //Fake out
                         else
                             AI.state = MathUtils.random(6, 10);
                         AI.lerpSpeed = 4f;
                     } else {
-                        if (MathUtils.randomBoolean(.4f))
+                        if (MathUtils.randomBoolean(.3f))
                             AI.state = 11; //Fake out
                         else
                             AI.state = MathUtils.random(1, 10);
