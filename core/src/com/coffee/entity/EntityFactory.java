@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
 import com.coffee.util.Assets;
+import com.coffee.util.BossActionHandler;
 import com.coffee.util.CollisionHandler;
 import com.coffee.util.Mapper;
 import com.kotcrab.vis.ui.util.ColorUtils;
@@ -315,7 +316,7 @@ public class EntityFactory {
         TRANSFORM.rotation = 90;
 
         // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 20;
+        MOVEMENT.moveSpeed = 10;
         MOVEMENT.MOVEMENT_NORMAL.set(Vector2.Y);
 
         // Initialize ColliderComponent
@@ -1012,6 +1013,7 @@ public class EntityFactory {
                     SPRITE.SPRITES.get(0).getColor().a
                     );
             MOVEMENT.MOVEMENT_NORMAL.rotate(dt * 20);
+            MOVEMENT.moveSpeed += dt * 2;
         };
 
         return E;
@@ -1437,6 +1439,314 @@ public class EntityFactory {
     }
     // endregion
 
+    // region BossActions
+    /**
+     * @return {@link BossActionHandler} that creates a ball that explodes into bullets
+     */
+    public static BossActionHandler chargeToExplosion() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.01f) {
+                if (AI.actionTimer < 1)
+                    engine.addEntity(EntityFactory.createEnemyBulletExploding(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer >= 10) {
+                    AI.actionTimer = 4;
+                    AI.state = -2;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that creates spiral attack out of balls
+     */
+    public static BossActionHandler simpleSpiral() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.1f) {
+                for (int i = 0; i < 6; i++) {
+                    float deg = AI.actionTimer * 7 + i * 60;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    engine.addEntity(EntityFactory.createEnemyBall(xPlace, yPlace, deg));
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 75) {
+                    AI.state = -2;
+                    AI.actionTimer = 1;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a laser
+     */
+    public static BossActionHandler laser() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.001f) {
+                //float deg = 257.5f + MathUtils.random(25);
+                float posVal;
+                posVal = (TRANSFORM.POSITION.cpy().x - AI.BEGIN_POS.cpy().x + 10) % 20;
+
+                float deg = 260 + posVal;
+
+                float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                engine.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, deg));
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 250) {
+                    AI.actionTimer = 1;
+                    AI.state = -2;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a couple of invisible bullets
+     */
+    public static BossActionHandler invisibleHomingBullets() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            HealthComponent HEALTH = Mapper.HEALTH.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.1f) {
+                for (int i = 0; i < 6; i++) {
+                    float deg = 220 + i * 20;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    engine.addEntity(EntityFactory.createHomingEnemyBullet(xPlace, yPlace, deg));
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 1) {
+                    AI.actionTimer = 3;
+                    AI.state = -2;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a stunning blossom of ever-fading petals.
+     */
+    public static BossActionHandler tempestBloom() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            HealthComponent HEALTH = Mapper.HEALTH.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.1f) {
+                for (int i = 0; i < 6; i++) {
+                    float deg = AI.actionTimer * 7 + i * 60;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    engine.addEntity(EntityFactory.createEnemyBulletFade(xPlace, yPlace, deg));
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 100) {
+                    AI.actionTimer = 3;
+                    AI.state = -2;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a cone of bullets
+     */
+    public static BossActionHandler cone() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            HealthComponent HEALTH = Mapper.HEALTH.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.15) {
+                if (AI.actionTimer % 2 == 0)
+                    for (int i = 0; i < 17; i++) {
+                        float deg = 190 + i * 10;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        engine.addEntity(EntityFactory.createEnemyBulletSlows(xPlace, yPlace, deg));
+                    }
+                else
+                    for (int i = 0; i < 16; i++) {
+                        float deg = 195 + i * 10;
+                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        engine.addEntity(EntityFactory.createEnemyBulletSlows(xPlace, yPlace, deg));
+                    }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 20) {
+                    AI.actionTimer = 1;
+                    AI.state = -2;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that many homing bullets
+     */
+    public static BossActionHandler tougherHomingBullet() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            HealthComponent HEALTH = Mapper.HEALTH.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.1f) {
+                for (int i = 0; i < 6; i++) {
+                    float deg = AI.actionTimer * 7 + i * 60;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    engine.addEntity(EntityFactory.createHomingEnemyBullet(xPlace, yPlace, deg));
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 9) {
+                    AI.state = -2;
+                    AI.actionTimer = 0;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that creates 3 balls that shoot lasers at the player
+     */
+    public static BossActionHandler laserBulletBurst() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            HealthComponent HEALTH = Mapper.HEALTH.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.1f) {
+                final Vector2
+                        WORLD_CENTER = new Vector2(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2),
+                        TRANS_CENTER = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+
+                float theta = MathUtils.radDeg * MathUtils.atan2(WORLD_CENTER.y - TRANS_CENTER.y, WORLD_CENTER.x - TRANS_CENTER.x);
+                System.out.println(theta);
+
+                for (int i = 0; i < 3; i++) {
+                    float deg = theta + i * 30 - 30;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    engine.addEntity(EntityFactory.createEnemyBulletExplodingMoving(xPlace, yPlace, deg));
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 1) {
+                    AI.actionTimer = 4;
+                    AI.state = -2;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a spinning spiral
+     */
+    public static BossActionHandler shiftingSpiral() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            HealthComponent HEALTH = Mapper.HEALTH.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.175) {
+                for (int i = 0; i < 6; i++) {
+                    float deg = AI.actionTimer * 7 + i * 60;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    engine.addEntity(EntityFactory.createEnemyBallShifter(xPlace, yPlace, deg));
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 50) {
+                    AI.state = -2;
+                    AI.actionTimer = 1;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that does nothing but immediately moves.
+     */
+    public static BossActionHandler fakeOut() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+
+            AI.actionTimer = .05f;
+            AI.state = -2;
+        };
+    }
+
+
+
+
+    // endregion
+
     /**
      * Creates a boss entity complete with AI, displayable GUI, and other things.
      *
@@ -1502,7 +1812,18 @@ public class EntityFactory {
         );
         AI.BEGIN_POS.set(TRANSFORM.POSITION);
         AI.lerpSpeed = 1.6f;
-        AI.state = -1;
+        AI.state = 1;
+        AI.ACTIONS.addAll(
+                chargeToExplosion(),
+                simpleSpiral(),
+                laser(),
+                invisibleHomingBullets(),
+                tempestBloom(),
+                cone(),
+                tougherHomingBullet(),
+                laserBulletBurst(),
+                shiftingSpiral()
+        );
 
         // Initialize HealthComponent
         HEALTH.maxHealth = 35000;
