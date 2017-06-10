@@ -33,7 +33,7 @@ public class Application extends Game {
 		OptionsManager.init();
 
 		// Initialize global stuff before all the Screen stuff
-		batch = new SpriteBatch(5120);
+		batch = new SpriteBatch(2000);
 		viewport = new FitViewport(450, 800);
 		inputMultiplexer = new InputMultiplexer();
 		shapeRenderer = new ShapeRenderer();
@@ -48,7 +48,6 @@ public class Application extends Game {
 		inputMultiplexer.addProcessor(new InputAdapter() {
 			@Override
 			public boolean keyDown(int keycode) {
-				//int s = curTest;
 				switch(keycode) {
 					case Input.Keys.F11:
 						OptionsManager.fullscreen = !OptionsManager.fullscreen;
@@ -57,7 +56,6 @@ public class Application extends Game {
 					default:
 						return false;
 				}
-
 				return true;
 			}
 		});

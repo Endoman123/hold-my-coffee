@@ -61,6 +61,7 @@ public class GameScreen extends ScreenAdapter {
         ENGINE.getSystem(AISystem.class).setProcessing(false);
 
         readyTimer = READY_LENGTH;
+        Gdx.input.setCursorCatched(true);
     }
 
     @Override
@@ -107,6 +108,7 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         Application app = (Application) Gdx.app.getApplicationListener();
 
+        Gdx.input.setCursorCatched(false);
         app.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(player).PROCESSOR);
     }
 
@@ -117,13 +119,14 @@ public class GameScreen extends ScreenAdapter {
     private void togglePause() {
         pause = !pause;
 
-        ENGINE.getSystem(AISystem.class).setProcessing(pause);
-        ENGINE.getSystem(BulletSystem.class).setProcessing(pause);
-        ENGINE.getSystem(CollisionSystem.class).setProcessing(pause);
-        ENGINE.getSystem(HealthSystem.class).setProcessing(pause);
-        ENGINE.getSystem(LifetimeSystem.class).setProcessing(pause);
-        ENGINE.getSystem(MovementSystem.class).setProcessing(pause);
-        ENGINE.getSystem(PlayerSystem.class).setProcessing(pause);
-        ENGINE.getSystem(SpawnerSystem.class).setProcessing(pause);
+        Gdx.input.setCursorCatched(!pause);
+        ENGINE.getSystem(AISystem.class).setProcessing(!pause);
+        ENGINE.getSystem(BulletSystem.class).setProcessing(!pause);
+        ENGINE.getSystem(CollisionSystem.class).setProcessing(!pause);
+        ENGINE.getSystem(HealthSystem.class).setProcessing(!pause);
+        ENGINE.getSystem(LifetimeSystem.class).setProcessing(!pause);
+        ENGINE.getSystem(MovementSystem.class).setProcessing(!pause);
+        ENGINE.getSystem(PlayerSystem.class).setProcessing(!pause);
+        ENGINE.getSystem(SpawnerSystem.class).setProcessing(!pause);
     }
 }

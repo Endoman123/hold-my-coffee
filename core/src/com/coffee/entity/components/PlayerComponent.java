@@ -1,6 +1,7 @@
 package com.coffee.entity.components;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 
 /**
@@ -11,6 +12,7 @@ import com.badlogic.gdx.utils.Pool;
 public class PlayerComponent implements Component, Pool.Poolable {
     // Inputs
     public int up = 0, down = 0, left = 0, right = 0;
+    public final Vector2 MOUSE;
     public boolean shoot = false;
 
     // Shooting timer
@@ -26,8 +28,13 @@ public class PlayerComponent implements Component, Pool.Poolable {
     // Player statisitics
     public int shotsFired, shotsHit;
 
+    public PlayerComponent() {
+        MOUSE = new Vector2();
+    }
+
     @Override
     public void reset() {
+        MOUSE.setZero();
         upBulletDamage = 0;
         upFireRate = 0;
         upSpeed = 0;
