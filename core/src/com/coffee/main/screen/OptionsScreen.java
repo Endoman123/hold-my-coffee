@@ -58,10 +58,10 @@ public class OptionsScreen extends ScreenAdapter {
         TITLE.setAlignment(Align.center);
 
         RES.setItems(
-                "360x640",
-                "450x800",
-                "507x900",
-                "720x1280"
+                "300x400",
+                "600x800",
+                "675x900",
+                "1024x1280"
         );
 
         RES.setSelected(OptionsManager.resolution);

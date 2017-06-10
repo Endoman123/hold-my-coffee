@@ -1949,13 +1949,13 @@ public class EntityFactory {
         AI.lerpSpeed = 1.6f;
         AI.state = -2;
         AI.ACTIONS.addAll(
-                emitter(),
-                //chargeToExplosion(),
+                chargeToExplosion(),
                 laser(),
                 simpleSpiral(),
                 invisibleHomingBullets(),
                 tempestBloom(),
                 cone(),
+                emitter(),
                 tougherHomingBullet(),
                 laserBulletBurst(),
                 shiftingSpiral(),
@@ -1963,8 +1963,8 @@ public class EntityFactory {
         );
 
         // Initialize HealthComponent
-        HEALTH.maxHealth = 2500;
-        HEALTH.health = 2500;
+        HEALTH.maxHealth = 10000;
+        HEALTH.health = 10000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
