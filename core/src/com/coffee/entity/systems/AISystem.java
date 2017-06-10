@@ -49,7 +49,6 @@ public class AISystem extends IteratingSystem {
                         AI.state = biasedRandom(2, MathUtils.round(AI.ACTIONS.size / 1.5f), .75f);
                     } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
                         AI.state = MathUtils.random(1, AI.ACTIONS.size - 1);
-                        //B
                     } else {  // > 11.25%
                         AI.state = biasedRandom(1, AI.ACTIONS.size - 1, .3f);
                     }
@@ -91,7 +90,7 @@ public class AISystem extends IteratingSystem {
                 if (AI.lerpTimer == 1) {
                     // region selecting next attack
                     if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
-                        AI.state = MathUtils.random(1, AI.ACTIONS.size / 3); //Uses 1st third
+                        AI.state = /*AI.ACTIONS.size - 1;*/MathUtils.random(1, AI.ACTIONS.size / 3); //Uses 1st third
                         AI.lerpSpeed = 1.6f;
                     } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75%
                         AI.state = biasedRandom(1, AI.ACTIONS.size / 2, .5f); //Uses 1st half (biased towards later)
