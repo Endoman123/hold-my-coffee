@@ -63,12 +63,11 @@ public class MainMenu extends ScreenAdapter {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (((Button) actor).isPressed()) {
+                    APP.getScreen().dispose();
                     if (actor == START) {
                         APP.setScreen(new GameScreen());
-                        APP.getScreen().dispose();
                     } else if (actor == OPTIONS) {
                         APP.setScreen(new OptionsScreen());
-                        APP.getScreen().dispose();
                     } else if (actor == EXIT) {
                         Gdx.app.exit();
                     }
