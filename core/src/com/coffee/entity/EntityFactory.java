@@ -1000,7 +1000,7 @@ public class EntityFactory {
                     MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b + dt / 2f, 0, 1),
                     SPRITE.SPRITES.get(0).getColor().a
                     );
-            MOVEMENT.MOVEMENT_NORMAL.rotate(dt * 20);
+            MOVEMENT.MOVEMENT_NORMAL.rotate(dt * 24);
             MOVEMENT.moveSpeed += dt;
         };
 
@@ -1096,6 +1096,12 @@ public class EntityFactory {
 
         BULLET.handler = (float dt) -> {
             BULLET.timer -= dt;
+            SPRITE.SPRITES.get(0).setColor(
+                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r + dt / 2f, 0, 1),
+                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt / 2f, 0, 1),
+                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt / 2f, 0, 1),
+                    SPRITE.SPRITES.get(0).getColor().a
+            );
 
             if (BULLET.timer <= 0) {
                 float rand = MathUtils.random(359);
@@ -1103,10 +1109,12 @@ public class EntityFactory {
                     float theta = i * 72f;
                     Vector2 loc = TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN);
                     Entity BALL = createEnemyBall(loc.x, loc.y, theta + rand);
+                    Mapper.SPRITE.get(BALL).SPRITES.get(0).setColor(Color.RED);
                     Mapper.MOVEMENT.get(BALL).moveSpeed = 2;
                     engine.addEntity(BALL);
                     engine.removeEntity(E);
                 }
+
             }
         };
 
@@ -1654,7 +1662,7 @@ public class EntityFactory {
                 AI.fireTimer = 0;
                 AI.actionTimer++;
 
-                if (AI.actionTimer == 100) {
+                if (AI.actionTimer == 75) {
                     AI.actionTimer = 2;
                     AI.state = -3;
                 }
@@ -1750,6 +1758,7 @@ public class EntityFactory {
                         TRANS_CENTER = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
 
                 float theta = MathUtils.radDeg * MathUtils.atan2(WORLD_CENTER.y - TRANS_CENTER.y, WORLD_CENTER.x - TRANS_CENTER.x);
+                System.out.println(theta);
 
                 for (int i = 0; i < 3; i++) {
                     float deg = theta + i * 30 - 30;
@@ -1781,7 +1790,7 @@ public class EntityFactory {
 
             AI.fireTimer += deltaTime;
 
-            if (AI.fireTimer >= 0.125) {
+            if (AI.fireTimer >= 0.1) {
                 for (int i = 0; i < 6; i++) {
                     float deg = AI.actionTimer * 7 + i * 60;
                     float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
@@ -1796,6 +1805,246 @@ public class EntityFactory {
                 if (AI.actionTimer == 50) {
                     AI.state = -3;
                     AI.actionTimer = 1;
+                }
+            }
+        };
+    }
+
+    public static BossActionHandler shiftingSpiralReverse() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.1) {
+                for (int i = 0; i < 6; i++) {
+                    float deg = AI.actionTimer * 7 + i * 60;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    Entity bullet = createEnemyBallShifter(xPlace, yPlace, deg);
+                    SpriteComponent SPRITE = Mapper.SPRITE.get(bullet);
+                    MovementComponent MOVEMENT = Mapper.MOVEMENT.get(bullet);
+
+                    MOVEMENT.moveSpeed = 0;
+                    Mapper.BULLET.get(bullet).handler = (float dt) -> {
+                        SPRITE.SPRITES.get(0).setColor(
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r - dt / 20f, 0, 1),
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g + dt / 2f, 0, 1),
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt / 15f, 0, 1),
+                                SPRITE.SPRITES.get(0).getColor().a
+                        );
+                        MOVEMENT.MOVEMENT_NORMAL.rotate(-dt * 36);
+                        MOVEMENT.moveSpeed += dt * 4;
+                    };
+
+                    engine.addEntity(bullet);
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 50) {
+                    AI.state = -3;
+                    AI.actionTimer = 1;
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a laser
+     */
+    public static BossActionHandler shiftingSpiralPlus() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.TARGET_LOC.epsilonEquals(-999, -999, 1)) {
+                final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.all(PlayerComponent.class, TransformComponent.class).get());
+                AI.TARGET_LOC.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2);
+
+                if (PLAYERS.size() != 0) {
+                    TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
+
+                    AI.TARGET_LOC.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
+                }
+            }
+
+            if (AI.fireTimer >= 0.1f) {
+                float xPlace;
+                float yPlace;
+
+                if (AI.actionTimer % 20 != 0) { // spinning balls
+                    for (int i = 0; i < 12; i++) {
+                        float deg = AI.actionTimer * 7 + i * 30;
+                        xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        Entity bullet = EntityFactory.createEnemyBall(xPlace, yPlace, deg);
+                        SpriteComponent SPRITE = Mapper.SPRITE.get(bullet);
+                        BulletComponent BULLET = Mapper.BULLET.get(bullet);
+                        MovementComponent MOVE = Mapper.MOVEMENT.get(bullet);
+                        MOVE.moveSpeed = 2;
+                        BULLET.handler = (float dt) -> {
+                            BULLET.timer += dt / 2f;
+                            SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(new Color(0, 0, 1f, 0), (MathUtils.cos(BULLET.timer * MathUtils.PI2) + 1) / 2f));
+                            MOVE.MOVEMENT_NORMAL.rotate(dt * 5);
+                        };
+                        engine.addEntity(bullet);
+                    }
+
+                } else { // exploding bullets
+                    for (int i = 0; i < 4; i++) {
+                        float deg = AI.actionTimer * 7 + i * 90;
+                        xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                        yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                        engine.addEntity(EntityFactory.createEnemyBulletExplodingMoving(xPlace, yPlace, deg));
+                    }
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 70) {
+                    AI.actionTimer = 2.5f;
+                    AI.state = -2;
+                    AI.TARGET_LOC.set(-999, -999);
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a laser
+     */
+    public static BossActionHandler helixLaser() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.TARGET_LOC.epsilonEquals(-999, -999, 1)) {
+                final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.all(PlayerComponent.class, TransformComponent.class).get());
+                AI.TARGET_LOC.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2);
+
+                if (PLAYERS.size() != 0) {
+                    TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
+
+                    AI.TARGET_LOC.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
+                }
+            }
+
+            if (AI.fireTimer >= 0.001f) {
+                final Vector2 SELF_LOC = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+
+                float theta = MathUtils.atan2(AI.TARGET_LOC.y - SELF_LOC.y, AI.TARGET_LOC.x - SELF_LOC.x);
+
+                float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta);
+                float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta);
+
+                Entity bullet = EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg);
+                SpriteComponent SPRITE = Mapper.SPRITE.get(bullet);
+                BulletComponent BULLET = Mapper.BULLET.get(bullet);
+                MovementComponent MOVE = Mapper.MOVEMENT.get(bullet);
+
+                if (AI.actionTimer % 2 == 0)
+                    BULLET.handler = (float dt) -> {
+                        MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) + MathUtils.cos(BULLET.timer * MathUtils.PI2) * 50);
+                        BULLET.timer += dt * 2;
+                    };
+                else
+                    BULLET.handler = (float dt) -> {
+                        MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) - MathUtils.cos(BULLET.timer * MathUtils.PI2) * 50);
+                        BULLET.timer += dt * 2;
+                    };
+
+                engine.addEntity(bullet);
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 250) {
+                    AI.actionTimer = 1;
+                    AI.state = -2;
+                    AI.TARGET_LOC.set(-999, -999);
+                }
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that shoots a laser
+     */
+    public static BossActionHandler helixLaserPlus() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.TARGET_LOC.epsilonEquals(-999, -999, 1)) {
+                final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.all(PlayerComponent.class, TransformComponent.class).get());
+                AI.TARGET_LOC.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2);
+
+                if (PLAYERS.size() != 0) {
+                    TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
+
+                    AI.TARGET_LOC.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
+                }
+            }
+
+            if (AI.fireTimer >= 0.0001f) {
+                final Vector2 SELF_LOC = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+                float xPlace;
+                float yPlace;
+
+                if (AI.actionTimer % 200 != 0) { //All laser scenarios
+                    float theta = MathUtils.atan2(AI.TARGET_LOC.y - SELF_LOC.y, AI.TARGET_LOC.x - SELF_LOC.x);
+                    xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta);
+                    yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta);
+
+                    Entity bullet = EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg);
+                    SpriteComponent SPRITE = Mapper.SPRITE.get(bullet);
+                    BulletComponent BULLET = Mapper.BULLET.get(bullet);
+                    MovementComponent MOVE = Mapper.MOVEMENT.get(bullet);
+
+                    if (AI.actionTimer % 3 == 0)
+                        BULLET.handler = (float dt) -> {
+                            MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) + MathUtils.cos(BULLET.timer * MathUtils.PI2) * 60);
+                            BULLET.timer += dt * 2;
+                        };
+                    else if (AI.actionTimer % 3 == 1)
+                        BULLET.handler = (float dt) -> {
+                            MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) - MathUtils.cos(BULLET.timer * MathUtils.PI2) * 60);
+                            BULLET.timer += dt * 2;
+                        };
+                    else if (AI.actionTimer % 3 == 2)
+                        BULLET.handler = (float dt) -> {/*Straight laser*/};
+                    engine.addEntity(bullet);
+
+                } else { // exploding bullets
+                    for (int i = 0; i < 3; i++) {
+                        float theta = AI.actionTimer * 7 + i * 120;
+                        xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta * MathUtils.degreesToRadians);
+                        yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta * MathUtils.degreesToRadians);
+
+                        engine.addEntity(EntityFactory.createEnemyBulletExplodingMoving(xPlace, yPlace, theta));
+                    }
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 250) {
+                    AI.actionTimer = 2.5f;
+                    AI.state = -2;
+                    AI.TARGET_LOC.set(-999, -999);
                 }
             }
         };
@@ -1865,6 +2114,36 @@ public class EntityFactory {
 
                 AI.state = -2;
                 AI.actionTimer = 1;
+            }
+        };
+    }
+
+    /**
+     * @return {@link BossActionHandler} that creates spiral attack out of balls
+     */
+    public static BossActionHandler explodingSpiral() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.175f) {
+                for (int i = 0; i < 6; i++) {
+                    float deg = AI.actionTimer * 7 + i * 60;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    engine.addEntity(EntityFactory.createEnemyBallExploding(xPlace, yPlace, deg));
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 75) {
+                    AI.state = -3;
+                    AI.actionTimer = 1;
+                }
             }
         };
     }
@@ -1954,12 +2233,17 @@ public class EntityFactory {
                 simpleSpiral(),
                 invisibleHomingBullets(),
                 tempestBloom(),
+                helixLaser(),
                 cone(),
                 emitter(),
                 tougherHomingBullet(),
                 laserBulletBurst(),
                 shiftingSpiral(),
-                notSoSimpleSpiral()
+                shiftingSpiralReverse(),
+                notSoSimpleSpiral(),
+                explodingSpiral(),
+                helixLaserPlus(),
+                shiftingSpiralPlus()
         );
 
         // Initialize HealthComponent
