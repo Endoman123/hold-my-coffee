@@ -83,6 +83,12 @@ public class GameScreen extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) && ready)
             togglePause();
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+            System.out.println("Shot Accuracy: " + ((float) Mapper.PLAYER.get(player).shotsHit / (float) Mapper.PLAYER.get(player).shotsFired) * 100 + "%");
+            System.out.println("ShotsHit: " + Mapper.PLAYER.get(player).shotsHit + "|| ShotsFired: " + Mapper.PLAYER.get(player).shotsFired);
+
+        }
+
         ENGINE.update(delta);
     }
 
