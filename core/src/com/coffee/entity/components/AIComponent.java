@@ -15,7 +15,7 @@ public class AIComponent implements Component, Pool.Poolable{
     public final Array<BossActionHandler> ACTIONS;
     public final Vector2 BEGIN_POS, END_POS, TARGET_LOC;
     public float lerpTimer, lerpSpeed, actionTimer, fireTimer;
-    /** -1 : move then attack   -2 : reset */
+    /** -1 : move then attack   -2 : reset   -3: Determine if should chain attacks  */
     public int state;
 
     public AIComponent() {
