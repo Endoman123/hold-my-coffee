@@ -265,20 +265,6 @@ public class EntityFactory {
         TABLE.setBackground(BACK);
         TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
         TABLE.add(HEALTH_STATS).expand().align(Align.left).width(160);
-        //TABLE.setDebug(true, true);
-
-/*        TABLE.add(LIFE).size(16, 16).align(Align.left).colspan(1);
-        TABLE.add(LIFE_COUNTER).height(16).align(Align.left).colspan(2);*/
-
-        /*TABLE.add(HEALTH_LBL).left().padBottom(GUI.canvas.getWidth() / 40).row();
-        TABLE.add(FIRE_RATE_ID).padRight(GUI.canvas.getWidth() / 40);
-        for (VisImage i : FIRE_RATE_BOOSTS)
-            TABLE.add(i);
-        TABLE.padBottom(GUI.canvas.getWidth() / 40).row();
-        TABLE.add(BULLET_DAMAGE_ID).padRight(GUI.canvas.getWidth() / 40);
-        for (VisImage i : BULLET_DAMAGE_BOOSTS)
-            TABLE.add(i);*/
-
 
         GUI.canvas.addActor(TABLE);
 
@@ -326,7 +312,9 @@ public class EntityFactory {
                 if (Mapper.AI.has(entity)) {
                     HealthComponent health = Mapper.HEALTH.get(entity);
                     if (health.invincibilityTimer <= 0) {
+                        PlayerComponent player = Mapper.PLAYER.get(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0));
                         health.health -= BULLET.damage;
+                        player.shotsHit++;
                         engine.removeEntity(E);
                     }
                 }
@@ -350,21 +338,6 @@ public class EntityFactory {
         });
         COLLIDER.BODY.setOrigin(2, 2);
         COLLIDER.solid = false;
-        COLLIDER.handler = new CollisionHandler() {
-            @Override
-            public void enterCollision(Entity entity) {
-                Mapper.PLAYER.get(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0)).shotsHit++;
-            }
-
-            @Override
-            public void whileCollision(Entity entity) {
-
-            }
-
-            @Override
-            public void exitCollision(Entity entity) {
-            }
-        };
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
@@ -1141,6 +1114,82 @@ public class EntityFactory {
 
         return E;
     }
+
+    /**
+     * Creates an energy ball with a velocity of 3 at the specified location that explodes into more balls.
+     *
+     * @param x      the x-coordinate of the bullet
+     * @param y      the y-coordinate of the bullet
+     * @param dir    the rotation of the bullet
+     * @return an {@code Entity} with all the necessary components for a bullet
+     */
+    public static Entity createEmitterBall(float x, float y, float dir) {
+        final Entity E = createEnemyDamagable(dir);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
+        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
+        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+        // Initialize SpriteComponent
+        Sprite main = goAtlas.createSprite("energy_ball");
+        main.setColor(Color.CHARTREUSE/*191 / 255f, 106 / 255f, 221 / 255f, 1*/);
+        main.setSize(64, 64);
+        main.setOriginCenter();
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -2;
+
+        // Initialize TransformComponent
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+
+        // Initialize MovementComponent
+        MOVEMENT.moveSpeed = 2;
+
+        // Initialize ColliderComponent
+        COLLIDER.BODY.setVertices(new float[]{
+                0, 0,
+                TRANSFORM.SIZE.width / 1.41421356f, 0,
+                TRANSFORM.SIZE.width / 1.41421356f, TRANSFORM.SIZE.height / 1.41421356f,
+                0, TRANSFORM.SIZE.height / 1.41421356f
+        });
+        COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
+        COLLIDER.BODY.setRotation(dir);
+
+        BULLET.handler = (float dt) -> {
+            BULLET.timer += dt;
+
+            if (BULLET.timer >= 0.02f) {
+                final Vector2 TRANS_CENTER = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+                final float theta = BULLET.state * 15f;
+                final float xPlace = TRANS_CENTER.x + 16 * MathUtils.cosDeg(theta);
+                final float yPlace = TRANS_CENTER.y + 16 * MathUtils.sinDeg(theta);
+                final Entity B = createEnemyBullet(xPlace, yPlace, theta);
+                final SpriteComponent B_SPRITE = Mapper.SPRITE.get(B);
+                final MovementComponent B_MOVE = Mapper.MOVEMENT.get(B);
+                final BulletComponent B_BULLET = Mapper.BULLET.get(B);
+
+                B_SPRITE.zIndex = SPRITE.zIndex - 1;
+
+                B_MOVE.moveSpeed = 0;
+
+                B_BULLET.handler = (float delta) -> {
+                    if (B_MOVE.moveSpeed < 5) {
+                        B_MOVE.moveSpeed += delta;
+                        if (B_MOVE.moveSpeed > 5)
+                            B_MOVE.moveSpeed = 5;
+                    }
+                };
+
+                engine.addEntity(B);
+                BULLET.timer = 0;
+                BULLET.state += 1;
+            }
+        };
+
+        return E;
+    }
     // endregion
 
     // region Powerups
@@ -1261,7 +1310,6 @@ public class EntityFactory {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
                     if (player.upBulletDamage < 4) {
                         player.upBulletDamage++;
-                        System.out.println("Damage up!");
                     }
                     engine.removeEntity(E);
                 }
@@ -1299,7 +1347,6 @@ public class EntityFactory {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
                     if (player.upFireRate < 4) {
                         player.upFireRate++;
-                        System.out.println("Bullet Up!");
                     }
                     ENGINE.removeEntity(E);
                 }
@@ -1703,7 +1750,6 @@ public class EntityFactory {
                         TRANS_CENTER = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
 
                 float theta = MathUtils.radDeg * MathUtils.atan2(WORLD_CENTER.y - TRANS_CENTER.y, WORLD_CENTER.x - TRANS_CENTER.x);
-                System.out.println(theta);
 
                 for (int i = 0; i < 3; i++) {
                     float deg = theta + i * 30 - 30;
@@ -1803,6 +1849,27 @@ public class EntityFactory {
     }
 
     /**
+     * Creates an emitter
+     */
+    public static BossActionHandler emitter() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.02f) {
+                final Vector2 TRANS_LOC = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+
+                engine.addEntity(createEmitterBall(TRANS_LOC.x, TRANS_LOC.y, 270));
+
+                AI.state = -2;
+                AI.actionTimer = 1;
+            }
+        };
+    }
+
+    /**
      * @return {@link BossActionHandler} that does nothing but immediately moves.
      */
     public static BossActionHandler fakeOut() {
@@ -1882,7 +1949,8 @@ public class EntityFactory {
         AI.lerpSpeed = 1.6f;
         AI.state = -2;
         AI.ACTIONS.addAll(
-                chargeToExplosion(),
+                emitter(),
+                //chargeToExplosion(),
                 laser(),
                 simpleSpiral(),
                 invisibleHomingBullets(),
@@ -1895,8 +1963,8 @@ public class EntityFactory {
         );
 
         // Initialize HealthComponent
-        HEALTH.maxHealth = 35000;
-        HEALTH.health = 35000;
+        HEALTH.maxHealth = 2500;
+        HEALTH.health = 2500;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);

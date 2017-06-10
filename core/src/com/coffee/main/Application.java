@@ -34,7 +34,7 @@ public class Application extends Game {
 
 		// Initialize global stuff before all the Screen stuff
 		batch = new SpriteBatch(2000);
-		viewport = new FitViewport(450, 800);
+		viewport = new FitViewport(600, 800);
 		inputMultiplexer = new InputMultiplexer();
 		shapeRenderer = new ShapeRenderer();
 

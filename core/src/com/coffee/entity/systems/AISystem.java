@@ -33,12 +33,12 @@ public class AISystem extends IteratingSystem {
         final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
         final MovementComponent MOVE = Mapper.MOVEMENT.get(entity);
         final HealthComponent HEALTH = Mapper.HEALTH.get(entity);
-        //states should get harder with higher index numbers
-        //TODO Chain attacks at harder difficulties
+        // states should get harder with higher index numbers
+        // TODO Chain attacks at harder difficulties
 
         // region State Machine
         switch (AI.state) {
-            case -3: { //Determine whether it should chain attacks (if chance fails, reset like normal)
+            case -3: { // Determine whether it should chain attacks (if chance fails, reset like normal)
                 if (MathUtils.randomBoolean(Interpolation.exp5In.apply(0, .6f, 1f - HEALTH.getHealthPercent()))) { // Will chain attack
                     // region selecting next attack
                     if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
@@ -55,13 +55,13 @@ public class AISystem extends IteratingSystem {
 
                     AI.actionTimer = 0;
                     break;
-                    //endregion
+                    // endregion
                 } else {
                     AI.state = -2;
                     break;
                 }
             }
-            case -2: { //reset
+            case -2: { // reset
                 if (AI.actionTimer <= 0) {
                     AI.BEGIN_POS.set(TRANSFORM.POSITION);
                     do {
@@ -78,7 +78,7 @@ public class AISystem extends IteratingSystem {
                     AI.actionTimer -= deltaTime;
                 break;
             }
-            case -1: { //move towards position and choose action
+            case -1: { // Move towards position and choose action
                 AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
                 float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
 
@@ -97,24 +97,24 @@ public class AISystem extends IteratingSystem {
                         AI.lerpSpeed = 2.4f;
                     } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
                         if (MathUtils.randomBoolean(.1f))
-                            AI.state = 0; //Fake out
+                            AI.state = 0; // Fake out
                         else
                             AI.state = biasedRandom(2, MathUtils.round(AI.ACTIONS.size / 1.5f), .75f);
                         AI.lerpSpeed = 3.2f;
                     } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
                         if (MathUtils.randomBoolean(.3f))
-                            AI.state = 0; //Fake out
+                            AI.state = 0; // Fake out
                         else
                             AI.state = MathUtils.random(1, AI.ACTIONS.size - 1);
                         AI.lerpSpeed = 4f;
                     } else {  // > 11.25%
                         if (MathUtils.randomBoolean(.5f))
-                            AI.state = 0; //Fake out
+                            AI.state = 0; // Fake out
                         else
                             AI.state = biasedRandom(1, AI.ACTIONS.size - 1, .75f);
                         AI.lerpSpeed = MathUtils.random(2f, 4.8f);
                     }
-                    //endregion
+                    // endregion
                 }
                 break;
             }

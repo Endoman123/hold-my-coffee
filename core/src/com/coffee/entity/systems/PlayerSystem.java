@@ -140,7 +140,7 @@ public class PlayerSystem extends IteratingSystem {
                         break;
                 }
                 player.shootTimer = 1;
-                player.shotsFired++;
+                player.shotsFired += 1 + player.upBulletDamage;
             }
 
             // Flash the player every frame when invincible
