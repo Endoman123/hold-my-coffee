@@ -75,6 +75,8 @@ public class AITest extends ScreenAdapter {
         //DEBUG TODO remove this
         if (Gdx.input.isKeyJustPressed(Input.Keys.F))
             System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
+        if (Gdx.input.isKeyJustPressed(Input.Keys.TAB))
+            System.out.println("Shot Accuracy: " + (float) Mapper.PLAYER.get(player).shotsHit / (float) Mapper.PLAYER.get(player).shotsFired + "%");
 
         ENGINE.update(delta);
     }

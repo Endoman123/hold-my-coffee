@@ -23,6 +23,9 @@ public class PlayerComponent implements Component, Pool.Poolable {
     public int lives = 3;
     public boolean revive = false;
 
+    // Player statisitics
+    public int shotsFired, shotsHit;
+
     @Override
     public void reset() {
         upBulletDamage = 0;

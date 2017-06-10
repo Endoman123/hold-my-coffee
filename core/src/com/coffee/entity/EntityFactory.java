@@ -350,6 +350,21 @@ public class EntityFactory {
         });
         COLLIDER.BODY.setOrigin(2, 2);
         COLLIDER.solid = false;
+        COLLIDER.handler = new CollisionHandler() {
+            @Override
+            public void enterCollision(Entity entity) {
+                Mapper.PLAYER.get(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0)).shotsHit++;
+            }
+
+            @Override
+            public void whileCollision(Entity entity) {
+
+            }
+
+            @Override
+            public void exitCollision(Entity entity) {
+            }
+        };
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(BULLET);
     }
