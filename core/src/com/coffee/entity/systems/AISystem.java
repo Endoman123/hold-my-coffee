@@ -4,11 +4,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.coffee.entity.components.*;
+import com.coffee.entity.components.AIComponent;
+import com.coffee.entity.components.HealthComponent;
+import com.coffee.entity.components.MovementComponent;
+import com.coffee.entity.components.TransformComponent;
 import com.coffee.util.Mapper;
 
 /**
@@ -86,7 +88,7 @@ public class AISystem extends IteratingSystem {
                 if (AI.lerpTimer == 1) {
                     // region selecting next attack
                     if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
-                        AI.state = MathUtils.random(1, AI.ACTIONS.size / 3); //Uses 1st third
+                        AI.state = 5;//MathUtils.random(1, AI.ACTIONS.size / 3); //Uses 1st third
                         AI.lerpSpeed = 1.6f;
                     } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75%
                         AI.state = biasedRandom(1, AI.ACTIONS.size / 2, .5f); //Uses 1st half (biased towards later)

@@ -1505,17 +1505,26 @@ public class EntityFactory {
 
             AI.fireTimer += deltaTime;
 
+            if (AI.TARGET_LOC.epsilonEquals(-999, -999, 1)) {
+                final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.all(PlayerComponent.class, TransformComponent.class).get());
+                AI.TARGET_LOC.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2);
+
+                if (PLAYERS.size() != 0) {
+                    TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
+
+                    AI.TARGET_LOC.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
+                }
+            }
+
             if (AI.fireTimer >= 0.001f) {
-                //float deg = 257.5f + MathUtils.random(25);
-                float posVal;
-                posVal = (TRANSFORM.POSITION.cpy().x - AI.BEGIN_POS.cpy().x + 10) % 20;
+                final Vector2 SELF_LOC = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
 
-                float deg = 260 + posVal;
+                float theta = MathUtils.atan2(AI.TARGET_LOC.y - SELF_LOC.y, AI.TARGET_LOC.x - SELF_LOC.x);
 
-                float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+                float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta);
+                float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta);
 
-                engine.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, deg));
+                engine.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg));
 
                 AI.fireTimer = 0;
                 AI.actionTimer++;
@@ -1523,6 +1532,7 @@ public class EntityFactory {
                 if (AI.actionTimer == 250) {
                     AI.actionTimer = 1;
                     AI.state = -2;
+                    AI.TARGET_LOC.set(-999, -999);
                 }
             }
         };
@@ -1731,6 +1741,53 @@ public class EntityFactory {
     }
 
     /**
+     * @return {@link BossActionHandler} that creates spiral attack out of balls
+     */
+    public static BossActionHandler notSoSimpleSpiral() {
+        return (Entity entity, float deltaTime) -> {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            AI.fireTimer += deltaTime;
+
+            if (AI.fireTimer >= 0.002f) {
+                for (int i = 0; i < 8; i++) {
+                    float deg = AI.actionTimer * 35;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    final Entity BALL = EntityFactory.createEnemyBall(xPlace, yPlace, deg);
+                    final SpriteComponent SPRITE = Mapper.SPRITE.get(BALL);
+                    final BulletComponent BULLET = Mapper.BULLET.get(BALL);
+                    final MovementComponent MOVE = Mapper.MOVEMENT.get(BALL);
+
+                    SPRITE.SPRITES.first().setColor(1, 174 / 255f, 117 / 255f, 1);
+
+                    MOVE.moveSpeed = MathUtils.lerp(7, 4, i / 6.0f);
+
+                    BULLET.handler = (float dt) -> {
+                        if (MOVE.moveSpeed > 4) {
+                            MOVE.moveSpeed -= dt * 3;
+                            if (MOVE.moveSpeed <= 4)
+                                MOVE.moveSpeed = 4;
+                        }
+                    };
+
+                    engine.addEntity(BALL);
+                }
+
+                AI.fireTimer = 0;
+                AI.actionTimer++;
+
+                if (AI.actionTimer == 1000) {
+                    AI.state = -2;
+                    AI.actionTimer = 1;
+                }
+            }
+        };
+    }
+
+    /**
      * @return {@link BossActionHandler} that does nothing but immediately moves.
      */
     public static BossActionHandler fakeOut() {
@@ -1741,10 +1798,6 @@ public class EntityFactory {
             AI.state = -2;
         };
     }
-
-
-
-
     // endregion
 
     /**
@@ -1812,13 +1865,13 @@ public class EntityFactory {
         );
         AI.BEGIN_POS.set(TRANSFORM.POSITION);
         AI.lerpSpeed = 1.6f;
-        AI.state = 1;
+        AI.state = 5; // TODO change this to 1
         AI.ACTIONS.addAll(
                 chargeToExplosion(),
                 simpleSpiral(),
                 laser(),
                 invisibleHomingBullets(),
-                tempestBloom(),
+                notSoSimpleSpiral(),
                 cone(),
                 tougherHomingBullet(),
                 laserBulletBurst(),
