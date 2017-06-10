@@ -4,11 +4,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.coffee.entity.components.*;
+import com.coffee.entity.components.AIComponent;
+import com.coffee.entity.components.HealthComponent;
+import com.coffee.entity.components.MovementComponent;
+import com.coffee.entity.components.TransformComponent;
 import com.coffee.util.Mapper;
 
 /**
@@ -47,6 +49,7 @@ public class AISystem extends IteratingSystem {
                         AI.state = biasedRandom(2, MathUtils.round(AI.ACTIONS.size / 1.5f), .75f);
                     } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
                         AI.state = MathUtils.random(1, AI.ACTIONS.size - 1);
+                        //B
                     } else {  // > 11.25%
                         AI.state = biasedRandom(1, AI.ACTIONS.size - 1, .3f);
                     }
