@@ -55,8 +55,8 @@ public class MainMenu extends ScreenAdapter {
 
         TABLE.center().pad(50).setFillParent(true);
         TABLE.add(TITLE).expand().fill().colspan(2).row();
-        TABLE.add(START).fillX().pad(10, 10, 10, 5);
-        TABLE.add(OPTIONS).fillX().pad(10, 5, 10, 10).row();
+        TABLE.add(START).fillX().pad(10, 10, 10, 5).uniform();
+        TABLE.add(OPTIONS).fillX().pad(10, 5, 10, 10).uniform().row();
         TABLE.add(EXIT).expandX().fillX().colspan(2).pad(0, 10, 10, 10);
 
         GUI.canvas.addListener(new ChangeListener() {

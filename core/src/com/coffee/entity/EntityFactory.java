@@ -1758,7 +1758,6 @@ public class EntityFactory {
                         TRANS_CENTER = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
 
                 float theta = MathUtils.radDeg * MathUtils.atan2(WORLD_CENTER.y - TRANS_CENTER.y, WORLD_CENTER.x - TRANS_CENTER.x);
-                System.out.println(theta);
 
                 for (int i = 0; i < 3; i++) {
                     float deg = theta + i * 30 - 30;
