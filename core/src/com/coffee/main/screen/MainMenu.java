@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -72,7 +73,8 @@ public class MainMenu extends ScreenAdapter {
                     } else if (actor == OPTIONS) {
                         APP.setScreen(new OptionsScreen());
                     } else if (actor == EXIT) {
-                        Gdx.app.exit();
+                        //Gdx.app.exit();
+                        APP.setScreen(new ScoreEntryScreen(MathUtils.random(1000, 10000)));
                     } else if (actor == HIGHSCORE) {
                         APP.setScreen(new HighScoreScreen());
                     }
