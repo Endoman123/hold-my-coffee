@@ -100,10 +100,8 @@ public class OptionsScreen extends ScreenAdapter {
             }
         });
 
-
         GUI.canvas.addActor(TABLE);
         GUIEntity.add(GUI);
-        TABLE.setDebug(true, true);
         // endregion
 
         ENGINE.addEntity(GUIEntity);

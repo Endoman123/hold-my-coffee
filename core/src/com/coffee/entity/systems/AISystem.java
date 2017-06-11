@@ -39,6 +39,13 @@ public class AISystem extends IteratingSystem {
         // region State Machine
         switch (AI.curState) {
             case SCHEDULING_ATTACK:
+                if (HEALTH.getHealthPercent() >= 0.50) {
+                    if (MathUtils.randomBoolean(0.1f)) {
+                        AI.TASKS.add(new BossActions.DoNothing(0.5f));
+                        break;
+                    } else {
+                    }
+                }
                 /*if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
                     AI.state = MathUtils.random(1, AI.ACTIONS.size / 3);
                 } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75%
@@ -65,6 +72,16 @@ public class AISystem extends IteratingSystem {
                 AI.curState = AIState.MOVING;
                 break;
             case ATTACKING:
+                if (AI.TASKS.size != 0) {
+                    int i = 0;
+                    while (i < AI.TASKS.size) {
+                        BossActions.Action a = AI.TASKS.get(i);
+                        if (a.act(entity, deltaTime))
+                            AI.TASKS.removeValue(a, true);
+                        else
+                            i++;
+                    }
+                }
                 break;
             case MOVING:
                 if (AI.TASKS.first().act(entity, deltaTime)) {

@@ -720,14 +720,14 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a bullet that moves then bursts into more bullets
+     * Creates a bullet that moves then fires a stream of bullets
      *
      * @param x      the x-coordinate of the bullet
      * @param y      the y-coordinate of the bullet
      * @param rot    the rotation of the bullet
      * @return an {@code Entity} with all the necessary components for a bullet
      */
-    public static Entity createEnemyBulletExplodingMoving(float x, float y, float rot) {
+    public static Entity createEnemyLaserEmitter(float x, float y, float rot) {
         final Entity E = createEnemyDamagable(rot);
 
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
@@ -1758,7 +1758,7 @@ public class EntityFactory {
                     float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                     float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                    engine.addEntity(EntityFactory.createEnemyBulletExplodingMoving(xPlace, yPlace, deg));
+                    engine.addEntity(EntityFactory.createEnemyLaserEmitter(xPlace, yPlace, deg));
                 }
 
                 AI.fireTimer = 0;
@@ -1896,7 +1896,7 @@ public class EntityFactory {
                         xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                         yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                        engine.addEntity(EntityFactory.createEnemyBulletExplodingMoving(xPlace, yPlace, deg));
+                        engine.addEntity(EntityFactory.createEnemyLaserEmitter(xPlace, yPlace, deg));
                     }
                 }
 
@@ -2027,7 +2027,7 @@ public class EntityFactory {
                         xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta * MathUtils.degreesToRadians);
                         yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta * MathUtils.degreesToRadians);
 
-                        engine.addEntity(EntityFactory.createEnemyBulletExplodingMoving(xPlace, yPlace, theta));
+                        engine.addEntity(EntityFactory.createEnemyLaserEmitter(xPlace, yPlace, theta));
                     }
                 }
 
