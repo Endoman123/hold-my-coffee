@@ -28,6 +28,9 @@ public class PlayerComponent implements Component, Pool.Poolable {
     // Player statisitics
     public int shotsFired, shotsHit;
 
+    // Points
+    public int points = 100;
+
     public PlayerComponent() {
         MOUSE = new Vector2();
     }

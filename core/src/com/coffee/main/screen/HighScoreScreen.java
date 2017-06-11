@@ -90,6 +90,8 @@ public class HighScoreScreen extends ScreenAdapter {
 
             ENGINE.addEntity(GUIEntity);
             ENGINE.addEntity(EntityFactory.createParticleGenerator());
+
+            fontGenerator.dispose();
     }
 
     @Override
