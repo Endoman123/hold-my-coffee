@@ -48,7 +48,8 @@ public class MainMenu extends ScreenAdapter {
         final TextButton
                 START = new TextButton("START", SKIN),
                 OPTIONS = new TextButton("OPTIONS", SKIN),
-                EXIT = new TextButton("EXIT", SKIN);
+                EXIT = new TextButton("EXIT", SKIN),
+                HIGHSCORE = new TextButton("HIGH SCORE", SKIN);
 
         TABLE.setSkin(SKIN);
         TITLE.setScaling(Scaling.fit);
@@ -56,8 +57,10 @@ public class MainMenu extends ScreenAdapter {
         TABLE.center().pad(50, 100, 50, 100).setFillParent(true);
         TABLE.add(TITLE).expand().fill().colspan(2).row();
         TABLE.add(START).fillX().pad(10, 10, 10, 5).uniform();
-        TABLE.add(OPTIONS).fillX().pad(10, 5, 10, 10).uniform().row();
-        TABLE.add(EXIT).expandX().fillX().colspan(2).pad(0, 10, 10, 10);
+        TABLE.add(HIGHSCORE).fillX().pad(10, 5, 10, 10).uniform().row();
+        TABLE.add(OPTIONS).fillX().pad(10, 10, 10, 5).uniform();
+        TABLE.add(EXIT).fillX().pad(10, 5, 10, 10).uniform().row();
+
 
         GUI.canvas.addListener(new ChangeListener() {
             @Override
@@ -70,6 +73,8 @@ public class MainMenu extends ScreenAdapter {
                         APP.setScreen(new OptionsScreen());
                     } else if (actor == EXIT) {
                         Gdx.app.exit();
+                    } else if (actor == HIGHSCORE) {
+                        APP.setScreen(new HighScoreScreen());
                     }
                 }
             }
