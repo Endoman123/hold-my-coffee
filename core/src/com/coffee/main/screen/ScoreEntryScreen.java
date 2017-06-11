@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.coffee.entity.EntityFactory;
@@ -26,11 +25,11 @@ import com.coffee.util.Mapper;
 /**
  * @author Phillip O'Reggio
  */
-public class HighScoreScreen extends ScreenAdapter {
+public class ScoreEntryScreen extends ScreenAdapter {
     private final PooledEngine ENGINE;
     private final Entity GUIEntity;
 
-    public HighScoreScreen() {
+    public ScoreEntryScreen(int playerPoints) {
         final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fff.ttf"));
         final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
         final Application APP = (Application) Gdx.app.getApplicationListener();
@@ -58,46 +57,58 @@ public class HighScoreScreen extends ScreenAdapter {
         param.shadowOffsetY = -4;
         param.shadowColor = Color.GRAY;
 
-        final Label TITLE = new Label("HIGH SCORES", new Label.LabelStyle(fontGenerator.generateFont(param), Color.WHITE));
-        final TextButton CANCEL = new TextButton("CANCEL", SKIN);
+        final Label TITLE = new Label("NEW HIGH SCORE", new Label.LabelStyle(fontGenerator.generateFont(param), Color.WHITE));
+        final TextField INPUT = new TextField("", SKIN);
+        INPUT.setTextFieldListener((TextField textField, char c) -> {
+            if (textField.getText().length() >= 12)
+                textField.setColor(Color.RED);
+            else
+                textField.setColor(Color.WHITE);
+        });
+        final TextButton OK = new TextButton("OK", SKIN);
 
         TABLE.setSkin(SKIN);
         TABLE.center().pad(50).setFillParent(true);
-        TABLE.add().width(APP.getViewport().getScreenWidth() / 4f);
-        TABLE.add().width(APP.getViewport().getScreenWidth() / 4f);
-        TABLE.row();
-
-        TABLE.add(TITLE).padBottom(20).colspan(2).row();
-
-        //High Scores Part
-        final Json JSON = new Json();
-        final FileHandle FILE = Gdx.files.local("hold_my_coffee_highscores.json");
-        final Array<HighScoreEntry> HIGHSCORES = (FILE.exists())? JSON.fromJson(Array.class, Gdx.files.local("hold_my_coffee_highscores.json")) : null;
-        for (int i = 0; i < 10; i++) {
-            final Label
-                NAME = new Label("---", SKIN),
-                SCORE = new Label("" + 0, SKIN);
-
-            if (HIGHSCORES != null && HIGHSCORES.size > i) {
-                NAME.setText(HIGHSCORES.get(i).getName());
-                SCORE.setText("" + HIGHSCORES.get(i).getPoints());
-            }
-
-            NAME.setAlignment(Align.left);
-            SCORE.setAlignment(Align.right);
-
-            TABLE.add(NAME).padBottom(20).expand().fill().uniform(); //max of 16
-            TABLE.add(SCORE).padBottom(20).expand().fill().uniform().row();
-        }
-        TABLE.add(CANCEL).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
+        TABLE.add(TITLE).padBottom(20).row();
+        TABLE.add(INPUT).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
+        TABLE.add(OK).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
 
         GUI.canvas.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if (((Button) actor).isPressed()) {
-                    APP.getScreen().dispose();
-                    if (actor == CANCEL) {
-                        APP.setScreen(new MainMenu());
+                if (actor instanceof Button && ((Button) actor).isPressed()) {
+                    if (actor == OK) {
+                        if (actor == OK) {
+                            Json JSON = new Json();
+                            Array<HighScoreEntry> scores;
+                            final FileHandle SCORE_FILE = Gdx.files.local("hold_my_coffee_highscores.json");
+
+                            //Get scores
+                            scores = (SCORE_FILE.exists()) ? JSON.fromJson(Array.class, SCORE_FILE.readString()) : new Array();
+                            if (scores == null) scores = new Array();
+
+                            //Check if the name inputted is already there
+                            for (HighScoreEntry score : scores)
+                                if (score.getName().equals(INPUT.getText()))
+                                    return; //TODO tell user name is taken Boi
+
+                            //Put score in
+                            String playerName = (INPUT.getText().length() >= 12)? INPUT.getText().substring(0, 12) : INPUT.getText();
+                            scores.add(new HighScoreEntry(playerPoints, playerName));
+                            scores.sort();
+                            scores.reverse();
+                            scores.truncate(10);
+
+
+                            //scores.truncate(10);
+
+                            //Write changes to high score to file
+                            SCORE_FILE.writeString(JSON.prettyPrint(scores), false);
+
+                            APP.getScreen().dispose();
+
+                            APP.setScreen(new HighScoreScreen());
+                        }
                     }
                 }
             }
