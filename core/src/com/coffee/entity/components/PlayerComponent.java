@@ -16,7 +16,7 @@ public class PlayerComponent implements Component, Pool.Poolable {
     public boolean shoot = false;
 
     // Shooting timer
-    public double shootTimer, bulletsPerSecond = 1;
+    public double shootTimer, shotsPerSecond = 1;
 
     // Buffs
     public int upFireRate = 0, upBulletDamage = 0, upSpeed = 0;
@@ -38,6 +38,6 @@ public class PlayerComponent implements Component, Pool.Poolable {
         upBulletDamage = 0;
         upFireRate = 0;
         upSpeed = 0;
-        shootTimer = bulletsPerSecond = 1;
+        shootTimer = shotsPerSecond = 1;
     }
 }

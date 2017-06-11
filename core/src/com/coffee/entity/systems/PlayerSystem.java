@@ -36,10 +36,10 @@ public class PlayerSystem extends IteratingSystem {
 
         if (health.getHealthPercent() > 0) {
             // Update the shoot timer
-            // Since we can, we need to clamp the value of the timer between 0 and the value of the bulletsPerSecond
+            // Since we can, we need to clamp the value of the timer between 0 and the value of the shotsPerSecond
             // to avoid any overflow exceptions.
-            float bps = (float) (player.bulletsPerSecond + player.upFireRate);
-            player.shootTimer = MathUtils.clamp(player.shootTimer - bps * deltaTime, 0, 1);
+            player.shotsPerSecond = MathUtils.lerp(5, 10, player.upFireRate / 4f);
+            player.shootTimer = MathUtils.clamp(player.shootTimer - player.shotsPerSecond * deltaTime, 0, 1);
 
             // Any invalid moves the player tries to take, we should combat ASAP.
             if (player.up == 1 && transform.POSITION.y + move.moveSpeed * deltaTime > GAME_SIZE.height * 2 / 3)
@@ -159,13 +159,12 @@ public class PlayerSystem extends IteratingSystem {
                     sprite.SPRITES.first().setAlpha(0);
                     move.MOVEMENT_NORMAL.setZero();
                     player.reset();
-                    player.bulletsPerSecond = 3;
+                    player.shotsPerSecond = 3;
                     transform.POSITION.set(GAME_SIZE.width / 2 - transform.ORIGIN.x, 128 - transform.ORIGIN.y);
 
                     health.respawnTimer = health.respawnDuration;
                     player.revive = true;
                 } else if (health.respawnTimer == 0) { // Wait to revive, then respawn.
-                    System.out.println("Revive!");
                     player.lives--;
                     health.invincibilityTimer = health.invincibilityDuration;
                     health.health = health.maxHealth;

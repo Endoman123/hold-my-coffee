@@ -21,10 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.*;
 import com.coffee.main.Application;
-import com.coffee.util.Assets;
-import com.coffee.util.BossActionHandler;
-import com.coffee.util.CollisionHandler;
-import com.coffee.util.Mapper;
+import com.coffee.util.*;
 import com.kotcrab.vis.ui.util.ColorUtils;
 
 /**
@@ -267,9 +264,6 @@ public class EntityFactory {
         TABLE.add(HEALTH_STATS).expand().align(Align.left).width(160);
 
         GUI.canvas.addActor(TABLE);
-
-        // Initialize PlayerComponent
-        PLAYER.bulletsPerSecond = 3;
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(INPUT).add(PLAYER).add(HEALTH).add(GUI);
     }
@@ -2225,6 +2219,7 @@ public class EntityFactory {
         );
         AI.BEGIN_POS.set(TRANSFORM.POSITION);
         AI.lerpSpeed = 1.6f;
+        AI.curState = AIState.SCHEDULING_MOVE;
         AI.state = -2;
         AI.ACTIONS.addAll(
                 chargeToExplosion(),
@@ -2274,10 +2269,9 @@ public class EntityFactory {
         });
 
         TABLE.setSkin(uiSkin);
-        TABLE.top().pad(20).setFillParent(true);
+        TABLE.top().pad(20, 100, 0, 100).setFillParent(true);
         TABLE.add(HEALTH_LBL).expandX().fillX().row();
-        TABLE.add(HEALTH_BAR).size(300, 20);
-        // TABLE.debug();
+        TABLE.add(HEALTH_BAR).height(20).expandX().fillX();
 
         GUI.canvas.addActor(TABLE);
 

@@ -1,0 +1,13 @@
+package com.coffee.util;
+
+/**
+ * Enum for states that the boss can be in
+ *
+ * @author Jared Tulayan
+ */
+public enum AIState {
+    SCHEDULING_ATTACK,
+    SCHEDULING_MOVE,
+    ATTACKING,
+    MOVING
+}

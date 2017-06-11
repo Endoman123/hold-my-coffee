@@ -53,7 +53,7 @@ public class MainMenu extends ScreenAdapter {
         TABLE.setSkin(SKIN);
         TITLE.setScaling(Scaling.fit);
 
-        TABLE.center().pad(50).setFillParent(true);
+        TABLE.center().pad(50, 100, 50, 100).setFillParent(true);
         TABLE.add(TITLE).expand().fill().colspan(2).row();
         TABLE.add(START).fillX().pad(10, 10, 10, 5).uniform();
         TABLE.add(OPTIONS).fillX().pad(10, 5, 10, 10).uniform().row();
