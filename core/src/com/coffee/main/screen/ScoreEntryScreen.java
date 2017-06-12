@@ -33,6 +33,11 @@ public class ScoreEntryScreen extends ScreenAdapter {
         final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fff.ttf"));
         final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
         final Application APP = (Application) Gdx.app.getApplicationListener();
+        final Array<HighScoreEntry> SCORES;
+        final Json JSON = new Json();
+        final FileHandle SCORE_FILE = Gdx.files.local("hold_my_coffee_highscores.json");
+
+        SCORES = (SCORE_FILE.exists()) ? JSON.fromJson(Array.class, SCORE_FILE.readString()) : new Array();
 
         ENGINE = new PooledEngine();
 
@@ -59,13 +64,44 @@ public class ScoreEntryScreen extends ScreenAdapter {
 
         final Label TITLE = new Label("NEW HIGH SCORE", new Label.LabelStyle(fontGenerator.generateFont(param), Color.WHITE));
         final TextField INPUT = new TextField("", SKIN);
-        INPUT.setTextFieldListener((TextField textField, char c) -> {
-            if (textField.getText().length() >= 12)
-                textField.setColor(Color.RED);
-            else
-                textField.setColor(Color.WHITE);
-        });
         final TextButton OK = new TextButton("OK", SKIN);
+        String field;
+
+        INPUT.setMaxLength(12);
+
+        int i = 0;
+        boolean isUnique;
+        do {
+            field = "Player" + (i > 0 ? i : "");
+            isUnique = true;
+            for (HighScoreEntry score : SCORES) {
+                if (field.equals(score.getName())) {
+                    i++;
+                    isUnique = false;
+                    break;
+                }
+            }
+        } while (!isUnique);
+
+        INPUT.setText(field);
+        INPUT.setTextFieldListener((TextField textField, char c) -> {
+            String test = textField.getText().trim();
+            if (test.length() == 0) {
+                textField.setColor(Color.RED);
+                OK.setDisabled(true);
+            } else {
+                for (HighScoreEntry score : SCORES) {
+                    if (score.getName().equals(test.trim())) {
+                        textField.setColor(Color.RED);
+                        OK.setDisabled(true);
+                        return;
+                    }
+                }
+
+                textField.setColor(Color.WHITE);
+                OK.setDisabled(false);
+            }
+        });
 
         TABLE.setSkin(SKIN);
         TABLE.center().pad(50).setFillParent(true);
@@ -73,43 +109,22 @@ public class ScoreEntryScreen extends ScreenAdapter {
         TABLE.add(INPUT).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
         TABLE.add(OK).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
 
-        GUI.canvas.addListener(new ChangeListener() {
+        OK.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if (actor instanceof Button && ((Button) actor).isPressed()) {
-                    if (actor == OK) {
-                        if (actor == OK) {
-                            Json JSON = new Json();
-                            Array<HighScoreEntry> scores;
-                            final FileHandle SCORE_FILE = Gdx.files.local("hold_my_coffee_highscores.json");
+            public void changed(ChangeEvent event, Actor actor) {
+                if (OK.isPressed()) {
+                    // Put score in
+                    String playerName = INPUT.getText().trim();
+                    SCORES.add(new HighScoreEntry(playerPoints, playerName));
+                    SCORES.sort();
+                    SCORES.reverse();
+                    SCORES.truncate(10);
 
-                            //Get scores
-                            scores = (SCORE_FILE.exists()) ? JSON.fromJson(Array.class, SCORE_FILE.readString()) : new Array();
-                            if (scores == null) scores = new Array();
+                    // Write changes to high score to file
+                    SCORE_FILE.writeString(JSON.prettyPrint(SCORES), false);
 
-                            //Check if the name inputted is already there
-                            for (HighScoreEntry score : scores)
-                                if (score.getName().equals(INPUT.getText()))
-                                    return; //TODO tell user name is taken Boi
-
-                            //Put score in
-                            String playerName = (INPUT.getText().length() >= 12)? INPUT.getText().substring(0, 12) : INPUT.getText();
-                            scores.add(new HighScoreEntry(playerPoints, playerName));
-                            scores.sort();
-                            scores.reverse();
-                            scores.truncate(10);
-
-
-                            //scores.truncate(10);
-
-                            //Write changes to high score to file
-                            SCORE_FILE.writeString(JSON.prettyPrint(scores), false);
-
-                            APP.getScreen().dispose();
-
-                            APP.setScreen(new HighScoreScreen());
-                        }
-                    }
+                    APP.getScreen().dispose();
+                    APP.setScreen(new HighScoreScreen());
                 }
             }
         });

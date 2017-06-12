@@ -1,5 +1,4 @@
 ## Java
-
 *.class
 *.war
 *.ear
@@ -112,3 +111,6 @@ gradle-app.setting
 ## OS Specific
 .DS_Store
 Thumbs.db
+
+## Project Specific
+hold_my_coffee_highscores.json
