@@ -38,59 +38,169 @@ public class AISystem extends IteratingSystem {
 
         // region State Machine
         switch (AI.curState) {
-            case SCHEDULING_ATTACK:
-                if (HEALTH.getHealthPercent() >= 0.50) {
-                    if (MathUtils.randomBoolean(0.1f)) {
-                        AI.TASKS.add(new BossActions.DoNothing(0.5f));
-                        break;
+            case SCHEDULING:
+                if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
+                    // Create a base for all attacks
+                    if (MathUtils.randomBoolean(0.5f)) {
+                        AI.TASKS.add(new BossActions.SimpleSpiralAttack(getEngine()));
                     } else {
+                        AI.TASKS.add(new BossActions.TempestBloom(getEngine()));
+                    }
+
+                    // Add some spices
+                    final BossActions.ActionSequence SEQ = new BossActions.ActionSequence(0.3f);
+                    int i = 0;
+                    while (i < 5) {
+                        if (MathUtils.randomBoolean(0.7f)) { // Have a chance that you don't add anything at all
+                            if (MathUtils.randomBoolean(0.5f)) { // Add some random homing stuff
+                                SEQ.addAction(new BossActions.InvisibleHomingBulletsAttack(getEngine()));
+                                i++;
+                            } else { // Add some random cannon stuff
+                                SEQ.addAction(new BossActions.ShotgunSpray(getEngine()));
+                                i++;
+                            }
+                        } else
+                            i++;
+                    }
+
+                    SEQ.parallel = true;
+                    AI.TASKS.add(SEQ);
+
+                    if (MathUtils.randomBoolean(0.5f)) {
+                        AI.TASKS.add(new BossActions.SimpleLaserAttack(getEngine(), VIEWPORT));
+                    }
+
+                    if (MathUtils.randomBoolean(0.5f)) {
+                        Vector2 move = new Vector2();
+                        generateRandomMoveTarget(TRANSFORM, move);
+                        AI.TASKS.add(new BossActions.Move(0.5f, move));
+                    }
+                } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75
+                    // Create a base for all attacks
+                    if (MathUtils.randomBoolean(0.5f)) {
+                        AI.TASKS.add(new BossActions.SimpleConeAttack(getEngine()));
+
+                        if (MathUtils.randomBoolean(0.7f)) { // Have a chance that you don't add anything at all
+                            if (MathUtils.randomBoolean(0.2f)) { // Add some random homing stuff
+                                final BossActions.Action ACTION = new BossActions.HomingBulletCircleAttack(getEngine());
+                                ACTION.parallel = true;
+                                AI.TASKS.add(ACTION);
+                            } else { // Add some random cannon stuff
+                                final BossActions.Action ACTION = new BossActions.HelixLaserAttack(getEngine(), VIEWPORT);
+                                ACTION.parallel = true;
+                                AI.TASKS.add(ACTION);
+                            }
+                        }
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            AI.TASKS.add(new BossActions.TripleLaserBallAttack(getEngine(), VIEWPORT));
+                        }
+                    } else {
+                        AI.TASKS.add(new BossActions.SpiralColumnAttack(getEngine()));
+                        AI.TASKS.add(new BossActions.DoNothing(5f));
+                    }
+
+                    if (MathUtils.randomBoolean(0.5f)) {
+                        Vector2 move = new Vector2();
+                        generateRandomMoveTarget(TRANSFORM, move);
+                        AI.TASKS.add(new BossActions.Move(0.5f, move));
+                    }
+                } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
+                    // Create a base for all attacks
+                    if (MathUtils.randomBoolean(0.66f)) {
+                        if (MathUtils.randomBoolean(0.33f)) {
+                            AI.TASKS.add(new BossActions.ShiftingSpiralAttack(getEngine()));
+                        } else if (MathUtils.randomBoolean(0.5f)) {
+                            AI.TASKS.add(new BossActions.ReverseShiftingSpiralAttack(getEngine()));
+                        } else {
+                            AI.TASKS.add(new BossActions.LunaticGun(getEngine()));
+                        }
+
+                        // Add some spices
+                        if (MathUtils.randomBoolean(0.1f)) { // Add some random homing stuff
+                            final BossActions.Action ACTION = new BossActions.HomingBulletCircleAttack(getEngine());
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        }
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            AI.TASKS.add(new BossActions.HelixPlusAttack(getEngine(), VIEWPORT));
+                        }
+                    } else {
+                        if (MathUtils.randomBoolean(0.5f))
+                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine(), VIEWPORT));
+                        else
+                            AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
+                        AI.TASKS.add(new BossActions.DoNothing(3f));
+                    }
+
+                    if (MathUtils.randomBoolean(0.5f)) {
+                        Vector2 move = new Vector2();
+                        generateRandomMoveTarget(TRANSFORM, move);
+                        AI.TASKS.add(new BossActions.Move(0.2f, move));
+                    }
+                } else {  // > 11.25%
+                    // Create a base for all attacks
+                    if (MathUtils.randomBoolean(0.66f)) {
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            AI.TASKS.add(new BossActions.ShiftingSpiralAttack(getEngine()));
+                            AI.TASKS.add(new BossActions.ReverseShiftingSpiralAttack(getEngine()));
+                            AI.TASKS.get(1).parallel = true;
+                        } else {
+                            AI.TASKS.add(new BossActions.LunaticGun(getEngine()));
+                        }
+
+                        // Add some spices
+                        if (MathUtils.randomBoolean(0.1f)) { // Add some random homing stuff
+                            final BossActions.Action ACTION = new BossActions.HomingBulletCircleAttack(getEngine());
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        }
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            final BossActions.Action ACTION = new BossActions.TripleLaserBallAttack(getEngine(), VIEWPORT);
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        }
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            AI.TASKS.add(new BossActions.HelixPlusAttack(getEngine(), VIEWPORT));
+                        }
+                    } else {
+                        if (MathUtils.randomBoolean(0.5f))
+                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine(), VIEWPORT));
+                        else
+                            AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
+                        AI.TASKS.add(new BossActions.DoNothing(3f));
+                    }
+
+                    if (MathUtils.randomBoolean(0.5f)) {
+                        Vector2 move = new Vector2();
+                        generateRandomMoveTarget(TRANSFORM, move);
+                        AI.TASKS.add(new BossActions.Move(0.2f, move));
                     }
                 }
-                /*if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
-                    AI.state = MathUtils.random(1, AI.ACTIONS.size / 3);
-                } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75%
-                    AI.state = Mathf.biasedRandom(1, AI.ACTIONS.size / 2, 1.5f);
-                } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
-                    AI.state = Mathf.biasedRandom(2, MathUtils.round(AI.ACTIONS.size / 1.5f), .75f);
-                } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
-                    AI.state = MathUtils.random(1, AI.ACTIONS.size - 1);
-                } else {  // > 11.25%
-                    AI.state = Mathf.biasedRandom(1, AI.ACTIONS.size - 1, .3f);
-                }
-                break;*/
-            case SCHEDULING_MOVE:
-                Vector2 move = new Vector2();
-                do {
-                    move.set(
-                            MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
-                            MathUtils.random(VIEWPORT.getWorldHeight() * 2.0f / 3.0f, VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height)
-                    );
-                } while (move.dst2(TRANSFORM.POSITION) <= 1000);
-
-                float buffer = MathUtils.random();
-                AI.TASKS.add(new BossActions.Move(buffer, move));
-                AI.curState = AIState.MOVING;
+                AI.curState = AIState.PROCESSING;
                 break;
-            case ATTACKING:
-                if (AI.TASKS.size != 0) {
+            case PROCESSING:
+                if (AI.TASKS.size > 0) {
                     int i = 0;
                     while (i < AI.TASKS.size) {
                         BossActions.Action a = AI.TASKS.get(i);
-                        if (a.act(entity, deltaTime))
-                            AI.TASKS.removeValue(a, true);
+
+                        if (i > 0 && !a.parallel)
+                            break;
+                        else if (a.act(entity, deltaTime))
+                            AI.TASKS.removeIndex(i);
                         else
                             i++;
                     }
-                }
-                break;
-            case MOVING:
-                if (AI.TASKS.first().act(entity, deltaTime)) {
-                    AI.TASKS.clear();
-                    AI.curState = AIState.SCHEDULING_MOVE;
+                } else {
+                    AI.curState = AIState.SCHEDULING;
                 }
                 break;
             default:
-                AI.curState = AIState.SCHEDULING_MOVE;
+                AI.curState = AIState.SCHEDULING;
         }
 
         /*switch (AI.state) {
@@ -182,5 +292,22 @@ public class AISystem extends IteratingSystem {
 
         if (HEALTH.health <= 0)
             getEngine().removeEntity(entity);
+    }
+
+    /**
+     * Generates a random target to move towards
+     * @param trans     the {@code TransformComponent} whose location and dimensions to use
+     * @param returnVec the {@code Vector2} to store the target location in
+     * @return a target location that is at least 100 units away from the specified transform
+     */
+    private Vector2 generateRandomMoveTarget(TransformComponent trans, Vector2 returnVec) {
+        do {
+            returnVec.set(
+                    MathUtils.random(VIEWPORT.getWorldWidth() - trans.SIZE.width),
+                    MathUtils.random(VIEWPORT.getWorldHeight() * 2.0f / 3.0f, VIEWPORT.getWorldHeight() - trans.SIZE.height)
+            );
+        } while (returnVec.dst2(trans.POSITION) <= 1000);
+
+        return returnVec;
     }
 }

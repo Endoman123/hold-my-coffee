@@ -236,7 +236,7 @@ public class EntityFactory {
         final NinePatchDrawable BACK = new NinePatchDrawable(uiSkin.getAtlas().createPatch("button_up"));
 
         BACK.getPatch().setColor(Color.DARK_GRAY);
-        FILL.setColor(Color.GREEN);
+        FILL.setColor(Color.LIME);
 
         TABLE.addAction(new Action() {
             @Override
@@ -249,6 +249,12 @@ public class EntityFactory {
 
                 LIFE_COUNTER.setText("= " + PLAYER.lives);
 
+                if (HEALTH.getHealthPercent() >= .5f)
+                    FILL.setColor(Color.LIME);
+                else if (HEALTH.getHealthPercent() >= .25f)
+                    FILL.setColor(Color.YELLOW);
+                else
+                    FILL.setColor(Color.RED);
                 FILL.setBounds(4, 4, (CONTAINER.getWidth() - 9) * HEALTH.getHealthPercent(), CONTAINER.getHeight() - 9);
                 return false;
             }

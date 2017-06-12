@@ -6,8 +6,8 @@ package com.coffee.util;
  * @author Jared Tulayan
  */
 public enum AIState {
-    SCHEDULING_ATTACK,
+    SCHEDULING,
     SCHEDULING_MOVE,
-    ATTACKING,
+    PROCESSING,
     MOVING
 }

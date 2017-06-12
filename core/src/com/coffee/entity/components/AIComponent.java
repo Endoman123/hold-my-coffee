@@ -20,6 +20,7 @@ public class AIComponent implements Component, Pool.Poolable{
     public float lerpTimer, lerpSpeed, actionTimer, fireTimer;
     /** -1 : move then attack   -2 : reset   -3: Determine if should chain attacks  */
     public int state;
+    public int curTask;
     public AIState curState;
 
     public AIComponent() {
@@ -35,6 +36,7 @@ public class AIComponent implements Component, Pool.Poolable{
         actionTimer = 0;
         fireTimer = 0;
         state = 1;
+        curTask = 0;
     }
 
     public void reset() {
@@ -51,5 +53,6 @@ public class AIComponent implements Component, Pool.Poolable{
         actionTimer = 0;
         fireTimer = 0;
         state = 1;
+        curTask = 0;
     }
 }
