@@ -166,7 +166,7 @@ public class GameScreen extends ScreenAdapter {
                 gameTimer -= delta;
                 //Dummy point system
                 Mapper.PLAYER.get(PLAYER).points = (int) (
-                                (100000 * Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent()) +
+                                (100000 * (1f - Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent())) +
                                 (Mapper.PLAYER.get(PLAYER).lives * 25000) +
                                 (Mapper.HEALTH.get(PLAYER).getHealthPercent() * 25000) *
                                 (Mapper.PLAYER.get(PLAYER).upBulletDamage * 10000) +
