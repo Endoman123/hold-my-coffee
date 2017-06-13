@@ -108,7 +108,7 @@ public class AISystem extends IteratingSystem {
 
                     AI.TASKS.add(new BossActions.DoNothing(1.5f));
 
-                } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
+                } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.66f)) {
                         if (MathUtils.randomBoolean(0.33f)) {
@@ -142,7 +142,7 @@ public class AISystem extends IteratingSystem {
                         generateRandomMoveTarget(TRANSFORM, move);
                         AI.TASKS.add(new BossActions.Move(0.2f, move));
                     }
-                } else {  // > 11.25%
+                } else {  // > 25%
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.66f)) {
                         if (MathUtils.randomBoolean(0.5f)) {
@@ -190,7 +190,6 @@ public class AISystem extends IteratingSystem {
                     int i = 0;
                     while (i < AI.TASKS.size) {
                         BossActions.Action a = AI.TASKS.get(i);
-
                         if (i > 0 && !a.parallel)
                             break;
                         else if (a.act(entity, deltaTime))

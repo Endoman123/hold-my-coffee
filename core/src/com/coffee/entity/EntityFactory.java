@@ -1565,7 +1565,7 @@ public class EntityFactory {
 
         // Initialize HealthComponent
         HEALTH.maxHealth = 10000;
-        HEALTH.health = 7400;
+        HEALTH.health = 10000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
@@ -1597,8 +1597,6 @@ public class EntityFactory {
         TABLE.add(HEALTH_BAR).height(20).expandX().fillX();
 
         GUI.canvas.addActor(TABLE);
-
-        //HEALTH.health = (int) (HEALTH.maxHealth * .30);
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI).add(GUI);
     }
