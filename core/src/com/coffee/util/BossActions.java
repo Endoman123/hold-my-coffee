@@ -19,18 +19,18 @@ import com.coffee.entity.components.*;
 public class BossActions {
 
     /**
-     * {@link Action Action} that moves the boss to a specified location after a certain wait period.
+     * {@link Action Action} that moves the boss to a specified location at a specified speed.
      */
     public static class Move extends Action {
         private final Vector2 TARGET_LOC;
-        private Vector2 beginLoc;
-        private boolean moving = false;
+        private final Vector2 BEGIN_LOC;
         private float timer;
+        private final float SPEED;
 
-        public Move(float wait, Vector2 loc) {
-            timer = wait;
+        public Move(float speed, Vector2 loc) {
+            SPEED = speed;
 
-            beginLoc = new Vector2();
+            BEGIN_LOC = new Vector2();
             TARGET_LOC = new Vector2(loc);
         }
 
@@ -39,22 +39,15 @@ public class BossActions {
             final AIComponent AI = Mapper.AI.get(boss);
             final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(boss);
 
-            if (!moving) { // Wait to move
-                timer -= deltaTime;
-                if (timer <= 0) { // Initialize movement state
-                    timer = 0;
-                    beginLoc.set(TRANSFORM.POSITION);
-                    moving = true;
-                }
-                return false;
-            }
+            if (BEGIN_LOC.epsilonEquals(Vector2.Zero, 0))
+                BEGIN_LOC.set(TRANSFORM.POSITION);
 
-            timer = MathUtils.clamp(timer + deltaTime * AI.lerpSpeed, 0, 1);
+            timer = MathUtils.clamp(timer + deltaTime * SPEED, 0, 1);
             float perc = MathUtils.sin(timer * MathUtils.PI / 2.0f);
 
             TRANSFORM.POSITION.set(
-                    MathUtils.lerp(beginLoc.x, TARGET_LOC.x, perc),
-                    MathUtils.lerp(beginLoc.y, TARGET_LOC.y, perc)
+                    MathUtils.lerp(BEGIN_LOC.x, TARGET_LOC.x, perc),
+                    MathUtils.lerp(BEGIN_LOC.y, TARGET_LOC.y, perc)
             );
 
             return timer == 1;
@@ -469,11 +462,9 @@ public class BossActions {
         private float fireTimer;
         private int iterations;
         private final Engine ENGINE;
-        private final Viewport VIEWPORT;
 
-        public ImperishableNight(Engine e, Viewport v) {
+        public ImperishableNight(Engine e) {
             ENGINE = e;
-            VIEWPORT = v;
         }
 
         public boolean act(Entity entity, float deltaTime) {
@@ -481,17 +472,6 @@ public class BossActions {
             TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
 
             fireTimer += deltaTime;
-
-            if (iterations == 0) { // Assume that target has not been decided yet.
-                final ImmutableArray<Entity> PLAYERS = ENGINE.getEntitiesFor(Family.all(PlayerComponent.class, TransformComponent.class).get());
-                AI.TARGET_LOC.set(VIEWPORT.getWorldWidth() / 2, VIEWPORT.getWorldHeight() / 2);
-
-                if (PLAYERS.size() != 0) {
-                    TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
-
-                    AI.TARGET_LOC.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
-                }
-            }
 
             if (fireTimer >= 0.1f) {
                 float xPlace;
@@ -517,7 +497,6 @@ public class BossActions {
 
                         ENGINE.addEntity(B);
                     }
-
                 } else { // Laser
                     for (int i = 0; i < 4; i++) {
                         float deg = iterations * 7 + i * 90;
@@ -808,6 +787,10 @@ public class BossActions {
             BUFFER_LENGTH = bufferTime;
         }
 
+        public ActionSequence() {
+            this(0);
+        }
+
         @Override
         public boolean act(Entity boss, float deltaTime) {
             if (curTask < SEQUENCE.size) {
@@ -830,7 +813,7 @@ public class BossActions {
 
         public void addAction(Action a) {
             SEQUENCE.add(a);
-            if (!a.parallel && SEQUENCE.size > 1)
+            if (BUFFER_LENGTH > 0 && !a.parallel && SEQUENCE.size > 1)
                 SEQUENCE.add(new DoNothing(BUFFER_LENGTH));
         }
     }

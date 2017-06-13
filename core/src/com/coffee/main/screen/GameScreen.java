@@ -47,17 +47,17 @@ public class GameScreen extends ScreenAdapter {
         ENGINE = new PooledEngine();
         SHAPE_RENDERER = APP.getShapeRenderer();
 
-        ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
-        ENGINE.addSystem(new GUISystem());
-        ENGINE.addSystem(new BulletSystem(VIEWPORT));
-        ENGINE.addSystem(new MovementSystem(VIEWPORT));
-        ENGINE.addSystem(new CollisionSystem(VIEWPORT));
-        // ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
-        ENGINE.addSystem(new LifetimeSystem());
-        ENGINE.addSystem(new HealthSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
         ENGINE.addSystem(new PlayerSystem(VIEWPORT));
         ENGINE.addSystem(new AISystem(VIEWPORT));
+        ENGINE.addSystem(new MovementSystem(VIEWPORT));
+        ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
+        // ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        ENGINE.addSystem(new GUISystem());
+        ENGINE.addSystem(new CollisionSystem(VIEWPORT));
+        ENGINE.addSystem(new LifetimeSystem());
+        ENGINE.addSystem(new HealthSystem());
+        ENGINE.addSystem(new BulletSystem(VIEWPORT));
 
         PLAYER = EntityFactory.createPlayer(VIEWPORT.getWorldWidth() / 2f, 128);
         BOSS_SHIP = EntityFactory.createBossShip(VIEWPORT.getWorldWidth() / 2, VIEWPORT.getWorldHeight() * 2 / 3 + 64);

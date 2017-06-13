@@ -40,6 +40,12 @@ public class AISystem extends IteratingSystem {
         switch (AI.curState) {
             case SCHEDULING:
                 if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
+                    if (MathUtils.randomBoolean(0.7f)) {
+                        Vector2 move = new Vector2();
+                        generateRandomMoveTarget(TRANSFORM, move);
+                        AI.TASKS.add(new BossActions.Move(1.6f, move));
+                    }
+
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.5f)) {
                         AI.TASKS.add(new BossActions.SimpleSpiralAttack(getEngine()));
@@ -50,7 +56,7 @@ public class AISystem extends IteratingSystem {
                     // Add some spices
                     final BossActions.ActionSequence SEQ = new BossActions.ActionSequence(0.3f);
                     int i = 0;
-                    while (i < 5) {
+                    while (i < 3) {
                         if (MathUtils.randomBoolean(0.7f)) { // Have a chance that you don't add anything at all
                             if (MathUtils.randomBoolean(0.5f)) { // Add some random homing stuff
                                 SEQ.addAction(new BossActions.InvisibleHomingBulletsAttack(getEngine()));
@@ -66,30 +72,30 @@ public class AISystem extends IteratingSystem {
                     SEQ.parallel = true;
                     AI.TASKS.add(SEQ);
 
-                    if (MathUtils.randomBoolean(0.5f)) {
+                    if (MathUtils.randomBoolean(0.5f))
                         AI.TASKS.add(new BossActions.SimpleLaserAttack(getEngine(), VIEWPORT));
-                    }
 
-                    if (MathUtils.randomBoolean(0.5f)) {
+                    AI.TASKS.add(new BossActions.DoNothing(2));
+
+                } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75
+                    if (MathUtils.randomBoolean(0.8f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
                         AI.TASKS.add(new BossActions.Move(0.5f, move));
                     }
-                } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75
+
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.5f)) {
                         AI.TASKS.add(new BossActions.SimpleConeAttack(getEngine()));
 
                         if (MathUtils.randomBoolean(0.7f)) { // Have a chance that you don't add anything at all
-                            if (MathUtils.randomBoolean(0.2f)) { // Add some random homing stuff
-                                final BossActions.Action ACTION = new BossActions.HomingBulletCircleAttack(getEngine());
-                                ACTION.parallel = true;
-                                AI.TASKS.add(ACTION);
-                            } else { // Add some random cannon stuff
-                                final BossActions.Action ACTION = new BossActions.HelixLaserAttack(getEngine(), VIEWPORT);
-                                ACTION.parallel = true;
-                                AI.TASKS.add(ACTION);
-                            }
+                            BossActions.ActionSequence seq = new BossActions.ActionSequence();
+                            seq.parallel = true;
+                            seq.addAction(new BossActions.DoNothing(1));
+                            if (MathUtils.randomBoolean(0.2f)) // Add some random homing stuff
+                                seq.addAction(new BossActions.HomingBulletCircleAttack(getEngine()));
+                            else // Add some random cannon stuff
+                                AI.TASKS.add(new BossActions.HelixLaserAttack(getEngine(), VIEWPORT));
                         }
 
                         if (MathUtils.randomBoolean(0.5f)) {
@@ -100,11 +106,8 @@ public class AISystem extends IteratingSystem {
                         AI.TASKS.add(new BossActions.DoNothing(5f));
                     }
 
-                    if (MathUtils.randomBoolean(0.5f)) {
-                        Vector2 move = new Vector2();
-                        generateRandomMoveTarget(TRANSFORM, move);
-                        AI.TASKS.add(new BossActions.Move(0.5f, move));
-                    }
+                    AI.TASKS.add(new BossActions.DoNothing(1.5f));
+
                 } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.66f)) {
@@ -128,7 +131,7 @@ public class AISystem extends IteratingSystem {
                         }
                     } else {
                         if (MathUtils.randomBoolean(0.5f))
-                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine(), VIEWPORT));
+                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
                         else
                             AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
                         AI.TASKS.add(new BossActions.DoNothing(3f));
@@ -168,7 +171,7 @@ public class AISystem extends IteratingSystem {
                         }
                     } else {
                         if (MathUtils.randomBoolean(0.5f))
-                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine(), VIEWPORT));
+                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
                         else
                             AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
                         AI.TASKS.add(new BossActions.DoNothing(3f));
@@ -202,92 +205,6 @@ public class AISystem extends IteratingSystem {
             default:
                 AI.curState = AIState.SCHEDULING;
         }
-
-        /*switch (AI.state) {
-            case -3: { // Determine whether it should chain attacks (if chance fails, reset like normal)
-                if (MathUtils.randomBoolean(Interpolation.exp5In.apply(0, .6f, 1f - HEALTH.getHealthPercent()))) { // Will chain attack
-                    // region selecting next attack
-                    if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
-                        AI.state = MathUtils.random(1, AI.ACTIONS.size / 3);
-                    } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75%
-                        AI.state = Mathf.biasedRandom(1, AI.ACTIONS.size / 2, 1.5f);
-                    } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
-                        AI.state = Mathf.biasedRandom(2, MathUtils.round(AI.ACTIONS.size / 1.5f), .75f);
-                    } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
-                        AI.state = MathUtils.random(1, AI.ACTIONS.size - 1);
-                    } else {  // > 11.25%
-                        AI.state = Mathf.biasedRandom(1, AI.ACTIONS.size - 1, .3f);
-                    }
-
-                    AI.actionTimer = 0;
-                    break;
-                    // endregion
-                } else {
-                    AI.state = -2;
-                    break;
-                }
-            }
-            case -2: { // reset
-                if (AI.actionTimer <= 0) {
-                    AI.BEGIN_POS.set(TRANSFORM.POSITION);
-                    do {
-                        AI.END_POS.set(
-                                MathUtils.random(VIEWPORT.getWorldWidth() - TRANSFORM.SIZE.width),
-                                MathUtils.random(VIEWPORT.getWorldHeight() * 2.0f / 3.0f, VIEWPORT.getWorldHeight() - TRANSFORM.SIZE.height)
-                        );
-                    } while (AI.BEGIN_POS.dst2(AI.END_POS) <= 1000);
-
-                    AI.actionTimer = 0;
-                    AI.lerpTimer = 0;
-                    AI.state = -1;
-                } else
-                    AI.actionTimer -= deltaTime;
-                break;
-            }
-            case -1: { // Move towards position and choose action
-                AI.lerpTimer = MathUtils.clamp(AI.lerpTimer + deltaTime * AI.lerpSpeed, 0, 1);
-                float perc = MathUtils.sin(AI.lerpTimer * MathUtils.PI / 2.0f);
-
-                TRANSFORM.POSITION.set(
-                        MathUtils.lerp(AI.BEGIN_POS.x, AI.END_POS.x, perc),
-                        MathUtils.lerp(AI.BEGIN_POS.y, AI.END_POS.y, perc)
-                );
-
-                if (AI.lerpTimer == 1) {
-                    // region selecting next attack
-                    if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
-                        AI.state = *//*AI.ACTIONS.size - 1;*//*MathUtils.random(1, AI.ACTIONS.size / 3); //Uses 1st third
-                        AI.lerpSpeed = 1.6f;
-                    } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75%
-                        AI.state = Mathf.biasedRandom(1, AI.ACTIONS.size / 2, .5f); //Uses 1st half (biased towards later)
-                        AI.lerpSpeed = 2.4f;
-                    } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
-                        if (MathUtils.randomBoolean(.1f))
-                            AI.state = 0; // Fake out
-                        else
-                            AI.state = Mathf.biasedRandom(2, MathUtils.round(AI.ACTIONS.size / 1.5f), .75f);
-                        AI.lerpSpeed = 3.2f;
-                    } else if (HEALTH.getHealthPercent() >= 0.1125) {  // 11.25% - 25%
-                        if (MathUtils.randomBoolean(.3f))
-                            AI.state = 0; // Fake out
-                        else
-                            AI.state = MathUtils.random(1, AI.ACTIONS.size - 1);
-                        AI.lerpSpeed = 4f;
-                    } else {  // > 11.25%
-                        if (MathUtils.randomBoolean(.5f))
-                            AI.state = 0; // Fake out
-                        else
-                            AI.state = Mathf.biasedRandom(1, AI.ACTIONS.size - 1, .75f);
-                        AI.lerpSpeed = MathUtils.random(2f, 4.8f);
-                    }
-                    // endregion
-                }
-                break;
-            }
-            default:
-                //do an action
-                AI.ACTIONS.get(AI.state).doAction(entity, deltaTime);
-        }*/
         // endregion
 
         if (HEALTH.health <= 0)

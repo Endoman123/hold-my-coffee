@@ -7,7 +7,5 @@ package com.coffee.util;
  */
 public enum AIState {
     SCHEDULING,
-    SCHEDULING_MOVE,
-    PROCESSING,
-    MOVING
+    PROCESSING
 }

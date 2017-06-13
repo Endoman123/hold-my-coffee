@@ -13,7 +13,7 @@ import com.coffee.util.BulletHandler;
  */
 public class BulletComponent implements Component, Pool.Poolable {
     public BulletHandler handler;
-    public float timer;
+    public float timer, despawnTimer;
     public double damage = 10;
     public int state = 0;
 
