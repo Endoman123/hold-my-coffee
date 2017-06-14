@@ -143,7 +143,7 @@ public class GameScreen extends ScreenAdapter {
 
                 ENGINE.addEntity(EntityFactory.createRandomPowerUpSpawner(200, 200, ENGINE));
 
-                gameTimer = 0;
+                gameTimer = 3;
                 ready = true;
             }
         }
@@ -159,18 +159,17 @@ public class GameScreen extends ScreenAdapter {
         gameOver = playerDead || bossDead;
 
         if (gameOver) {
+            gameTimer -= delta;
+            APP.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
+
             if (playerDead)
                 Mapper.HEALTH.get(BOSS_SHIP).invincibilityTimer = 999;
             else if (bossDead)
-            if (gameTimer == 0) {
-                gameTimer = 3;
-            } else {
-                gameTimer -= delta;
+                Mapper.HEALTH.get(PLAYER).invincibilityTimer = 999;
 
-                if (gameTimer <= 0) {
-                    this.dispose();
-                    APP.setScreen(new GameOverScreen(Mapper.PLAYER.get(PLAYER)));
-                }
+            if (gameTimer <= 0) {
+                this.dispose();
+                APP.setScreen(new GameOverScreen(Mapper.PLAYER.get(PLAYER)));
             }
         }
     }
@@ -254,12 +253,14 @@ public class GameScreen extends ScreenAdapter {
                     System.out.println("Health Restored");
                     break;
                 case Input.Keys.F6: //EVERYTHING UP OOOO OOOOOO OOOOOOO TODO 000OOO000OOOO000OOooo MAXXXX XXXXXXXXXXXxxxxxxxxxx.
-                    PLAY.upBulletDamage = 4;
-                    PLAY.upFireRate = 4;
-                    PLAY.upSpeed = 4;
-                    PLAY.lives = 999;
-                    Mapper.HEALTH.get(PLAYER).health = Mapper.HEALTH.get(PLAYER).maxHealth;
-                    System.out.println("Max Stats");
+                    if (Mapper.HEALTH.get(PLAYER).getHealthPercent() > 0 || Mapper.PLAYER.get(PLAYER).lives > 0) {
+                        PLAY.upBulletDamage = 4;
+                        PLAY.upFireRate = 4;
+                        PLAY.upSpeed = 4;
+                        PLAY.lives = 999;
+                        Mapper.HEALTH.get(PLAYER).health = Mapper.HEALTH.get(PLAYER).maxHealth;
+                        System.out.println("Max Stats");
+                    }
                     break;
                 case Input.Keys.F9: //Kill player in their sleep
                     PLAY.lives = 0;
