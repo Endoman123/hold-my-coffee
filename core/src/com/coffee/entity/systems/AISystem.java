@@ -44,7 +44,7 @@ public class AISystem extends IteratingSystem {
                     if (MathUtils.randomBoolean(0.7f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
-                        AI.TASKS.add(new BossActions.Move(.4f, move));
+                        AI.TASKS.add(new BossActions.Move(1f, move));
                     }
 
                     // Create a base for all attacks
