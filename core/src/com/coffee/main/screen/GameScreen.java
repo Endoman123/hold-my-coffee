@@ -32,6 +32,8 @@ public class GameScreen extends ScreenAdapter {
     private final PooledEngine ENGINE;
     private final Application APP;
 
+    private final InputProcessor DEBUG;
+
     private final Entity PLAYER;
     private final Entity BOSS_SHIP;
     private final Entity PAUSE_UI;
@@ -56,10 +58,10 @@ public class GameScreen extends ScreenAdapter {
         ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
         // ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new GUISystem());
-        ENGINE.addSystem(new CollisionSystem(VIEWPORT));
-        ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new HealthSystem());
+        ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new BulletSystem(VIEWPORT));
+        ENGINE.addSystem(new CollisionSystem(VIEWPORT));
 
         PLAYER = EntityFactory.createPlayer(VIEWPORT.getWorldWidth() / 2f, 128);
         BOSS_SHIP = EntityFactory.createBossShip(VIEWPORT.getWorldWidth() / 2, VIEWPORT.getWorldHeight() * 2 / 3 + 64);
@@ -129,7 +131,9 @@ public class GameScreen extends ScreenAdapter {
         ENGINE.getSystem(AISystem.class).setProcessing(false);
 
         gameTimer = READY_LENGTH;
+
         Gdx.input.setCursorCatched(true);
+        DEBUG = new MLGHackerzDebugControlzz();
     }
 
     @Override
@@ -182,7 +186,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         EntityFactory.setEngine(ENGINE);
         APP.getInputMultiplexer().addProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
-        APP.getInputMultiplexer().addProcessor(new MLGHackerzDebugControlzz());
+        APP.getInputMultiplexer().addProcessor(DEBUG);
 
     }
 
@@ -190,6 +194,7 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         Gdx.input.setCursorCatched(false);
         APP.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
+        APP.getInputMultiplexer().removeProcessor(DEBUG);
     }
 
     /**

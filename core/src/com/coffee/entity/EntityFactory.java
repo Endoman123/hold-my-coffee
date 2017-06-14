@@ -664,7 +664,7 @@ public class EntityFactory {
             }
         };
 
-        BULLET.timer = 6;
+        BULLET.timer = -1;
 
         return E;
     }
