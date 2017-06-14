@@ -2,13 +2,11 @@ package com.coffee.main.screen;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -19,6 +17,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.GUIComponent;
+import com.coffee.entity.components.PlayerComponent;
 import com.coffee.entity.systems.*;
 import com.coffee.main.Application;
 import com.coffee.util.Assets;
@@ -151,11 +150,6 @@ public class GameScreen extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) && ready)
             togglePause();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K) && !gameOver) {
-            Mapper.PLAYER.get(PLAYER).lives = 0;
-            Mapper.HEALTH.get(PLAYER).health = 0;
-        }
-
         gameOver = Mapper.HEALTH.get(PLAYER).getHealthPercent() == 0 && Mapper.PLAYER.get(PLAYER).lives == 0 || Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent() == 0;
 
         if (gameOver) {
@@ -199,6 +193,8 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         EntityFactory.setEngine(ENGINE);
         APP.getInputMultiplexer().addProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
+        APP.getInputMultiplexer().addProcessor(new MLGHackerzDebugControlzz());
+
     }
 
     @Override
@@ -240,5 +236,69 @@ public class GameScreen extends ScreenAdapter {
         ENGINE.removeAllEntities();
 
         super.dispose();
+    }
+
+    /**
+     * Class that only world class players use. Contains hotkeys for debugging purposes.
+     */
+    private class MLGHackerzDebugControlzz extends InputAdapter{
+        @Override
+        public boolean keyUp(int keycode) {
+            PlayerComponent PLAY = Mapper.PLAYER.get(PLAYER);
+            switch (keycode) {
+                case Input.Keys.F1:
+                    PLAY.lives++;
+                    System.out.println("Lives +1");
+                    break;
+                case Input.Keys.F2:
+                    PLAY.upSpeed = MathUtils.clamp(PLAY.upSpeed + 1, 0, 4);
+                    System.out.println("Speed +1");
+                    break;
+                case Input.Keys.F3:
+                    PLAY.upFireRate = MathUtils.clamp(PLAY.upFireRate + 1, 0, 4);
+                    System.out.println("Fire Rate +1");
+                    break;
+                case Input.Keys.F4:
+                    PLAY.upBulletDamage = MathUtils.clamp(PLAY.upBulletDamage + 1, 0, 4);
+                    System.out.println("Bullet Damage +1");
+                    break;
+                case Input.Keys.F5:
+                    Mapper.HEALTH.get(PLAYER).health = Mapper.HEALTH.get(PLAYER).maxHealth;
+                    System.out.println("Health Restored");
+                    break;
+                case Input.Keys.F6: //EVERYTHING UP OOOO OOOOOO OOOOOOO TODO 000OOO000OOOO000OOooo MAXXXX XXXXXXXXXXXxxxxxxxxxx.
+                    PLAY.upBulletDamage = 4;
+                    PLAY.upFireRate = 4;
+                    PLAY.upSpeed = 4;
+                    PLAY.lives = 999;
+                    Mapper.HEALTH.get(PLAYER).health = Mapper.HEALTH.get(PLAYER).maxHealth;
+                    System.out.println("Max Stats");
+                    break;
+                case Input.Keys.F9: //Kill player in their sleep
+                    PLAY.lives = 0;
+                    Mapper.HEALTH.get(PLAYER).health = 0;
+                    System.out.println("Kill Player");
+                    break;
+                case Input.Keys.NUM_1: //100%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = Mapper.HEALTH.get(BOSS_SHIP).maxHealth;
+                    break;
+                case Input.Keys.NUM_2: //75%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = (int) (Mapper.HEALTH.get(BOSS_SHIP).maxHealth / 1.5);
+                    break;
+                case Input.Keys.NUM_3: //50%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = Mapper.HEALTH.get(BOSS_SHIP).maxHealth / 2;
+                    break;
+                case Input.Keys.NUM_4: //25%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = Mapper.HEALTH.get(BOSS_SHIP).maxHealth / 4;
+                    break;
+                case Input.Keys.NUM_5 : //0%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = 0;
+                    break;
+                default:
+                    PLAY.points = -1000000;
+                    return false;
+            }
+            return true;
+        }
     }
 }

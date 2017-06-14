@@ -43,7 +43,7 @@ public class AISystem extends IteratingSystem {
                     if (MathUtils.randomBoolean(0.7f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
-                        AI.TASKS.add(new BossActions.Move(1.6f, move));
+                        AI.TASKS.add(new BossActions.Move(.4f, move));
                     }
 
                     // Create a base for all attacks
@@ -81,12 +81,15 @@ public class AISystem extends IteratingSystem {
                     if (MathUtils.randomBoolean(0.8f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
-                        AI.TASKS.add(new BossActions.Move(0.5f, move));
+                        AI.TASKS.add(new BossActions.Move(.8f, move));
                     }
 
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.5f)) {
-                        AI.TASKS.add(new BossActions.SimpleConeAttack(getEngine()));
+                        if (MathUtils.randomBoolean(.7f))
+                            AI.TASKS.add(new BossActions.SimpleConeAttack(getEngine()));
+                        else
+                            AI.TASKS.add(new BossActions.FadingBalls(getEngine()));
 
                         if (MathUtils.randomBoolean(0.7f)) { // Have a chance that you don't add anything at all
                             BossActions.ActionSequence seq = new BossActions.ActionSequence();
@@ -94,6 +97,8 @@ public class AISystem extends IteratingSystem {
                             seq.addAction(new BossActions.DoNothing(1));
                             if (MathUtils.randomBoolean(0.2f)) // Add some random homing stuff
                                 seq.addAction(new BossActions.HomingBulletCircleAttack(getEngine()));
+                            else if (MathUtils.randomBoolean(.3f))
+                                seq.addAction(new BossActions.XBeam(getEngine()));
                             else // Add some random cannon stuff
                                 AI.TASKS.add(new BossActions.HelixLaserAttack(getEngine(), VIEWPORT));
                         }
@@ -110,11 +115,15 @@ public class AISystem extends IteratingSystem {
 
                 } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
                     // Create a base for all attacks
-                    if (MathUtils.randomBoolean(0.66f)) {
+                    if (MathUtils.randomBoolean(.5f)) {
+                        // Fake out chance (high in this stage)
+                    } else if (MathUtils.randomBoolean(0.66f)) {
                         if (MathUtils.randomBoolean(0.33f)) {
                             AI.TASKS.add(new BossActions.ShiftingSpiralAttack(getEngine()));
                         } else if (MathUtils.randomBoolean(0.5f)) {
                             AI.TASKS.add(new BossActions.ReverseShiftingSpiralAttack(getEngine()));
+                        } else if (MathUtils.randomBoolean(0.4f)) {
+                            AI.TASKS.add(new BossActions.FadingBalls(getEngine()));
                         } else {
                             AI.TASKS.add(new BossActions.LunaticGun(getEngine()));
                         }
@@ -126,10 +135,14 @@ public class AISystem extends IteratingSystem {
                             AI.TASKS.add(ACTION);
                         }
 
-                        if (MathUtils.randomBoolean(0.5f)) {
+                        if (MathUtils.randomBoolean(0.2f)) {
                             AI.TASKS.add(new BossActions.HelixPlusAttack(getEngine(), VIEWPORT));
                         }
-                    } else {
+
+                        if (MathUtils.randomBoolean(0.4f)) {
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                        }
+                    } else if (MathUtils.randomBoolean(.35f)) {
                         if (MathUtils.randomBoolean(0.5f))
                             AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
                         else
@@ -140,7 +153,7 @@ public class AISystem extends IteratingSystem {
                     if (MathUtils.randomBoolean(0.5f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
-                        AI.TASKS.add(new BossActions.Move(0.2f, move));
+                        AI.TASKS.add(new BossActions.Move(1.6f, move));
                     }
                 } else {  // > 25%
                     // Create a base for all attacks
@@ -169,10 +182,34 @@ public class AISystem extends IteratingSystem {
                         if (MathUtils.randomBoolean(0.5f)) {
                             AI.TASKS.add(new BossActions.HelixPlusAttack(getEngine(), VIEWPORT));
                         }
-                    } else {
-                        if (MathUtils.randomBoolean(0.5f))
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                        }
+
+                    } else if (MathUtils.randomBoolean(.75f)) {
+                        if (MathUtils.randomBoolean(0.4f))
                             AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
-                        else
+                        else if (MathUtils.randomBoolean(.5f)) {
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+
+                            Vector2 move = new Vector2();
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(3f, move.cpy()));
+
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(4f, move.cpy()));
+
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(5f, move.cpy()));
+                            AI.TASKS.add(new BossActions.HelixLaserAttack(getEngine(), VIEWPORT));
+                        } else
                             AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
                         AI.TASKS.add(new BossActions.DoNothing(3f));
                     }
@@ -180,7 +217,7 @@ public class AISystem extends IteratingSystem {
                     if (MathUtils.randomBoolean(0.5f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
-                        AI.TASKS.add(new BossActions.Move(0.2f, move));
+                        AI.TASKS.add(new BossActions.Move(2f, move));
                     }
                 }
                 AI.curState = AIState.PROCESSING;
