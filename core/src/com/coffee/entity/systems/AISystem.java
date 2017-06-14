@@ -40,6 +40,7 @@ public class AISystem extends IteratingSystem {
         switch (AI.curState) {
             case SCHEDULING:
                 if (HEALTH.getHealthPercent() >= 0.75) { // 75%+
+                    // region 75%+
                     if (MathUtils.randomBoolean(0.7f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
@@ -76,8 +77,9 @@ public class AISystem extends IteratingSystem {
                         AI.TASKS.add(new BossActions.SimpleLaserAttack(getEngine(), VIEWPORT));
 
                     AI.TASKS.add(new BossActions.DoNothing(2));
-
+                    //endregion
                 } else if (HEALTH.getHealthPercent() >= 0.50) {  // 50% - 75
+                    // region 50% - 75%
                     if (MathUtils.randomBoolean(0.8f)) {
                         Vector2 move = new Vector2();
                         generateRandomMoveTarget(TRANSFORM, move);
@@ -112,10 +114,11 @@ public class AISystem extends IteratingSystem {
                     }
 
                     AI.TASKS.add(new BossActions.DoNothing(1.5f));
-
+                    //endregion
                 } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
+                    // region 25% - 50%
                     // Create a base for all attacks
-                    if (MathUtils.randomBoolean(.5f)) {
+                    if (MathUtils.randomBoolean(.35f)) {
                         // Fake out chance (high in this stage)
                     } else if (MathUtils.randomBoolean(0.66f)) {
                         if (MathUtils.randomBoolean(0.33f)) {
@@ -145,8 +148,25 @@ public class AISystem extends IteratingSystem {
                     } else if (MathUtils.randomBoolean(.35f)) {
                         if (MathUtils.randomBoolean(0.5f))
                             AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
-                        else
+                        else if (MathUtils.randomBoolean(0.4f))
                             AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
+                        else {
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+
+                            Vector2 move = new Vector2();
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(3f, move.cpy()));
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(4f, move.cpy()));
+
+                            AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
+
+                            AI.TASKS.add(new BossActions.DoNothing(2f));
+                        }
+
                         AI.TASKS.add(new BossActions.DoNothing(3f));
                     }
 
@@ -155,7 +175,9 @@ public class AISystem extends IteratingSystem {
                         generateRandomMoveTarget(TRANSFORM, move);
                         AI.TASKS.add(new BossActions.Move(1.6f, move));
                     }
+                    //endregion
                 } else {  // > 25%
+                    //region > 25%
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.66f)) {
                         if (MathUtils.randomBoolean(0.5f)) {
@@ -219,6 +241,8 @@ public class AISystem extends IteratingSystem {
                         generateRandomMoveTarget(TRANSFORM, move);
                         AI.TASKS.add(new BossActions.Move(2f, move));
                     }
+
+                    //endregion
                 }
                 AI.curState = AIState.PROCESSING;
                 break;
