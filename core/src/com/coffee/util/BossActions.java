@@ -621,10 +621,14 @@ public class BossActions {
                     final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
 
                     MOVE.moveSpeed = 2;
-                    BULLET.handler = (float dt) -> {
-                        BULLET.timer += dt / 2f;
-                        SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(new Color(0, 0, 1f, 0), (MathUtils.cos(BULLET.timer * MathUtils.PI2) + 1) / 2f));
-                        MOVE.MOVEMENT_NORMAL.rotate(dt * 5);
+                    BULLET.handler = new BulletHandler() {
+                        private float tImEEr;
+                        @Override
+                        public void update(float dt) {
+                            tImEEr += dt / 2f;
+                            SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(new Color(0, 0, 1f, 0), (MathUtils.cos(tImEEr * MathUtils.PI2) + 1) / 2f));
+                            MOVE.MOVEMENT_NORMAL.rotate(dt * 5);
+                        }
                     };
 
                     ENGINE.addEntity(B);

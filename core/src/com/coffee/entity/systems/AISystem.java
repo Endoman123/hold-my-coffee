@@ -48,10 +48,14 @@ public class AISystem extends IteratingSystem {
                     }
 
                     // Create a base for all attacks
-                    if (MathUtils.randomBoolean(0.5f)) {
+                    if (MathUtils.randomBoolean(.3f)) {
                         AI.TASKS.add(new BossActions.SimpleSpiralAttack(getEngine()));
-                    } else {
+                    } else if (MathUtils.randomBoolean(.3f)) {
                         AI.TASKS.add(new BossActions.TempestBloom(getEngine()));
+                    } else if (MathUtils.randomBoolean(0.3f)) {
+                        AI.TASKS.add(new BossActions.ShotgunSpray(getEngine()));
+                    } else if (MathUtils.randomBoolean(0.3f)) {
+                        AI.TASKS.add(new BossActions.InvisibleHomingBulletsAttack(getEngine()));
                     }
 
                     // Add some spices
@@ -231,6 +235,11 @@ public class AISystem extends IteratingSystem {
                             generateRandomMoveTarget(TRANSFORM, move);
                             AI.TASKS.add(new BossActions.Move(5f, move.cpy()));
                             AI.TASKS.add(new BossActions.HelixLaserAttack(getEngine(), VIEWPORT));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(4f, move.cpy()));
+
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
                         } else
                             AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
                         AI.TASKS.add(new BossActions.DoNothing(3f));

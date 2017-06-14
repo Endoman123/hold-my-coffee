@@ -31,7 +31,7 @@ public class GameScreen extends ScreenAdapter {
     private final ShapeRenderer SHAPE_RENDERER;
     private final PooledEngine ENGINE;
     private final Application APP;
-
+    private final InputProcessor DEBUG = new MLGHackerzDebugControlzz();
     private final Entity PLAYER;
     private final Entity BOSS_SHIP;
     private final Entity PAUSE_UI;
@@ -54,7 +54,7 @@ public class GameScreen extends ScreenAdapter {
         ENGINE.addSystem(new AISystem(VIEWPORT));
         ENGINE.addSystem(new MovementSystem(VIEWPORT));
         ENGINE.addSystem(new DrawSystem(BATCH, VIEWPORT));
-        // ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
+        ENGINE.addSystem(new DebugDrawSystem(SHAPE_RENDERER, VIEWPORT));
         ENGINE.addSystem(new GUISystem());
         ENGINE.addSystem(new CollisionSystem(VIEWPORT));
         ENGINE.addSystem(new LifetimeSystem());
@@ -127,6 +127,7 @@ public class GameScreen extends ScreenAdapter {
 
         ENGINE.getSystem(PlayerSystem.class).setProcessing(false);
         ENGINE.getSystem(AISystem.class).setProcessing(false);
+        ENGINE.getSystem(DebugDrawSystem.class).setProcessing(false);
 
         gameTimer = READY_LENGTH;
         Gdx.input.setCursorCatched(true);
@@ -183,7 +184,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         EntityFactory.setEngine(ENGINE);
         APP.getInputMultiplexer().addProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
-        APP.getInputMultiplexer().addProcessor(new MLGHackerzDebugControlzz());
+        APP.getInputMultiplexer().addProcessor(DEBUG);
 
     }
 
@@ -191,6 +192,7 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         Gdx.input.setCursorCatched(false);
         APP.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
+        APP.getInputMultiplexer().removeProcessor(DEBUG);
     }
 
     /**
@@ -260,6 +262,10 @@ public class GameScreen extends ScreenAdapter {
                     PLAY.lives = 999;
                     Mapper.HEALTH.get(PLAYER).health = Mapper.HEALTH.get(PLAYER).maxHealth;
                     System.out.println("Max Stats");
+                    break;
+                case Input.Keys.F7: //DeBug Draw System Toggle
+                    ENGINE.getSystem(DebugDrawSystem.class).setProcessing(!ENGINE.getSystem(DebugDrawSystem.class).checkProcessing());
+                    System.out.println("Debug View Toggled");
                     break;
                 case Input.Keys.F9: //Kill player in their sleep
                     PLAY.lives = 0;
