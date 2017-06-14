@@ -63,6 +63,13 @@ public class ScoreEntryScreen extends ScreenAdapter {
         param.shadowColor = Color.GRAY;
 
         final Label TITLE = new Label("NEW HIGH SCORE", new Label.LabelStyle(fontGenerator.generateFont(param), Color.WHITE));
+
+        param.size = 20;
+        param.shadowOffsetX = 0;
+        param.shadowOffsetY = 0;
+        param.color = Color.CYAN;
+
+        final Label SCORE = new Label("" + playerPoints, new Label.LabelStyle(fontGenerator.generateFont(param), Color.WHITE));
         final TextField INPUT = new TextField("", SKIN);
         final TextButton OK = new TextButton("OK", SKIN);
         String field;
@@ -106,6 +113,7 @@ public class ScoreEntryScreen extends ScreenAdapter {
         TABLE.setSkin(SKIN);
         TABLE.center().pad(50).setFillParent(true);
         TABLE.add(TITLE).padBottom(20).row();
+        TABLE.add(SCORE).pad(10, 10, 10, 10).row();
         TABLE.add(INPUT).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
         TABLE.add(OK).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
 

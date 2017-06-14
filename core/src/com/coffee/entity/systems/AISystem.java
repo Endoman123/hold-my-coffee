@@ -190,7 +190,6 @@ public class AISystem extends IteratingSystem {
                     int i = 0;
                     while (i < AI.TASKS.size) {
                         BossActions.Action a = AI.TASKS.get(i);
-
                         if (i > 0 && !a.parallel)
                             break;
                         else if (a.act(entity, deltaTime))

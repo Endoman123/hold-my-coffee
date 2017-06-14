@@ -1332,7 +1332,7 @@ public class EntityFactory {
 
         // Initialize HealthComponent
         HEALTH.maxHealth = 10000;
-        HEALTH.health = 2000;
+        HEALTH.health = 10000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
