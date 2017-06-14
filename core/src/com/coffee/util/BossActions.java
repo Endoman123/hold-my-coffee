@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -588,6 +589,55 @@ public class BossActions {
     }
 
     /**
+     * {@link Action Action} that shoots a wave of fading bullets.
+     */
+    public static class FadingBalls extends Action {
+        private float fireTimer;
+        private int iterations;
+        private final Engine ENGINE;
+
+        public FadingBalls(Engine e) {
+            ENGINE = e;
+        }
+
+        public boolean act(Entity entity, float deltaTime) {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+
+            fireTimer += deltaTime;
+
+            if (fireTimer >= 0.1f) {
+                float xPlace;
+                float yPlace;
+
+                for (int i = 0; i < 12; i++) {
+                    float deg = iterations * 7 + i * 30;
+                    xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    final Entity B = EntityFactory.createEnemyBall(xPlace, yPlace, deg);
+                    final SpriteComponent SPRITE = Mapper.SPRITE.get(B);
+                    final BulletComponent BULLET = Mapper.BULLET.get(B);
+                    final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
+
+                    MOVE.moveSpeed = 2;
+                    BULLET.handler = (float dt) -> {
+                        BULLET.timer += dt / 2f;
+                        SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(new Color(0, 0, 1f, 0), (MathUtils.cos(BULLET.timer * MathUtils.PI2) + 1) / 2f));
+                        MOVE.MOVEMENT_NORMAL.rotate(dt * 5);
+                    };
+
+                    ENGINE.addEntity(B);
+                }
+
+                fireTimer = 0;
+                iterations++;
+            }
+            return iterations == 70;
+        }
+    }
+
+    /**
      * {@link Action Action} that shoots helix of lasers.
      */
     public static class HelixLaserAttack extends Action {
@@ -863,6 +913,88 @@ public class BossActions {
                 iterations++;
             }
             return iterations == 75;
+        }
+    }
+
+    /**
+     * {@link Action Action} that has the boss shoot one emitter ball that creates an x of bullets.
+     */
+    public static class XBeam extends Action {
+        private float fireTimer;
+        private final Engine ENGINE;
+
+        public XBeam(Engine e) {
+            ENGINE = e;
+        }
+
+        public boolean act(Entity entity, float deltaTime) {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            SpriteComponent SPRITE = Mapper.SPRITE.get(entity);
+
+            fireTimer += deltaTime;
+
+            if (fireTimer >= 0.02f) {
+                final Vector2 TRANS_LOC = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+                final Entity BALL = EntityFactory.createEmitterBall(TRANS_LOC.x, TRANS_LOC.y, 270);
+                SpriteComponent BALL_SPRITE = Mapper.SPRITE.get(BALL);
+                MovementComponent BALL_MOVE = Mapper.MOVEMENT.get(BALL);
+                BALL_SPRITE.SPRITES.first().setColor(Color.WHITE);
+
+                Mapper.BULLET.get(BALL).handler = new BulletHandler() {
+                    private float timer;
+                    private float explodeTime = MathUtils.random(1f, 4f);
+                    private int timesShot;
+                    private int deg;
+                    private int offset = MathUtils.random(10, 60);
+                    @Override
+                    public void update(float dt) {
+                        timer += dt;
+
+                        if (timesShot >= 300) {
+                            ENGINE.removeEntity(BALL);
+                            return;
+                        }
+
+                        if (timer < explodeTime) {
+                            BALL_MOVE.moveSpeed = Interpolation.pow4In.apply(3, 0, timer / explodeTime);
+                            BALL_SPRITE.SPRITES.get(0).setColor(
+                                    MathUtils.clamp(BALL_SPRITE.SPRITES.first().getColor().r + dt / 2f, 0, 1),
+                                    MathUtils.clamp(BALL_SPRITE.SPRITES.first().getColor().g - dt / 2f, 0, 1),
+                                    MathUtils.clamp(BALL_SPRITE.SPRITES.first().getColor().b - dt / 2f, 0, 1),
+                                    BALL_SPRITE.SPRITES.first().getColor().a
+                            );
+                        }
+
+                        if (timer >= .001f + explodeTime) {
+                            Mapper.MOVEMENT.get(BALL).moveSpeed = 0;
+
+                            final Vector2 TRANS_CENTER = new Vector2(Mapper.TRANSFORM.get(BALL).POSITION).add(Mapper.TRANSFORM.get(BALL).ORIGIN);
+                            final float theta = offset + deg * 90f;
+                            final float xPlace = TRANS_CENTER.x + 16 * MathUtils.cosDeg(theta);
+                            final float yPlace = TRANS_CENTER.y + 16 * MathUtils.sinDeg(theta);
+                            final Entity B = EntityFactory.createEnemyBall(xPlace, yPlace, theta);
+                            final SpriteComponent B_SPRITE = Mapper.SPRITE.get(B);
+                            final MovementComponent B_MOVE = Mapper.MOVEMENT.get(B);
+                            final BulletComponent B_BULLET = Mapper.BULLET.get(B);
+
+                            B_SPRITE.SPRITES.first().setColor(Color.WHITE);
+                            B_SPRITE.zIndex = BALL_SPRITE.zIndex - 1;
+
+                            B_MOVE.moveSpeed = 6;
+
+                            ENGINE.addEntity(B);
+                            timer = explodeTime;
+                            deg++;
+                            timesShot++;
+                        }
+                    }
+                };
+                ENGINE.addEntity(BALL);
+
+                return true;
+            }
+            return false;
         }
     }
 
