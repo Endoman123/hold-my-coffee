@@ -6,23 +6,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.GUIComponent;
 import com.coffee.entity.systems.*;
 import com.coffee.main.Application;
 import com.coffee.util.Assets;
-import com.coffee.util.HighScoreEntry;
+import com.coffee.util.HighScore;
 import com.coffee.util.Mapper;
 
 /**
@@ -45,11 +43,6 @@ public class GameScreen extends ScreenAdapter {
     private boolean ready = false, pause = false, gameOver = false;
 
     public GameScreen() {
-        final Json JSON = new Json();
-        final FileHandle SCORE_FILE = Gdx.files.local("hold_my_coffee_highscores.json");
-        final Array<HighScoreEntry> SCORES;
-
-        SCORES = (SCORE_FILE.exists()) ? JSON.fromJson(Array.class, SCORE_FILE.readString()) : null;
         APP = (Application) Gdx.app.getApplicationListener();
 
         BATCH = APP.getBatch();
@@ -102,6 +95,15 @@ public class GameScreen extends ScreenAdapter {
             }
         });
 
+        PAUSE_DISPLAY.addAction(new Action() {
+            @Override
+            public boolean act(float delta) {
+                PAUSE_DISPLAY.setVisible(pause);
+
+                return false;
+            }
+        });
+
         PAUSE_DISPLAY.center().pad(200).setFillParent(true);
         PAUSE_DISPLAY.setSkin(SKIN);
         PAUSE_DISPLAY.add(PAUSE_ID).expandX().fillX().row();
@@ -114,14 +116,13 @@ public class GameScreen extends ScreenAdapter {
         // endregion
 
         //region get lowest highscore
-        if (SCORES == null)
-            lowestHighScore = 0;
-        else
-            lowestHighScore = SCORES.peek().getPoints();
+        lowestHighScore = HighScore.getLowest().getScore();
+
         //endregion
 
         ENGINE.addEntity(PLAYER);
         ENGINE.addEntity(BOSS_SHIP);
+        ENGINE.addEntity(PAUSE_UI);
 
         ENGINE.addEntity(EntityFactory.createParticleGenerator());
 
@@ -148,7 +149,7 @@ public class GameScreen extends ScreenAdapter {
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) && ready)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE) && ready && !gameOver)
             togglePause();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.K) && !gameOver) {
@@ -156,39 +157,28 @@ public class GameScreen extends ScreenAdapter {
             Mapper.HEALTH.get(PLAYER).health = 0;
         }
 
-        gameOver = Mapper.HEALTH.get(PLAYER).getHealthPercent() == 0 && Mapper.PLAYER.get(PLAYER).lives == 0 || Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent() == 0;
+        ENGINE.update(delta);
+
+        boolean
+            playerDead = Mapper.HEALTH.get(PLAYER).getHealthPercent() == 0 && Mapper.PLAYER.get(PLAYER).lives == 0,
+            bossDead = Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent() == 0;
+        gameOver = playerDead || bossDead;
 
         if (gameOver) {
+            if (playerDead)
+                Mapper.HEALTH.get(BOSS_SHIP).invincibilityTimer = 999;
+            else if (bossDead)
             if (gameTimer == 0) {
-                System.out.println("Game Over!");
                 gameTimer = 3;
             } else {
                 gameTimer -= delta;
-                //Dummy point system
-                Mapper.PLAYER.get(PLAYER).points = (int) (
-                                (100000 * (1f - Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent())) +
-                                (Mapper.PLAYER.get(PLAYER).lives * 25000) +
-                                (Mapper.HEALTH.get(PLAYER).getHealthPercent() * 25000) *
-                                (Mapper.PLAYER.get(PLAYER).upBulletDamage * 10000) +
-                                (Mapper.PLAYER.get(PLAYER).upFireRate * 10000) +
-                                (Mapper.PLAYER.get(PLAYER).upSpeed * 10000) *
-                                (1 + (Mapper.PLAYER.get(PLAYER).shotsHit / Mapper.PLAYER.get(PLAYER).shotsFired))
-
-                );
 
                 if (gameTimer <= 0) {
-                    if (Mapper.PLAYER.get(PLAYER).points > lowestHighScore) {
-                        APP.getScreen().dispose();
-                        APP.setScreen(new ScoreEntryScreen(Mapper.PLAYER.get(PLAYER).points));
-                    } else {
-                        APP.getScreen().dispose();
-                        APP.setScreen(new MainMenu());
-                    }
+                    this.dispose();
+                    APP.setScreen(new GameOverScreen(Mapper.PLAYER.get(PLAYER)));
                 }
             }
         }
-
-        ENGINE.update(delta);
     }
 
     @Override
@@ -224,15 +214,12 @@ public class GameScreen extends ScreenAdapter {
         ENGINE.getSystem(PlayerSystem.class).setProcessing(!pause);
         ENGINE.getSystem(SpawnerSystem.class).setProcessing(!pause);
 
-        if (pause) {
-            final Stage INPUT = Mapper.GUI.get(PAUSE_UI).canvas;
+        final InputProcessor INPUT = Mapper.GUI.get(PAUSE_UI).canvas;
+
+        if (pause)
             APP.getInputMultiplexer().addProcessor(INPUT);
-            ENGINE.addEntity(PAUSE_UI);
-        } else {
-            final InputProcessor INPUT = Mapper.GUI.get(PAUSE_UI).canvas;
+        else
             APP.getInputMultiplexer().removeProcessor(INPUT);
-            ENGINE.removeEntity(PAUSE_UI);
-        }
     }
 
     @Override

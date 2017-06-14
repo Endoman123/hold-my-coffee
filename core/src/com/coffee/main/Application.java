@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.main.screen.*;
 import com.coffee.util.Assets;
+import com.coffee.util.HighScore;
 import com.coffee.util.OptionsManager;
 
 /**
@@ -31,6 +32,7 @@ public class Application extends Game {
 	@Override
 	public void create () {
 		OptionsManager.init();
+		HighScore.init();
 
 		// Initialize global stuff before all the Screen stuff
 		batch = new SpriteBatch(2000);

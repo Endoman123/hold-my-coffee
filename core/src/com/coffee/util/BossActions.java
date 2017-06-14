@@ -630,6 +630,9 @@ public class BossActions {
                 final BulletComponent BULLET = Mapper.BULLET.get(B);
                 final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
 
+                BULLET.damage = 2;
+                MOVE.moveSpeed = 10;
+
                 if (iterations % 2 == 0)
                     BULLET.handler = new BulletHandler() {
                         private float timer = 0;

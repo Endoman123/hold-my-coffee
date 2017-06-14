@@ -221,9 +221,10 @@ public class EntityFactory {
                 });
 
         final Label
-                FIRE_RATE_ID = new Label("Fire Rate:", uiSkin),
-                BULLET_DAMAGE_ID = new Label("Damage:", uiSkin),
-                LIFE_COUNTER = new Label("", uiSkin);
+            FIRE_RATE_ID = new Label("Fire Rate:", uiSkin),
+            BULLET_DAMAGE_ID = new Label("Damage:", uiSkin),
+            LIFE_COUNTER = new Label("", uiSkin),
+            SCORE = new Label("", uiSkin);
 
         final Image
                 CONTAINER = new Image(uiSkin.getDrawable("bar_container")),
@@ -254,7 +255,10 @@ public class EntityFactory {
                     FILL.setColor(Color.YELLOW);
                 else
                     FILL.setColor(Color.RED);
+
                 FILL.setBounds(4, 4, (CONTAINER.getWidth() - 9) * HEALTH.getHealthPercent(), CONTAINER.getHeight() - 9);
+
+                SCORE.setText(String.format("%010d", PLAYER.score));
                 return false;
             }
         });
@@ -267,6 +271,7 @@ public class EntityFactory {
         TABLE.setBackground(BACK);
         TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
         TABLE.add(HEALTH_STATS).expand().align(Align.left).width(160);
+        TABLE.add(SCORE);
 
         GUI.canvas.addActor(TABLE);
 
@@ -314,6 +319,7 @@ public class EntityFactory {
                         PlayerComponent player = Mapper.PLAYER.get(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0));
                         health.health -= BULLET.damage;
                         player.shotsHit++;
+                        player.score += BULLET.damage;
                         engine.removeEntity(E);
                     }
                 }
@@ -363,7 +369,7 @@ public class EntityFactory {
                 if (Mapper.PLAYER.has(entity)) {
                     HealthComponent health = Mapper.HEALTH.get(entity);
 
-                    if (health.getHealthPercent() > 0 && health.invincibilityTimer <= 0) {
+                    if (!health.invincible) {
                         health.health -= BULLET.damage;
                         engine.removeEntity(E);
                     }
@@ -573,7 +579,7 @@ public class EntityFactory {
                 if (Mapper.PLAYER.has(entity)) {
                     HealthComponent health = Mapper.HEALTH.get(entity);
 
-                    if (health.getHealthPercent() > 0 && health.invincibilityTimer <= 0)
+                    if (!health.invincible)
                         health.health -= BULLET.damage;
                 }
             }
@@ -664,7 +670,7 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a bullet with a velocity of 4 at the specified location. It slows, points at the player
+     * Creates a bullet with a velocity of 4 at the specified location. It slows, score at the player
      * then moves towards them while becoming transparent.
      *
      * @param x      the x-coordinate of the bullet
@@ -1081,7 +1087,10 @@ public class EntityFactory {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
                     if (player.upBulletDamage < 4) {
                         player.upBulletDamage++;
-                    }
+                        player.score += 100;
+                    } else
+                        player.score += 50;
+
                     engine.removeEntity(E);
                 }
             }
@@ -1118,7 +1127,10 @@ public class EntityFactory {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
                     if (player.upFireRate < 4) {
                         player.upFireRate++;
-                    }
+                        player.score += 100;
+                    } else
+                        player.score += 50;
+
                     ENGINE.removeEntity(E);
                 }
             }
@@ -1156,8 +1168,11 @@ public class EntityFactory {
 
                     if (player.upSpeed < 4) {
                         player.upSpeed++;
-                        ENGINE.removeEntity(E);
-                    }
+                        player.score += 100;
+                    } else
+                        player.score += 50;
+
+                    ENGINE.removeEntity(E);
                 }
             }
 

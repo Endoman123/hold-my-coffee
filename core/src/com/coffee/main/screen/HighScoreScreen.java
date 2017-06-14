@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -13,13 +12,12 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.GUIComponent;
 import com.coffee.entity.systems.*;
 import com.coffee.main.Application;
 import com.coffee.util.Assets;
+import com.coffee.util.HighScore;
 import com.coffee.util.HighScoreEntry;
 import com.coffee.util.Mapper;
 
@@ -59,10 +57,10 @@ public class HighScoreScreen extends ScreenAdapter {
         param.shadowColor = Color.GRAY;
 
         final Label TITLE = new Label("HIGH SCORES", new Label.LabelStyle(fontGenerator.generateFont(param), Color.WHITE));
-        final TextButton CANCEL = new TextButton("CANCEL", SKIN);
+        final TextButton BACK = new TextButton("BACK", SKIN);
 
         TABLE.setSkin(SKIN);
-        TABLE.center().pad(50).setFillParent(true);
+        TABLE.center().pad(50, 100, 50, 100).setFillParent(true);
         TABLE.add().width(APP.getViewport().getScreenWidth() / 4f);
         TABLE.add().width(APP.getViewport().getScreenWidth() / 4f);
         TABLE.row();
@@ -70,18 +68,11 @@ public class HighScoreScreen extends ScreenAdapter {
         TABLE.add(TITLE).padBottom(20).colspan(2).row();
 
         //High Scores Part
-        final Json JSON = new Json();
-        final FileHandle FILE = Gdx.files.local("hold_my_coffee_highscores.json");
-        final Array<HighScoreEntry> HIGHSCORES = (FILE.exists())? JSON.fromJson(Array.class, Gdx.files.local("hold_my_coffee_highscores.json")) : null;
         for (int i = 0; i < 10; i++) {
+            final HighScoreEntry ENTRY = HighScore.get(i);
             final Label
-                NAME = new Label("---", SKIN),
-                SCORE = new Label("" + 0, SKIN);
-
-            if (HIGHSCORES != null && HIGHSCORES.size > i) {
-                NAME.setText(HIGHSCORES.get(i).getName());
-                SCORE.setText("" + HIGHSCORES.get(i).getPoints());
-            }
+                NAME = new Label(ENTRY.getName(), SKIN),
+                SCORE = new Label(String.format("%010d", ENTRY.getScore()), SKIN);
 
             NAME.setAlignment(Align.left);
             SCORE.setAlignment(Align.right);
@@ -89,14 +80,15 @@ public class HighScoreScreen extends ScreenAdapter {
             TABLE.add(NAME).padBottom(20).expand().fill().uniform(); //max of 16
             TABLE.add(SCORE).padBottom(20).expand().fill().uniform().row();
         }
-        TABLE.add(CANCEL).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
+
+        TABLE.add(BACK).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
 
         GUI.canvas.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 if (((Button) actor).isPressed()) {
                     APP.getScreen().dispose();
-                    if (actor == CANCEL) {
+                    if (actor == BACK) {
                         APP.setScreen(new MainMenu());
                     }
                 }

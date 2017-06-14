@@ -75,7 +75,7 @@ public class MainMenu extends ScreenAdapter {
                         Gdx.app.exit();
                     } else if (actor == HIGHSCORE) {
                         APP.setScreen(new HighScoreScreen());
-                        //APP.setScreen(new ScoreEntryScreen(MathUtils.random(1000, 10000)));
+                        //APP.setScreen(new GameOverScreen(MathUtils.random(1000, 10000)));
                     }
                 }
             }

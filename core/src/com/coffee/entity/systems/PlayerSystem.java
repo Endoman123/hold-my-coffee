@@ -143,9 +143,9 @@ public class PlayerSystem extends IteratingSystem {
                 player.shotsFired += 1 + player.upBulletDamage;
             }
 
-            // Flash the player every frame when invincible
-            if (health.invincible && health.invincibilityTimer % 1 == 0)
-                sprite.SPRITES.get(0).setAlpha(0);
+            // Make player a "ghost" while invincible
+            if (health.invincible)
+                sprite.SPRITES.get(0).setAlpha(0.5f);
             else
                 sprite.SPRITES.get(0).setAlpha(1);
 
@@ -158,8 +158,11 @@ public class PlayerSystem extends IteratingSystem {
                 if (!player.revive) {
                     sprite.SPRITES.first().setAlpha(0);
                     move.MOVEMENT_NORMAL.setZero();
-                    player.reset();
+                    player.upBulletDamage = 0;
+                    player.upFireRate = 0;
+                    player.upSpeed = 0;
                     player.shotsPerSecond = 3;
+                    player.shootTimer = player.shotsPerSecond;
                     transform.POSITION.set(GAME_SIZE.width / 2 - transform.ORIGIN.x, 128 - transform.ORIGIN.y);
 
                     health.respawnTimer = health.respawnDuration;

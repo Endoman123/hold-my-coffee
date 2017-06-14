@@ -1,14 +1,17 @@
 package com.coffee.util;
 
 /**
+ * Class to represent an entry in a high score set.
+ *
  * @author Phillip O'Reggio
  */
-public class HighScoreEntry implements Comparable{
-    private int points;
+public class HighScoreEntry implements Comparable {
+    private int score;
     private String name;
+    public static final String NO_NAME = "---";
 
-    public int getPoints() {
-        return points;
+    public int getScore() {
+        return score;
     }
 
     public String getName() {
@@ -16,18 +19,22 @@ public class HighScoreEntry implements Comparable{
     }
 
     public HighScoreEntry(int playerPoints, String n) {
-        points = playerPoints;
+        score = playerPoints;
         name = n;
     }
 
     public HighScoreEntry() {
-        points = -999;
-        name = "<undefined>";
+        score = 0;
+        name = NO_NAME;
     }
 
     public int compareTo(Object o) {
-        if (((HighScoreEntry) o).getPoints() > points) return -1;
-        else if (((HighScoreEntry) o).getPoints() < points) return 1;
-        else return 0;
+        int otherScore = ((HighScoreEntry) o).getScore();
+        if (otherScore > score)
+            return 1;
+        else if (otherScore < score)
+            return -1;
+        else
+            return 0;
     }
 }
