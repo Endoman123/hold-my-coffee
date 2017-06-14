@@ -236,7 +236,6 @@ public class EntityFactory {
         final NinePatchDrawable BACK = new NinePatchDrawable(uiSkin.getAtlas().createPatch("button_up"));
 
         BACK.getPatch().setColor(Color.DARK_GRAY);
-        FILL.setColor(Color.LIME);
 
         TABLE.addAction(new Action() {
             @Override
@@ -250,7 +249,7 @@ public class EntityFactory {
                 LIFE_COUNTER.setText("= " + PLAYER.lives);
 
                 if (HEALTH.getHealthPercent() >= .5f)
-                    FILL.setColor(Color.LIME);
+                    FILL.setColor(Color.GREEN);
                 else if (HEALTH.getHealthPercent() >= .25f)
                     FILL.setColor(Color.YELLOW);
                 else
@@ -415,9 +414,6 @@ public class EntityFactory {
         TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
         TRANSFORM.rotation = rot;
 
-        // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 7;
-
         // Set up collider
         COLLIDER.BODY.setVertices(new float[]{
                 0,0,
@@ -435,214 +431,14 @@ public class EntityFactory {
     }
 
     /**
-     * Creates a bullet with a velocity of 10 at the specified location. Does only 2 damage.
+     * Creates a damageable object that explodes into a spray of bullets after a few seconds.
      *
      * @param x      the x-coordinate of the bullet
      * @param y      the y-coordinate of the bullet
      * @param rot    the rotation of the bullet
      * @return an {@code Entity} with all the necessary components for a bullet
      */
-    public static Entity createWeakFastEnemyBullet(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(rot);
-        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
-        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
-        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
-        final BulletComponent BULLET = Mapper.BULLET.get(E);
-
-        // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("bullet_large");
-        main.setSize(24, 24);
-        main.setOriginCenter();
-        SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -2;
-
-        // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
-        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
-        TRANSFORM.rotation = rot;
-
-        // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 10;
-
-        // Initialize BulletComponent
-        BULLET.damage = 2;
-
-        // Set up collider
-        COLLIDER.BODY.setVertices(new float[]{
-                0,0,
-                16,0,
-                16,16,
-                0,16
-        });
-        COLLIDER.BODY.setOrigin(8, 8);
-        COLLIDER.BODY.setRotation(rot);
-
-        // Initialize BulletComponent
-        BULLET.handler = (float dt) -> {};
-
-        return E;
-    }
-
-    /**
-     * Creates a bullet with a velocity of 8 at the specified location, that slows over time
-     *
-     * @param x      the x-coordinate of the bullet
-     * @param y      the y-coordinate of the bullet
-     * @param rot    the rotation of the bullet
-     * @return an {@code Entity} with all the necessary components for a bullet
-     */
-    public static Entity createEnemyBulletSlows(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(rot);
-        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
-        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
-        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
-        final BulletComponent BULLET = Mapper.BULLET.get(E);
-
-        // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("bullet_large");
-        main.setSize(24, 24);
-        main.setOriginCenter();
-        SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -2;
-
-        // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
-        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
-        TRANSFORM.rotation = rot;
-
-        // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 7;
-
-        // Set up collider
-        COLLIDER.BODY.setVertices(new float[]{
-                0,0,
-                16,0,
-                16,16,
-                0,16
-        });
-        COLLIDER.BODY.setOrigin(8, 8);
-        COLLIDER.BODY.setRotation(rot);
-
-        // Initialize BulletComponent
-        BULLET.handler = (float dt) -> {
-            if (MOVEMENT.moveSpeed != 2) {
-                if (MOVEMENT.moveSpeed > 2)
-                    MOVEMENT.moveSpeed -= dt * 3;
-                if (MOVEMENT.moveSpeed < 2)
-                    MOVEMENT.moveSpeed = 2;
-            }
-        };
-
-        return E;
-    }
-
-    /**
-     * Creates a bullet with a velocity of 10 at the specified location.
-     *
-     * @param x      the x-coordinate of the bullet
-     * @param y      the y-coordinate of the bullet
-     * @param rot    the rotation of the bullet
-     * @return an {@code Entity} with all the necessary components for a bullet
-     */
-    public static Entity createEnemyBulletFast(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(rot);
-        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
-        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
-
-        // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("bullet_large");
-        main.setSize(24, 24);
-        main.setOriginCenter();
-        SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -2;
-
-        // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
-        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
-        TRANSFORM.rotation = rot;
-
-        // Initialize ColliderComponent
-        COLLIDER.BODY.setVertices(new float[]{
-                0,0,
-                16,0,
-                16,16,
-                0,16
-        });
-        COLLIDER.BODY.setOrigin(8, 8);
-        COLLIDER.BODY.setRotation(rot);
-
-        Mapper.MOVEMENT.get(E).moveSpeed = 10;
-
-        return E;
-    }
-
-    /**
-     * Creates a bullet with a velocity of 6 at the specified location. Becomes more transparent over time.
-     *
-     * @param x      the x-coordinate of the bullet
-     * @param y      the y-coordinate of the bullet
-     * @param rot    the rotation of the bullet
-     * @return an {@code Entity} with all the necessary components for a bullet
-     */
-    public static Entity createEnemyBulletFade(float x, float y, float rot) {
-        final Entity E = createEnemyDamagable(rot);
-
-        TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
-        SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
-
-        // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("bullet_large");
-        main.setSize(24, 24);
-        main.setOriginCenter();
-        SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -2;
-
-        // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
-        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
-        TRANSFORM.rotation = rot;
-
-        // Initialize ColliderComponent
-        COLLIDER.BODY.setVertices(new float[]{
-                0,0,
-                16,0,
-                16,16,
-                0,16
-        });
-        COLLIDER.BODY.setOrigin(8, 8);
-        COLLIDER.BODY.setRotation(rot);
-
-        // Initialize BulletComponent
-        Mapper.BULLET.get(E).handler = (float dt) -> {
-            SpriteComponent sprite = Mapper.SPRITE.get(E);
-            sprite.SPRITES.get(0).setColor(
-                    sprite.SPRITES.get(0).getColor().r,
-                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().g - dt, 0, 1),
-                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().b - dt, 0, 1),
-                    MathUtils.clamp(sprite.SPRITES.get(0).getColor().a - dt / 20f, 0, 1)
-            );
-        };
-
-        return E;
-    }
-
-    /**
-     * Creates a bullet with a velocity of 6 at the specified location. Becomes more transparent over time.
-     *
-     * @param x      the x-coordinate of the bullet
-     * @param y      the y-coordinate of the bullet
-     * @param rot    the rotation of the bullet
-     * @return an {@code Entity} with all the necessary components for a bullet
-     */
-    public static Entity createEnemyBulletExploding(float x, float y, float rot) {
+    public static Entity createEnemyShotgunBlast(float x, float y, float rot) {
         final Entity E = createEnemyDamagable(rot);
 
         TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
@@ -702,26 +498,35 @@ public class EntityFactory {
         COLLIDER.BODY.setRotation(rot);
 
         // Initialize BulletComponent
-        BULLET.handler = (float dt) -> {
-            if (BULLET.timer > 0) {
-                BULLET.timer -= dt;
-                float scale = MathUtils.clamp(3 - BULLET.timer, 0, 1);
-                main.setScale(scale);
-                COLLIDER.BODY.setScale(scale, scale);
-                if (BULLET.timer <= 0) {
-                    for (int i = 0; i < 20; i++) {
-                        float deg = 257.5f + MathUtils.random(25);
-                        float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                        float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+        BULLET.handler = new BulletHandler() {
+            private float timer = 3;
 
-                        engine.addEntity(EntityFactory.createEnemyBulletFast(xPlace, yPlace, deg));
+            @Override
+            public void update(float dt) {
+                if (timer > 0) {
+                    timer -= dt;
+                    float scale = MathUtils.clamp(3 - timer, 0, 1);
+                    main.setScale(scale);
+                    COLLIDER.BODY.setScale(scale, scale);
+
+                    if (timer <= 0) {
+                        for (int i = 0; i < 20; i++) {
+                            float deg = 257.5f + MathUtils.random(25);
+                            float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                            float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                            final Entity E = EntityFactory.createEnemyBullet(xPlace, yPlace, deg);
+                            final MovementComponent MOVE = Mapper.MOVEMENT.get(E);
+
+                            MOVE.moveSpeed = 10;
+
+                            engine.addEntity(E);
+                        }
+                        engine.removeEntity(E);
                     }
-                    engine.removeEntity(E);
                 }
             }
         };
-
-        BULLET.timer = 3;
 
         return E;
     }
@@ -834,7 +639,15 @@ public class EntityFactory {
                         float theta = (float) TRANSFORM.rotation;
                         float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta * MathUtils.degreesToRadians);
                         float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta * MathUtils.degreesToRadians);
-                        engine.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta));
+
+                        final Entity B = EntityFactory.createEnemyBullet(xPlace, yPlace, theta);
+                        final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
+                        final BulletComponent BULLET = Mapper.BULLET.get(B);
+
+                        MOVE.moveSpeed = 10;
+                        BULLET.damage = 2;
+
+                        engine.addEntity(B);
 
                         if (timer <= 0)
                             state++;
@@ -844,6 +657,8 @@ public class EntityFactory {
                 }
             }
         };
+
+        BULLET.timer = 6;
 
         return E;
     }
@@ -901,98 +716,48 @@ public class EntityFactory {
         Slowly turns towards player when speed is 0.
         When it faces player, it changes speed to 6, and changes to red.
          */
-        BULLET.handler  = (float dt) -> {
-            if (MOVEMENT.moveSpeed > 0 && MOVEMENT.moveSpeed <= 4) { // slow down slowly
-                MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt * 4, 0, MOVEMENT.moveSpeed);
-                if (MOVEMENT.moveSpeed == 0)
-                    BULLET.timer = 1;
-            } else if (MOVEMENT.moveSpeed == 0) { // Move towards player
-                if (BULLET.timer > 0) {
-                    BULLET.timer -= dt;
-                    if (BULLET.timer <= 0)
-                        BULLET.timer = -1;
-                } else if (BULLET.timer == -1) {
-                    final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.one(PlayerComponent.class).get());
-                    final Vector2
-                            LOC = new Vector2(TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN)),
-                            TARGET = new Vector2();
+        BULLET.handler = new BulletHandler() {
+            private float timer = 1;
+            private int state;
 
-                    if (PLAYERS.size() > 0 && Mapper.TRANSFORM.has(PLAYERS.first())) { // If there is a player to target
-                        final TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
-                        TARGET.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
-                    }
+            @Override
+            public void update(float dt) {
+                switch (state) { // Slow down bullet
+                    case 0:
+                        MOVEMENT.moveSpeed = MathUtils.clamp(MOVEMENT.moveSpeed - dt * 4, 0, MOVEMENT.moveSpeed);
+                        if (MOVEMENT.moveSpeed == 0) {
+                            timer -= dt;
+                            if (timer <= 0)
+                                state++;
+                        }
+                        break;
+                    case 1: // Select target and set speed
+                        final ImmutableArray<Entity> PLAYERS = engine.getEntitiesFor(Family.one(PlayerComponent.class).get());
+                        final Vector2
+                                LOC = new Vector2(TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN)),
+                                TARGET = new Vector2();
 
-                    float theta = MathUtils.atan2(TARGET.y - LOC.y, TARGET.x - LOC.x);
+                        if (PLAYERS.size() > 0 && Mapper.TRANSFORM.has(PLAYERS.first())) { // If there is a player to target
+                            final TransformComponent PLAYER_TRANS = Mapper.TRANSFORM.get(PLAYERS.first());
+                            TARGET.set(PLAYER_TRANS.POSITION).add(PLAYER_TRANS.ORIGIN);
+                        }
 
-                    MOVEMENT.moveSpeed = 6;
-                    MOVEMENT.MOVEMENT_NORMAL.setAngleRad(theta);
+                        float theta = MathUtils.atan2(TARGET.y - LOC.y, TARGET.x - LOC.x);
+
+                        MOVEMENT.moveSpeed = 6;
+                        MOVEMENT.MOVEMENT_NORMAL.setAngleRad(theta);
+                        state++;
+                        break;
+                    case 2: // Fade
+                        SPRITE.SPRITES.get(0).setColor(
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r + dt, 0, 1),
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt, 0, 1),
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt, 0, 1),
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().a - dt * 0.5f, 0, 1)
+                        );
+                        break;
                 }
-            } else if (MOVEMENT.moveSpeed == 6) {
-                SPRITE.SPRITES.get(0).setColor(
-                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r + dt, 0, 1),
-                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt, 0, 1),
-                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt, 0, 1),
-                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().a - dt * 0.5f, 0, 1)
-                );
             }
-        };
-
-        return E;
-    }
-
-    /**
-     * Creates an energy ball with a velocity of 3 at the specified location. Periodically changes direction.
-     *
-     * @param x      the x-coordinate of the bullet
-     * @param y      the y-coordinate of the bullet
-     * @param dir    the rotation of the bullet
-     * @return an {@code Entity} with all the necessary components for a bullet
-     */
-    public static Entity createEnemyBallShifter(float x, float y, float dir) {
-        final Entity E = createEnemyDamagable(dir);
-        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(E);
-        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
-        final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
-        final ColliderComponent COLLIDER = Mapper.COLLIDER.get(E);
-        final BulletComponent BULLET = Mapper.BULLET.get(E);
-
-        // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("energy_ball");
-        //main.setColor(191 / 255f, 106 / 255f, 221 / 255f, 1);
-        main.setColor(221 / 255f, 66f / 255f, 121f / 255f, 1);
-        main.setSize(16, 16);
-        main.setOriginCenter();
-        SPRITE.SPRITES.add(main);
-        SPRITE.zIndex = -2;
-
-        // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
-        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
-        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
-
-        // Initialize MovementComponent
-        MOVEMENT.moveSpeed = 3;
-
-        // Initialize ColliderComponent
-        COLLIDER.BODY.setVertices(new float[]{
-                0,0,
-                TRANSFORM.SIZE.width / 1.41421356f,0,
-                TRANSFORM.SIZE.width / 1.41421356f,TRANSFORM.SIZE.height / 1.41421356f,
-                0,TRANSFORM.SIZE.height / 1.41421356f
-        });
-        COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
-        COLLIDER.BODY.setRotation(dir);
-
-        // Initialize BulletComponent
-        BULLET.handler = (float dt) -> {
-            SPRITE.SPRITES.get(0).setColor(
-                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r - dt / 20f, 0, 1),
-                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt / 15f, 0, 1),
-                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b + dt / 2f, 0, 1),
-                    SPRITE.SPRITES.get(0).getColor().a
-                    );
-            MOVEMENT.MOVEMENT_NORMAL.rotate(dt * 24);
-            MOVEMENT.moveSpeed += dt;
         };
 
         return E;
@@ -1061,7 +826,7 @@ public class EntityFactory {
 
         // Initialize SpriteComponent
         Sprite main = goAtlas.createSprite("energy_ball");
-        main.setColor(Color.CHARTREUSE/*191 / 255f, 106 / 255f, 221 / 255f, 1*/);
+        main.setColor(Color.CHARTREUSE);
         main.setSize(32, 32);
         main.setOriginCenter();
         SPRITE.SPRITES.add(main);
@@ -1085,31 +850,33 @@ public class EntityFactory {
         COLLIDER.BODY.setOrigin(COLLIDER.BODY.getBoundingRectangle().getWidth() / 2, COLLIDER.BODY.getBoundingRectangle().getHeight() / 2);
         COLLIDER.BODY.setRotation(dir);
 
-        BULLET.handler = (float dt) -> {
-            BULLET.timer -= dt;
-            SPRITE.SPRITES.get(0).setColor(
-                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r + dt / 2f, 0, 1),
-                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt / 2f, 0, 1),
-                    MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt / 2f, 0, 1),
-                    SPRITE.SPRITES.get(0).getColor().a
-            );
+        BULLET.handler = new BulletHandler() {
+            private float timer = MathUtils.random(1, 2);
 
-            if (BULLET.timer <= 0) {
-                float rand = MathUtils.random(359);
-                for (int i = 0; i < 5; i++) {
-                    float theta = i * 72f;
-                    Vector2 loc = TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN);
-                    Entity BALL = createEnemyBall(loc.x, loc.y, theta + rand);
-                    Mapper.SPRITE.get(BALL).SPRITES.get(0).setColor(Color.RED);
-                    Mapper.MOVEMENT.get(BALL).moveSpeed = 2;
-                    engine.addEntity(BALL);
+            @Override
+            public void update(float dt) {
+                timer -= dt;
+                SPRITE.SPRITES.get(0).setColor(
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r + dt / 2f, 0, 1),
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt / 2f, 0, 1),
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt / 2f, 0, 1),
+                        SPRITE.SPRITES.get(0).getColor().a
+                );
+
+                if (timer <= 0) {
+                    float rand = MathUtils.random(359);
+                    for (int i = 0; i < 5; i++) {
+                        float theta = i * 72f;
+                        Vector2 loc = TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN);
+                        Entity BALL = createEnemyBall(loc.x, loc.y, theta + rand);
+                        Mapper.SPRITE.get(BALL).SPRITES.get(0).setColor(Color.RED);
+                        Mapper.MOVEMENT.get(BALL).moveSpeed = 2;
+                        engine.addEntity(BALL);
+                    }
                     engine.removeEntity(E);
                 }
-
             }
         };
-
-        BULLET.timer = MathUtils.random(1, 2);
 
         return E;
     }
@@ -1565,7 +1332,7 @@ public class EntityFactory {
 
         // Initialize HealthComponent
         HEALTH.maxHealth = 10000;
-        HEALTH.health = 7400;
+        HEALTH.health = 2000;
 
         //GUI Component
         GUI.canvas = new Stage(viewport, batch);
@@ -1597,8 +1364,6 @@ public class EntityFactory {
         TABLE.add(HEALTH_BAR).height(20).expandX().fillX();
 
         GUI.canvas.addActor(TABLE);
-
-        //HEALTH.health = (int) (HEALTH.maxHealth * .30);
 
         return E.add(TRANSFORM).add(MOVEMENT).add(COLLIDER).add(SPRITE).add(HEALTH).add(AI).add(GUI);
     }

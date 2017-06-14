@@ -24,15 +24,22 @@ public class BulletSystem extends IteratingSystem {
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
-        TransformComponent transform = Mapper.TRANSFORM.get(entity);
-        BulletComponent bullet = Mapper.BULLET.get(entity);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+        final BulletComponent BULLET = Mapper.BULLET.get(entity);
 
-        if (bullet.handler != null)
-            bullet.handler.update(deltaTime);
+        if (BULLET.handler != null)
+            BULLET.handler.update(deltaTime);
 
-        if (transform.POSITION.x < -transform.SIZE.width || transform.POSITION.y < -transform.SIZE.height ||
-            transform.POSITION.x > MAP_SIZE.width || transform.POSITION.y > MAP_SIZE.height) {
-            getEngine().removeEntity(entity);
+        boolean
+            outsideLowerBounds = TRANSFORM.POSITION.x < -TRANSFORM.SIZE.width || TRANSFORM.POSITION.y < -TRANSFORM.SIZE.height,
+            outsideUpperBounds = TRANSFORM.POSITION.x > MAP_SIZE.width || TRANSFORM.POSITION.y > MAP_SIZE.height;
+
+        if (outsideLowerBounds || outsideUpperBounds) {
+            BULLET.timer -= deltaTime;
+            if (BULLET.timer <= 0)
+                getEngine().removeEntity(entity);
+        } else {
+            BULLET.timer = BULLET.despawnTime;
         }
     }
 }

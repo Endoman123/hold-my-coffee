@@ -88,7 +88,7 @@ public class BossActions {
             TransformComponent TRANSFORM = Mapper.TRANSFORM.get(boss);
 
             if (!createdBall) {
-                ENGINE.addEntity(EntityFactory.createEnemyBulletExploding(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
+                ENGINE.addEntity(EntityFactory.createEnemyShotgunBlast(TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x, TRANSFORM.POSITION.y + 32, 0));
                 createdBall = true;
                 timer = 2.5f;
             } else
@@ -173,7 +173,14 @@ public class BossActions {
                 float xPlace = SELF_LOC.x + 3 * MathUtils.cos(theta);
                 float yPlace = SELF_LOC.y + 3 * MathUtils.sin(theta);
 
-                ENGINE.addEntity(EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg));
+                final Entity E = EntityFactory.createEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg);
+                final MovementComponent MOVE = Mapper.MOVEMENT.get(E);
+                final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+                MOVE.moveSpeed = 10;
+                BULLET.damage = 2;
+
+                ENGINE.addEntity(E);
 
                 fireTimer = 0;
                 iterations++;
@@ -240,7 +247,19 @@ public class BossActions {
                     float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                     float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                    ENGINE.addEntity(EntityFactory.createEnemyBulletFade(xPlace, yPlace, deg));
+                    final Entity E = EntityFactory.createEnemyBullet(xPlace, yPlace, deg);
+                    final BulletComponent BULLET = Mapper.BULLET.get(E);
+                    final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+                    final MovementComponent MOVE = Mapper.MOVEMENT.get(E);
+
+                    BULLET.handler = (float dt) -> SPRITE.SPRITES.get(0).setColor(
+                        SPRITE.SPRITES.get(0).getColor().r,
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt, 0, 1),
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt, 0, 1),
+                        MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().a - dt / 20f, 0, 1)
+                    );
+
+                    ENGINE.addEntity(E);
                 }
 
                 fireTimer = 0;
@@ -276,7 +295,21 @@ public class BossActions {
                         float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                         float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                        ENGINE.addEntity(EntityFactory.createEnemyBulletSlows(xPlace, yPlace, deg));
+                        final Entity E = EntityFactory.createEnemyBullet(xPlace, yPlace, deg);
+                        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+                        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+                        MOVEMENT.moveSpeed = 7;
+                        BULLET.handler = (float dt) -> {
+                            if (MOVEMENT.moveSpeed != 2) {
+                                if (MOVEMENT.moveSpeed > 2)
+                                    MOVEMENT.moveSpeed -= dt * 3;
+                                if (MOVEMENT.moveSpeed < 2)
+                                    MOVEMENT.moveSpeed = 2;
+                            }
+                        };
+
+                        ENGINE.addEntity(E);
                     }
                 else
                     for (int i = 0; i < 16; i++) {
@@ -284,7 +317,21 @@ public class BossActions {
                         float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                         float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                        ENGINE.addEntity(EntityFactory.createEnemyBulletSlows(xPlace, yPlace, deg));
+                        final Entity E = EntityFactory.createEnemyBullet(xPlace, yPlace, deg);
+                        final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(E);
+                        final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+                        MOVEMENT.moveSpeed = 7;
+                        BULLET.handler = (float dt) -> {
+                            if (MOVEMENT.moveSpeed != 2) {
+                                if (MOVEMENT.moveSpeed > 2)
+                                    MOVEMENT.moveSpeed -= dt * 3;
+                                if (MOVEMENT.moveSpeed < 2)
+                                    MOVEMENT.moveSpeed = 2;
+                            }
+                        };
+
+                        ENGINE.addEntity(E);
                     }
 
                 fireTimer = 0;
@@ -394,7 +441,25 @@ public class BossActions {
                     float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                     float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                    ENGINE.addEntity(EntityFactory.createEnemyBallShifter(xPlace, yPlace, deg));
+                    final Entity E = EntityFactory.createEnemyBall(xPlace, yPlace, deg);
+                    final MovementComponent MOVE = Mapper.MOVEMENT.get(E);
+                    final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+                    final BulletComponent BULLET = Mapper.BULLET.get(E);
+
+                    SPRITE.SPRITES.first().setColor(221 / 255f, 66f / 255f, 121f / 255f, 1);
+
+                    BULLET.handler = (float dt) -> {
+                        SPRITE.SPRITES.get(0).setColor(
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r - dt / 20f, 0, 1),
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt / 15f, 0, 1),
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b + dt / 2f, 0, 1),
+                                SPRITE.SPRITES.get(0).getColor().a
+                        );
+                        MOVE.MOVEMENT_NORMAL.rotate(dt * 24);
+                        MOVE.moveSpeed += dt;
+                    };
+
+                    ENGINE.addEntity(E);
                 }
 
                 fireTimer = 0;
@@ -428,23 +493,27 @@ public class BossActions {
                     float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                     float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
-                    final Entity B = EntityFactory.createEnemyBallShifter(xPlace, yPlace, deg);
-                    final SpriteComponent SPRITE = Mapper.SPRITE.get(B);
-                    final MovementComponent MOVEMENT = Mapper.MOVEMENT.get(B);
+                    final Entity E = EntityFactory.createEnemyBall(xPlace, yPlace, deg);
+                    final MovementComponent MOVE = Mapper.MOVEMENT.get(E);
+                    final SpriteComponent SPRITE = Mapper.SPRITE.get(E);
+                    final BulletComponent BULLET = Mapper.BULLET.get(E);
 
-                    MOVEMENT.moveSpeed = 0;
-                    Mapper.BULLET.get(B).handler = (float dt) -> {
+                    SPRITE.SPRITES.first().setColor(221 / 255f, 66f / 255f, 121f / 255f, 1);
+
+                    MOVE.moveSpeed = 0;
+
+                    BULLET.handler = (float dt) -> {
                         SPRITE.SPRITES.get(0).setColor(
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r - dt / 20f, 0, 1),
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g + dt / 2f, 0, 1),
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt / 15f, 0, 1),
                                 SPRITE.SPRITES.get(0).getColor().a
                         );
-                        MOVEMENT.MOVEMENT_NORMAL.rotate(-dt * 36);
-                        MOVEMENT.moveSpeed += dt * 4;
+                        MOVE.MOVEMENT_NORMAL.rotate(-dt * 36);
+                        MOVE.moveSpeed += dt * 4;
                     };
 
-                    ENGINE.addEntity(B);
+                    ENGINE.addEntity(E);
                 }
 
                 fireTimer = 0;
@@ -489,10 +558,14 @@ public class BossActions {
                         final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
 
                         MOVE.moveSpeed = 2;
-                        BULLET.handler = (float dt) -> {
-                            BULLET.timer += dt / 2f;
-                            SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(new Color(0, 0, 1f, 0), (MathUtils.cos(BULLET.timer * MathUtils.PI2) + 1) / 2f));
-                            MOVE.MOVEMENT_NORMAL.rotate(dt * 5);
+                        BULLET.handler = new BulletHandler() {
+                            private float timer = 0;
+                            @Override
+                            public void update(float dt) {
+                                timer += dt / 2f;
+                                SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(new Color(0, 0, 1f, 0), (MathUtils.cos(timer * MathUtils.PI2) + 1) / 2f));
+                                MOVE.MOVEMENT_NORMAL.rotate(dt * 5);
+                            }
                         };
 
                         ENGINE.addEntity(B);
@@ -552,20 +625,28 @@ public class BossActions {
                 float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(theta);
                 float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(theta);
 
-                final Entity B = EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg);
+                final Entity B = EntityFactory.createEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg);
                 final SpriteComponent SPRITE = Mapper.SPRITE.get(B);
                 final BulletComponent BULLET = Mapper.BULLET.get(B);
                 final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
 
                 if (iterations % 2 == 0)
-                    BULLET.handler = (float dt) -> {
-                        MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) + MathUtils.cos(BULLET.timer * MathUtils.PI2) * 50);
-                        BULLET.timer += dt * 2;
+                    BULLET.handler = new BulletHandler() {
+                        private float timer = 0;
+                        @Override
+                        public void update(float dt) {
+                            MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) + MathUtils.cos(timer * MathUtils.PI2) * 50);
+                            timer += dt * 2;
+                        }
                     };
                 else
-                    BULLET.handler = (float dt) -> {
-                        MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) - MathUtils.cos(BULLET.timer * MathUtils.PI2) * 50);
-                        BULLET.timer += dt * 2;
+                    BULLET.handler = new BulletHandler() {
+                        private float timer = 0;
+                        @Override
+                        public void update(float dt) {
+                            MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) - MathUtils.cos(timer * MathUtils.PI2) * 50);
+                            timer += dt * 2;
+                        }
                     };
 
                 ENGINE.addEntity(B);
@@ -618,20 +699,31 @@ public class BossActions {
                         xPlace = SELF_LOC.x + 3 * MathUtils.cos(theta);
                         yPlace = SELF_LOC.y + 3 * MathUtils.sin(theta);
 
-                        final Entity B = EntityFactory.createWeakFastEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg);
+                        final Entity B = EntityFactory.createEnemyBullet(xPlace, yPlace, theta * MathUtils.radDeg);
                         final SpriteComponent SPRITE = Mapper.SPRITE.get(B);
                         final BulletComponent BULLET = Mapper.BULLET.get(B);
                         final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
 
+                        MOVE.moveSpeed = 10;
+                        BULLET.damage = 2;
+
                         if (iterations % 3 == 0)
-                            BULLET.handler = (float dt) -> {
-                                MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) + MathUtils.cos(BULLET.timer * MathUtils.PI2) * 60);
-                                BULLET.timer += dt * 2;
+                            BULLET.handler = new BulletHandler() {
+                                private float timer;
+                                @Override
+                                public void update(float dt) {
+                                    MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) + MathUtils.cos(timer * MathUtils.PI2) * 50);
+                                    timer += dt * 2;
+                                }
                             };
                         else if (iterations % 3 == 1)
-                            BULLET.handler = (float dt) -> {
-                                MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) - MathUtils.cos(BULLET.timer * MathUtils.PI2) * 60);
-                                BULLET.timer += dt * 2;
+                            BULLET.handler = new BulletHandler() {
+                                private float timer;
+                                @Override
+                                public void update(float dt) {
+                                    MOVE.MOVEMENT_NORMAL.setAngle((theta * MathUtils.radDeg) - MathUtils.cos(timer * MathUtils.PI2) * 50);
+                                    timer += dt * 2;
+                                }
                             };
                         else if (iterations % 3 == 2)
                             BULLET.handler = null;
@@ -731,7 +823,6 @@ public class BossActions {
                 final Vector2 TRANS_LOC = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
 
                 ENGINE.addEntity(EntityFactory.createEmitterBall(TRANS_LOC.x, TRANS_LOC.y, 270));
-
                 return true;
             }
             return false;
