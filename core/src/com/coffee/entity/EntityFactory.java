@@ -875,6 +875,7 @@ public class EntityFactory {
                         float theta = i * 72f;
                         Vector2 loc = TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN);
                         Entity BALL = createEnemyBall(loc.x, loc.y, theta + rand);
+                        Mapper.BULLET.get(BALL).damage = 3;
                         Mapper.SPRITE.get(BALL).SPRITES.get(0).setColor(Color.RED);
                         Mapper.MOVEMENT.get(BALL).moveSpeed = 2;
                         engine.addEntity(BALL);
