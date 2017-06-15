@@ -510,8 +510,8 @@ public class BossActions {
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt / 15f, 0, 1),
                                 SPRITE.SPRITES.get(0).getColor().a
                         );
-                        MOVE.MOVEMENT_NORMAL.rotate(-dt * 36);
-                        MOVE.moveSpeed += dt * 4;
+                        MOVE.MOVEMENT_NORMAL.rotate(-dt * 22);
+                        MOVE.moveSpeed += dt * 2;
                     };
 
                     ENGINE.addEntity(E);
@@ -841,6 +841,8 @@ public class BossActions {
 
                     MOVE.moveSpeed = MathUtils.lerp(7, 4, i / 6.0f);
 
+                    BULLET.damage = 4;
+
                     BULLET.handler = (float dt) -> {
                         if (MOVE.moveSpeed > 4) {
                             MOVE.moveSpeed -= dt * 3;
@@ -921,6 +923,88 @@ public class BossActions {
     }
 
     /**
+     * {@link Action Action} that has the boss shoot one emitter ball that creates an plus of bullets.
+     */
+    public static class PlusBeam extends Action {
+        private float fireTimer;
+        private final Engine ENGINE;
+
+        public PlusBeam(Engine e) {
+            ENGINE = e;
+        }
+
+        public boolean act(Entity entity, float deltaTime) {
+            AIComponent AI = Mapper.AI.get(entity);
+            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
+            SpriteComponent SPRITE = Mapper.SPRITE.get(entity);
+
+            fireTimer += deltaTime;
+
+            if (fireTimer >= 0.02f) {
+                final Vector2 TRANS_LOC = new Vector2(TRANSFORM.POSITION).add(TRANSFORM.ORIGIN);
+                final Entity BALL = EntityFactory.createEmitterBall(TRANS_LOC.x, TRANS_LOC.y, 270);
+                SpriteComponent BALL_SPRITE = Mapper.SPRITE.get(BALL);
+                MovementComponent BALL_MOVE = Mapper.MOVEMENT.get(BALL);
+                BALL_SPRITE.SPRITES.first().setColor(Color.WHITE);
+                BALL.remove(ColliderComponent.class);
+
+                Mapper.BULLET.get(BALL).handler = new BulletHandler() {
+                    private float timer;
+                    private float explodeTime = MathUtils.random(1.25f, 3.75f);
+                    private int timesShot;
+                    private int deg;
+                    @Override
+                    public void update(float dt) {
+                        timer += dt;
+
+                        if (timesShot >= 300) {
+                            ENGINE.removeEntity(BALL);
+                            return;
+                        }
+
+                        if (timer < explodeTime) {
+                            BALL_MOVE.moveSpeed = Interpolation.pow4In.apply(3, 0, timer / explodeTime);
+                            BALL_SPRITE.SPRITES.get(0).setColor(
+                                    MathUtils.clamp(BALL_SPRITE.SPRITES.first().getColor().r - dt / 2f, 0, 1),
+                                    MathUtils.clamp(BALL_SPRITE.SPRITES.first().getColor().g - dt / 2f, 0, 1),
+                                    MathUtils.clamp(BALL_SPRITE.SPRITES.first().getColor().b + dt / 2f, 0, 1),
+                                    BALL_SPRITE.SPRITES.first().getColor().a
+                            );
+                        }
+
+                        if (timer >= .001f + explodeTime) {
+                            Mapper.MOVEMENT.get(BALL).moveSpeed = 0;
+
+                            final Vector2 TRANS_CENTER = new Vector2(Mapper.TRANSFORM.get(BALL).POSITION).add(Mapper.TRANSFORM.get(BALL).ORIGIN);
+                            final float theta = deg * 90f;
+                            final float xPlace = TRANS_CENTER.x + 16 * MathUtils.cosDeg(theta);
+                            final float yPlace = TRANS_CENTER.y + 16 * MathUtils.sinDeg(theta);
+                            final Entity B = EntityFactory.createEnemyBall(xPlace, yPlace, theta);
+                            final SpriteComponent B_SPRITE = Mapper.SPRITE.get(B);
+                            final MovementComponent B_MOVE = Mapper.MOVEMENT.get(B);
+                            final BulletComponent B_BULLET = Mapper.BULLET.get(B);
+
+                            B_SPRITE.SPRITES.first().setColor(Color.YELLOW);
+                            B_SPRITE.zIndex = BALL_SPRITE.zIndex - 1;
+
+                            B_MOVE.moveSpeed = 6;
+
+                            ENGINE.addEntity(B);
+                            timer = explodeTime;
+                            deg++;
+                            timesShot++;
+                        }
+                    }
+                };
+                ENGINE.addEntity(BALL);
+
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /**
      * {@link Action Action} that has the boss shoot one emitter ball that creates an x of bullets.
      */
     public static class XBeam extends Action {
@@ -944,13 +1028,13 @@ public class BossActions {
                 SpriteComponent BALL_SPRITE = Mapper.SPRITE.get(BALL);
                 MovementComponent BALL_MOVE = Mapper.MOVEMENT.get(BALL);
                 BALL_SPRITE.SPRITES.first().setColor(Color.WHITE);
+                BALL.remove(ColliderComponent.class);
 
                 Mapper.BULLET.get(BALL).handler = new BulletHandler() {
                     private float timer;
-                    private float explodeTime = MathUtils.random(1f, 4f);
+                    private float explodeTime = MathUtils.random(1.25f, 3.75f);
                     private int timesShot;
                     private int deg;
-                    private int offset = MathUtils.random(10, 60);
                     @Override
                     public void update(float dt) {
                         timer += dt;
@@ -974,7 +1058,7 @@ public class BossActions {
                             Mapper.MOVEMENT.get(BALL).moveSpeed = 0;
 
                             final Vector2 TRANS_CENTER = new Vector2(Mapper.TRANSFORM.get(BALL).POSITION).add(Mapper.TRANSFORM.get(BALL).ORIGIN);
-                            final float theta = offset + deg * 90f;
+                            final float theta = 45 + deg * 90f;
                             final float xPlace = TRANS_CENTER.x + 16 * MathUtils.cosDeg(theta);
                             final float yPlace = TRANS_CENTER.y + 16 * MathUtils.sinDeg(theta);
                             final Entity B = EntityFactory.createEnemyBall(xPlace, yPlace, theta);

@@ -166,6 +166,7 @@ public class GameScreen extends ScreenAdapter {
         if (gameOver) {
             gameTimer -= delta;
             APP.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
+            APP.getInputMultiplexer().removeProcessor(DEBUG);
 
             if (playerDead)
                 Mapper.HEALTH.get(BOSS_SHIP).invincibilityTimer = 999;

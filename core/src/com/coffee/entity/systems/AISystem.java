@@ -104,7 +104,7 @@ public class AISystem extends IteratingSystem {
                             if (MathUtils.randomBoolean(0.2f)) // Add some random homing stuff
                                 seq.addAction(new BossActions.HomingBulletCircleAttack(getEngine()));
                             else if (MathUtils.randomBoolean(.3f))
-                                seq.addAction(new BossActions.XBeam(getEngine()));
+                                seq.addAction(new BossActions.PlusBeam(getEngine()));
                             else // Add some random cannon stuff
                                 AI.TASKS.add(new BossActions.HelixLaserAttack(getEngine(), VIEWPORT));
                         }
@@ -207,10 +207,9 @@ public class AISystem extends IteratingSystem {
 
                         if (MathUtils.randomBoolean(0.5f)) {
                             AI.TASKS.add(new BossActions.HelixPlusAttack(getEngine(), VIEWPORT));
-                        }
-
-                        if (MathUtils.randomBoolean(0.5f)) {
+                        } else if (MathUtils.randomBoolean(0.2f)) {
                             AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                            AI.TASKS.add(new BossActions.PlusBeam(getEngine()));
                             AI.TASKS.add(new BossActions.XBeam(getEngine()));
                         }
 
@@ -225,7 +224,7 @@ public class AISystem extends IteratingSystem {
                             generateRandomMoveTarget(TRANSFORM, move);
                             AI.TASKS.add(new BossActions.Move(3f, move.cpy()));
 
-                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                            AI.TASKS.add(new BossActions.PlusBeam(getEngine()));
 
                             generateRandomMoveTarget(TRANSFORM, move);
                             AI.TASKS.add(new BossActions.Move(4f, move.cpy()));
@@ -239,7 +238,7 @@ public class AISystem extends IteratingSystem {
                             generateRandomMoveTarget(TRANSFORM, move);
                             AI.TASKS.add(new BossActions.Move(4f, move.cpy()));
 
-                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                            AI.TASKS.add(new BossActions.PlusBeam(getEngine()));
                         } else
                             AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
                         AI.TASKS.add(new BossActions.DoNothing(3f));
