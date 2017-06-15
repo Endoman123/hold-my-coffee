@@ -68,13 +68,21 @@ public class GameOverScreen extends ScreenAdapter {
         FNT_SCORE = fontGenerator.generateFont(param);
 
         final Label
-            SCORE = new Label("", new Label.LabelStyle(FNT_SCORE, Color.WHITE)),
-            TITLE = new Label("GAME OVER", new Label.LabelStyle(FNT_GAME_OVER, Color.WHITE));
+            TITLE = new Label("GAME OVER", new Label.LabelStyle(FNT_GAME_OVER, Color.WHITE)),
+            SCORE_ID = new Label("SCORE: ", new Label.LabelStyle(FNT_SCORE, Color.WHITE)),
+            SCORE = new Label("" + player.score, SKIN);
+
         final TextButton CONTINUE = new TextButton("CONTINUE", SKIN);
 
         int finalScore = player.score;
 
-        if (finalScore < HighScore.getLowest().getScore()) {
+        TABLE.setSkin(SKIN);
+        TABLE.pad(50, 100, 50, 100).setFillParent(true);
+        TABLE.center().pad(50).setFillParent(true);
+        TABLE.add(TITLE).padBottom(20).row();
+        TABLE.add(SCORE).pad(10, 10, 10, 10).row();
+
+        if (finalScore > HighScore.getLowest().getScore()) {
             final TextField INPUT = new TextField("", SKIN);
             INPUT.setMaxLength(12);
 
@@ -130,12 +138,6 @@ public class GameOverScreen extends ScreenAdapter {
                 }
             });
         }
-
-        TABLE.setSkin(SKIN);
-        TABLE.pad(50, 100, 50, 100).setFillParent(true);
-        TABLE.center().pad(50).setFillParent(true);
-        TABLE.add(TITLE).padBottom(20).row();
-        TABLE.add(SCORE).pad(10, 10, 10, 10).row();
 
         TABLE.add(CONTINUE).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
 

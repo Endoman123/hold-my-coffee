@@ -70,9 +70,7 @@ public class GameScreen extends ScreenAdapter {
         PAUSE_UI = new Entity();
         final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
         final GUIComponent UI = new GUIComponent();
-        final Table
-                GAME_OVER_DISPLAY = new Table(),
-                PAUSE_DISPLAY = new Table();
+        final Table PAUSE_DISPLAY = new Table();
 
         final Label PAUSE_ID = new Label("PAUSED", SKIN, "title");
         final Button
@@ -161,11 +159,12 @@ public class GameScreen extends ScreenAdapter {
         boolean
             playerDead = Mapper.HEALTH.get(PLAYER).getHealthPercent() == 0 && Mapper.PLAYER.get(PLAYER).lives == 0,
             bossDead = Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent() == 0;
+
         gameOver = playerDead || bossDead;
 
         if (gameOver) {
             gameTimer -= delta;
-            APP.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
+            stopPlayer();
 
             if (playerDead)
                 Mapper.HEALTH.get(BOSS_SHIP).invincibilityTimer = 999;
@@ -223,6 +222,18 @@ public class GameScreen extends ScreenAdapter {
             APP.getInputMultiplexer().removeProcessor(INPUT);
     }
 
+    /**
+     * Disables the player by setting its inputs to "disabled."
+     * Good for when the game ends and you just want them to stop moving/shooting
+     */
+    private void stopPlayer() {
+        PlayerComponent player = Mapper.PLAYER.get(PLAYER);
+
+        APP.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
+        player.shoot = false;
+        player.up = player.down = player.left = player.right = 0;
+    }
+
     @Override
     public void dispose() {
         ENGINE.removeAllEntities();
@@ -233,7 +244,7 @@ public class GameScreen extends ScreenAdapter {
     /**
      * Class that only world class players use. Contains hotkeys for debugging purposes.
      */
-    private class MLGHackerzDebugControlzz extends InputAdapter{
+    private class MLGHackerzDebugControlzz extends InputAdapter {
         @Override
         public boolean keyUp(int keycode) {
             PlayerComponent PLAY = Mapper.PLAYER.get(PLAYER);
@@ -293,9 +304,9 @@ public class GameScreen extends ScreenAdapter {
                     Mapper.HEALTH.get(BOSS_SHIP).health = 0;
                     break;
                 default:
-                    PLAY.score = -1000000;
                     return false;
             }
+            PLAY.score = -1000000;
             return true;
         }
     }

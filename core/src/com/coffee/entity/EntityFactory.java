@@ -664,7 +664,7 @@ public class EntityFactory {
             }
         };
 
-        BULLET.timer = -1;
+        BULLET.despawnTime = -1;
 
         return E;
     }
