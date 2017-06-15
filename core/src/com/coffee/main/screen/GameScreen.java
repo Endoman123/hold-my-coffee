@@ -114,10 +114,7 @@ public class GameScreen extends ScreenAdapter {
         PAUSE_UI.add(UI);
         // endregion
 
-        //region get lowest highscore
         lowestHighScore = HighScore.getLowest().getScore();
-
-        //endregion
 
         ENGINE.addEntity(PLAYER);
         ENGINE.addEntity(BOSS_SHIP);
