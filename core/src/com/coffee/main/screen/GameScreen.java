@@ -155,7 +155,7 @@ public class GameScreen extends ScreenAdapter {
 
         boolean
             playerDead = Mapper.HEALTH.get(PLAYER).getHealthPercent() == 0 && Mapper.PLAYER.get(PLAYER).lives == 0,
-            bossDead = Mapper.HEALTH.get(BOSS_SHIP).getHealthPercent() == 0;
+            bossDead = !ENGINE.getEntities().contains(BOSS_SHIP, true);
 
         gameOver = playerDead || bossDead;
 
@@ -171,7 +171,7 @@ public class GameScreen extends ScreenAdapter {
 
             if (gameTimer <= 0) {
                 this.dispose();
-                APP.setScreen(new GameOverScreen(Mapper.PLAYER.get(PLAYER)));
+                APP.setScreen(new GameOverScreen(PLAYER));
             }
         }
     }
@@ -286,17 +286,17 @@ public class GameScreen extends ScreenAdapter {
                     Mapper.HEALTH.get(PLAYER).health = 0;
                     System.out.println("Kill Player");
                     break;
-                case Input.Keys.NUM_1: //100%
-                    Mapper.HEALTH.get(BOSS_SHIP).health = Mapper.HEALTH.get(BOSS_SHIP).maxHealth;
+                case Input.Keys.NUM_1: // (100% - 75%) 80%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = (int)(Mapper.HEALTH.get(BOSS_SHIP).maxHealth * 0.8);
                     break;
-                case Input.Keys.NUM_2: //75%
-                    Mapper.HEALTH.get(BOSS_SHIP).health = (int) (Mapper.HEALTH.get(BOSS_SHIP).maxHealth / 1.5);
+                case Input.Keys.NUM_2: // (75% - 50%) 60%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = (int)(Mapper.HEALTH.get(BOSS_SHIP).maxHealth * 0.6);
                     break;
-                case Input.Keys.NUM_3: //50%
-                    Mapper.HEALTH.get(BOSS_SHIP).health = Mapper.HEALTH.get(BOSS_SHIP).maxHealth / 2;
+                case Input.Keys.NUM_3: // (50% - 25%) 40%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = (int)(Mapper.HEALTH.get(BOSS_SHIP).maxHealth * 0.4);
                     break;
-                case Input.Keys.NUM_4: //25%
-                    Mapper.HEALTH.get(BOSS_SHIP).health = Mapper.HEALTH.get(BOSS_SHIP).maxHealth / 4;
+                case Input.Keys.NUM_4: // (>25%) 20%
+                    Mapper.HEALTH.get(BOSS_SHIP).health = (int)(Mapper.HEALTH.get(BOSS_SHIP).maxHealth * 0.2);
                     break;
                 case Input.Keys.NUM_5 : //0%
                     Mapper.HEALTH.get(BOSS_SHIP).health = 0;
@@ -304,7 +304,7 @@ public class GameScreen extends ScreenAdapter {
                 default:
                     return false;
             }
-            PLAY.score = -1000000;
+            PLAY.score = 1000000;
             return true;
         }
     }

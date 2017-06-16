@@ -418,6 +418,45 @@ public class BossActions {
     }
 
     /**
+     * {@link Action Action} that has the boss creates 4 laser-emitting balls in 4 directions.
+     */
+    public static class QuadLaserBallAttack extends Action {
+        private final Engine ENGINE;
+        private final float OFFSET;
+        private float timer;
+
+        public QuadLaserBallAttack(Engine e, float offset) {
+            ENGINE = e;
+            OFFSET = offset;
+        }
+
+        @Override
+        public boolean act(Entity boss, float deltaTime) {
+            timer += deltaTime;
+
+            if (timer >= 0.1f) {
+                TransformComponent TRANSFORM = Mapper.TRANSFORM.get(boss);
+
+                for (int i = 0; i < 4; i++) {
+                    float deg = OFFSET + i * 90;
+                    float xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
+                    float yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
+
+                    final Entity B = EntityFactory.createEnemyLaserEmitter(xPlace, yPlace, deg);
+                    final BulletComponent BULLET = Mapper.BULLET.get(B);
+
+                    BULLET.despawnTime = 1f;
+
+                    ENGINE.addEntity(B);
+                }
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /**
      * {@link Action Action} that has the boss create a wave of shifting spiraling bullets.
      */
     public static class ShiftingSpiralAttack extends Action {
@@ -525,9 +564,8 @@ public class BossActions {
     }
 
     /**
-     * {@link Action Action} that shoots a wave of fading bullets and laser emitters at the player.
+     * {@link Action Action} that shoots a wave of fading bullets.
      */
-    // TODO We can separate this attack into two different actions.
     public static class ImperishableNight extends Action {
         private float fireTimer;
         private int iterations;
@@ -571,16 +609,7 @@ public class BossActions {
 
                         ENGINE.addEntity(B);
                     }
-                } else { // Laser
-                    for (int i = 0; i < 4; i++) {
-                        float deg = iterations * 7 + i * 90;
-                        xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                        yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                        ENGINE.addEntity(EntityFactory.createEnemyLaserEmitter(xPlace, yPlace, deg));
-                    }
                 }
-
                 fireTimer = 0;
                 iterations++;
             }
@@ -589,60 +618,7 @@ public class BossActions {
     }
 
     /**
-     * {@link Action Action} that shoots a wave of fading bullets.
-     */
-    public static class FadingBalls extends Action {
-        private float fireTimer;
-        private int iterations;
-        private final Engine ENGINE;
-
-        public FadingBalls(Engine e) {
-            ENGINE = e;
-        }
-
-        public boolean act(Entity entity, float deltaTime) {
-            AIComponent AI = Mapper.AI.get(entity);
-            TransformComponent TRANSFORM = Mapper.TRANSFORM.get(entity);
-
-            fireTimer += deltaTime;
-
-            if (fireTimer >= 0.1f) {
-                float xPlace;
-                float yPlace;
-
-                for (int i = 0; i < 12; i++) {
-                    float deg = iterations * 7 + i * 30;
-                    xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
-                    yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
-
-                    final Entity B = EntityFactory.createEnemyBall(xPlace, yPlace, deg);
-                    final SpriteComponent SPRITE = Mapper.SPRITE.get(B);
-                    final BulletComponent BULLET = Mapper.BULLET.get(B);
-                    final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
-
-                    MOVE.moveSpeed = 2;
-                    BULLET.handler = new BulletHandler() {
-                        private float tImEEr;
-                        @Override
-                        public void update(float dt) {
-                            tImEEr += dt / 2f;
-                            SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(new Color(0, 0, 1f, 0), (MathUtils.cos(tImEEr * MathUtils.PI2) + 1) / 2f));
-                            MOVE.MOVEMENT_NORMAL.rotate(dt * 5);
-                        }
-                    };
-
-                    ENGINE.addEntity(B);
-                }
-
-                fireTimer = 0;
-                iterations++;
-            }
-            return iterations == 70;
-        }
-    }
-
-    /**
-     * {@link Action Action} that shoots a bullets that turn sharply
+     * {@link Action Action} that shoots a bullets that loops into a flower shape
      */
     public static class SpringBlossom extends Action {
         private float fireTimer;
@@ -659,12 +635,12 @@ public class BossActions {
 
             fireTimer += deltaTime;
 
-            if (fireTimer >= 0.1f) {
+            if (fireTimer >= 0.10f) {
                 float xPlace;
                 float yPlace;
 
-                for (int i = 0; i < 12; i++) {
-                    float deg = iterations * 7 + i * 30;
+                for (int i = 0; i < 5; i++) {
+                    float deg = iterations * 7 + i * 72;
                     xPlace = TRANSFORM.POSITION.x + TRANSFORM.ORIGIN.x + 3 * MathUtils.cos(deg * MathUtils.degreesToRadians);
                     yPlace = TRANSFORM.POSITION.y + TRANSFORM.ORIGIN.y + 3 * MathUtils.sin(deg * MathUtils.degreesToRadians);
 
@@ -672,35 +648,38 @@ public class BossActions {
                     final SpriteComponent SPRITE = Mapper.SPRITE.get(B);
                     final BulletComponent BULLET = Mapper.BULLET.get(B);
                     final MovementComponent MOVE = Mapper.MOVEMENT.get(B);
+                    final TransformComponent TRANS = Mapper.TRANSFORM.get(B);
 
-                    MOVE.moveSpeed = 2;
+                    BULLET.despawnTime = -1;
+                    MOVE.moveSpeed = 7;
+
                     BULLET.handler = new BulletHandler() {
-                        private float tImEEr;
-                        private float turnTimer;
-                        private boolean turn;
-                        private float assualtTimer;
+                        private final float TURN_RATE = 90f; // Rate in degrees/sec
+                        private float colorTimer, angleTimer;
+                        private boolean looped;
+                        private float targetX = 0, targetY = 0;
+
                         @Override
                         public void update(float dt) {
-                            if (assualtTimer <= 5f) {
-                                assualtTimer += dt;
-                                tImEEr += dt / 2f;
-                                SPRITE.SPRITES.first().setColor(Color.PINK.cpy().lerp(Color.WHITE, (MathUtils.cos(tImEEr * MathUtils.PI2) + 1) / 2f));
-                                if (turnTimer >= 1.2f) {
-                                    turnTimer = 0;
-                                    if (turn)
-                                        MOVE.MOVEMENT_NORMAL.rotate(85);
-                                    else
-                                        MOVE.MOVEMENT_NORMAL.rotate(50);
-                                    turn = !turn;
-                                    if (assualtTimer > 5f)
-                                        MOVE.MOVEMENT_NORMAL.setAngle(MathUtils.random(200, 310));
-                                }
+                            float angleDelta = dt * TURN_RATE;
 
-                            } else {
-                                tImEEr += dt;
-                                SPRITE.SPRITES.first().setColor(Color.PINK.cpy().lerp(Color.RED, (MathUtils.cos(tImEEr * MathUtils.PI2) + 1) / 2f));
-                                MOVE.moveSpeed = 9;
-                            }
+                            colorTimer += dt / 2f;
+
+                            if (!looped) {
+                                SPRITE.SPRITES.first().setColor(Color.RED.cpy().lerp(Color.WHITE, (MathUtils.cos(colorTimer * MathUtils.PI2) + 1) / 2f));
+
+                                angleTimer += angleDelta;
+
+                                MOVE.MOVEMENT_NORMAL.rotate(angleDelta);
+                                if (angleTimer >= 359) {
+                                    /*BULLET.despawnTime = 0;
+                                    colorTimer = 0;
+                                    looped = true;*/
+                                    ENGINE.removeEntity(B);
+                                }
+                            } else
+                                SPRITE.SPRITES.first().setColor(Color.WHITE.cpy().lerp(Color.GREEN, colorTimer * 2f));
+
                         }
                     };
 

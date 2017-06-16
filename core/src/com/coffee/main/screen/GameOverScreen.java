@@ -12,8 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.GUIComponent;
+import com.coffee.entity.components.HealthComponent;
 import com.coffee.entity.components.PlayerComponent;
 import com.coffee.entity.systems.*;
 import com.coffee.main.Application;
@@ -27,12 +29,11 @@ import com.coffee.util.Mapper;
  */
 public class GameOverScreen extends ScreenAdapter {
     private final PooledEngine ENGINE;
-    private final Entity GUIEntity;
+    private final Entity GUI_ENTITY, PLAYER_ENTITY;
+    private final Application APP;
 
-    public GameOverScreen(PlayerComponent player) {
-        final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fff.ttf"));
-        final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        final Application APP = (Application) Gdx.app.getApplicationListener();
+    public GameOverScreen(Entity e) {
+        APP = (Application) Gdx.app.getApplicationListener();
 
         ENGINE = new PooledEngine();
 
@@ -42,14 +43,24 @@ public class GameOverScreen extends ScreenAdapter {
         ENGINE.addSystem(new LifetimeSystem());
         ENGINE.addSystem(new SpawnerSystem(ENGINE));
 
-        // region MainMenu entity
+        GUI_ENTITY = new Entity();
+        PLAYER_ENTITY = e;
+        generateUI();
+
+        ENGINE.addEntity(GUI_ENTITY);
+        ENGINE.addEntity(EntityFactory.createParticleGenerator());
+    }
+
+    private void generateUI() {
         final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
         final TextureAtlas UI_ATLAS = Assets.MANAGER.get(Assets.UI.ATLAS);
         final GUIComponent GUI = new GUIComponent();
         final Table TABLE = new Table();
         final BitmapFont FNT_GAME_OVER, FNT_SCORE;
-
-        GUIEntity = new Entity();
+        final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fff.ttf"));
+        final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        final PlayerComponent PLAYER = Mapper.PLAYER.get(PLAYER_ENTITY);
+        final HealthComponent HEALTH = Mapper.HEALTH.get(PLAYER_ENTITY);
 
         GUI.canvas = new Stage(APP.getViewport(), APP.getBatch());
 
@@ -69,29 +80,75 @@ public class GameOverScreen extends ScreenAdapter {
 
         final Label
             TITLE = new Label("GAME OVER", new Label.LabelStyle(FNT_GAME_OVER, Color.WHITE)),
-            SCORE_ID = new Label("SCORE: ", new Label.LabelStyle(FNT_SCORE, Color.WHITE)),
-            SCORE = new Label("" + player.score, SKIN);
+            SCORE_ID = new Label("SCORE: ", SKIN),
+            SCORE = new Label("" + PLAYER.score, SKIN);
 
         final TextButton CONTINUE = new TextButton("CONTINUE", SKIN);
+        final int FINAL_SCORE;
+        int score = PLAYER.score;
 
-        int finalScore = player.score;
+        SCORE_ID.setAlignment(Align.left);
+        SCORE.setAlignment(Align.right);
 
         TABLE.setSkin(SKIN);
-        TABLE.pad(50, 100, 50, 100).setFillParent(true);
-        TABLE.center().pad(50).setFillParent(true);
-        TABLE.add(TITLE).padBottom(20).row();
-        TABLE.add(SCORE).pad(10, 10, 10, 10).row();
+        TABLE.center().pad(100).setFillParent(true);
+        TABLE.add(TITLE).padBottom(20).colspan(2).row();
+        TABLE.add(SCORE_ID).padBottom(10).expandX().fillX().align(Align.left);
+        TABLE.add(SCORE).padBottom(10).uniform().expandX().fillX().align(Align.right).row();
 
-        if (finalScore > HighScore.getLowest().getScore()) {
-            final TextField INPUT = new TextField("", SKIN);
-            INPUT.setMaxLength(12);
+        if (PLAYER.lives > 0 || HEALTH.getHealthPercent() > 0) {
+            final Label
+                LBL_HEALTH_BONUS_ID = new Label("HEALTH BONUS: ", SKIN),
+                LBL_HEALTH_BONUS = new Label("", SKIN),
+                LBL_ACCURACY_BONUS_ID = new Label("ACCURACY BONUS: ", SKIN),
+                LBL_ACCURACY_BONUS = new Label("", SKIN),
+                LBL_FINAL_SCORE_ID = new Label("FINAL SCORE: ", SKIN),
+                LBL_FINAL_SCORE = new Label("", SKIN);
 
-            INPUT.setColor(Color.RED);
+            final int HEALTH_BONUS_SCORE = PLAYER.lives * 100 + HEALTH.health;
+            final float ACCURACY_BONUS_FACTOR = 1 + PLAYER.getAccuracy();
+
+            LBL_HEALTH_BONUS.setText("+" + HEALTH_BONUS_SCORE);
+            LBL_ACCURACY_BONUS.setText(String.format("%.2f", PLAYER.getAccuracy() * 100f) + "% | x" + String.format("%.2f", ACCURACY_BONUS_FACTOR));
+
+            LBL_HEALTH_BONUS_ID.setAlignment(Align.left);
+            LBL_ACCURACY_BONUS_ID.setAlignment(Align.left);
+            LBL_FINAL_SCORE_ID.setAlignment(Align.left);
+            LBL_HEALTH_BONUS.setAlignment(Align.right);
+            LBL_ACCURACY_BONUS.setAlignment(Align.right);
+            LBL_FINAL_SCORE.setAlignment(Align.right);
+
+            score += HEALTH_BONUS_SCORE;
+            score *= ACCURACY_BONUS_FACTOR;
+
+            if (score > HighScore.getLowest().getScore())
+                LBL_FINAL_SCORE_ID.setText("NEW HIGH SCORE: ");
+
+            LBL_FINAL_SCORE.setText("" + score);
+
+            TABLE.add(LBL_HEALTH_BONUS_ID).expandX().fillX().align(Align.left);
+            TABLE.add(LBL_HEALTH_BONUS).expandX().fillX().align(Align.right).row();
+            TABLE.add(LBL_ACCURACY_BONUS_ID).expandX().fillX().align(Align.left);
+            TABLE.add(LBL_ACCURACY_BONUS).expandX().fillX().align(Align.right).row();
+            TABLE.add(LBL_FINAL_SCORE_ID).padTop(10).expandX().fillX().align(Align.left);
+            TABLE.add(LBL_FINAL_SCORE).padTop(10).expandX().fillX().align(Align.right).row();
+        }
+
+        FINAL_SCORE = score;
+
+        if (FINAL_SCORE > HighScore.getLowest().getScore()) {
+            final Label LBL_NAME_ID = new Label("ENTER NAME: ", new Label.LabelStyle(FNT_SCORE, Color.WHITE));
+            final TextField NAME = new TextField("", SKIN);
+
+            NAME.setMaxLength(12);
+
+            NAME.setColor(Color.RED);
             CONTINUE.setDisabled(true);
 
-            TABLE.add(INPUT).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
+            TABLE.add(LBL_NAME_ID).pad(20, 10, 10, 10).expandX().fillX();
+            TABLE.add(NAME).pad(20, 10, 10, 10).expandX().fillX().uniform().row();
 
-            INPUT.setTextFieldListener((TextField textField, char c) -> {
+            NAME.setTextFieldListener((TextField textField, char c) -> {
                 String test = textField.getText().trim();
                 if (test.length() == 0) {
                     textField.setColor(Color.RED);
@@ -116,8 +173,8 @@ public class GameOverScreen extends ScreenAdapter {
                 public void changed(ChangeEvent event, Actor actor) {
                     if (CONTINUE.isPressed()) {
                         // Put score in
-                        String playerName = INPUT.getText().trim();
-                        HighScore.insert(new HighScoreEntry(finalScore, playerName));
+                        String playerName = NAME.getText().trim();
+                        HighScore.insert(new HighScoreEntry(FINAL_SCORE, playerName));
                         HighScore.save();
 
                         // Change to high score screen
@@ -139,14 +196,12 @@ public class GameOverScreen extends ScreenAdapter {
             });
         }
 
-        TABLE.add(CONTINUE).colspan(2).fillX().pad(10, 10, 10, 10).uniform().row();
+        TABLE.add(CONTINUE).colspan(2).fillX().pad(20, 10, 10, 10).uniform().row();
 
         GUI.canvas.addActor(TABLE);
-        GUIEntity.add(GUI);
+        GUI_ENTITY.add(GUI);
+       // TABLE.setDebug(true);
         // endregion
-
-        ENGINE.addEntity(GUIEntity);
-        ENGINE.addEntity(EntityFactory.createParticleGenerator());
 
         fontGenerator.dispose();
     }
@@ -160,7 +215,7 @@ public class GameOverScreen extends ScreenAdapter {
     public void show() {
         Application app = (Application) Gdx.app.getApplicationListener();
 
-        app.getInputMultiplexer().addProcessor(Mapper.GUI.get(GUIEntity).canvas);
+        app.getInputMultiplexer().addProcessor(Mapper.GUI.get(GUI_ENTITY).canvas);
         EntityFactory.setEngine(ENGINE);
     }
 
@@ -168,7 +223,7 @@ public class GameOverScreen extends ScreenAdapter {
     public void hide() {
         Application app = (Application) Gdx.app.getApplicationListener();
 
-        app.getInputMultiplexer().removeProcessor(Mapper.GUI.get(GUIEntity).canvas);
+        app.getInputMultiplexer().removeProcessor(Mapper.GUI.get(GUI_ENTITY).canvas);
     }
 
     @Override

@@ -95,7 +95,7 @@ public class AISystem extends IteratingSystem {
                         if (MathUtils.randomBoolean(.7f))
                             AI.TASKS.add(new BossActions.SimpleConeAttack(getEngine()));
                         else
-                            AI.TASKS.add(new BossActions.FadingBalls(getEngine()));
+                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
 
                         if (MathUtils.randomBoolean(0.7f)) { // Have a chance that you don't add anything at all
                             BossActions.ActionSequence seq = new BossActions.ActionSequence();
@@ -130,7 +130,7 @@ public class AISystem extends IteratingSystem {
                         } else if (MathUtils.randomBoolean(0.5f)) {
                             AI.TASKS.add(new BossActions.ReverseShiftingSpiralAttack(getEngine()));
                         } else if (MathUtils.randomBoolean(0.4f)) {
-                            AI.TASKS.add(new BossActions.FadingBalls(getEngine()));
+                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
                         } else {
                             AI.TASKS.add(new BossActions.LunaticGun(getEngine()));
                         }
@@ -182,7 +182,7 @@ public class AISystem extends IteratingSystem {
                     //endregion
                 } else {  // > 25%
                     AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
-
+                    AI.TASKS.add(new BossActions.QuadLaserBallAttack(getEngine(), 0));
 
                     if (MathUtils.randomBoolean(0.5f)) {
                         Vector2 move = new Vector2();

@@ -21,7 +21,7 @@ public class TransformComponent implements Component, Pool.Poolable {
 
     public final Dimension SIZE;
 
-    public double rotation;
+    public float rotation;
 
     /**
      * Initializes this {@link TransformComponent}

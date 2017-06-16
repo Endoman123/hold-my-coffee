@@ -34,7 +34,7 @@ public class BulletSystem extends IteratingSystem {
             outsideLowerBounds = TRANSFORM.POSITION.x < -TRANSFORM.SIZE.width || TRANSFORM.POSITION.y < -TRANSFORM.SIZE.height,
             outsideUpperBounds = TRANSFORM.POSITION.x > MAP_SIZE.width || TRANSFORM.POSITION.y > MAP_SIZE.height;
 
-        if (BULLET.despawnTime != -1 && outsideLowerBounds || outsideUpperBounds) {
+        if (BULLET.despawnTime != -1.0f && (outsideLowerBounds || outsideUpperBounds)) {
             BULLET.timer -= deltaTime;
             if (BULLET.timer <= 0)
                 getEngine().removeEntity(entity);

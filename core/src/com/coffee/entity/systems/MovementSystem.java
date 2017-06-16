@@ -56,7 +56,7 @@ public class MovementSystem extends IteratingSystem {
 
         // Store the real normal vector in a temporary object.
         // This vector requires that we normalize the normal vector and scale it to the move speed magnitude.
-        Vector2 move_vec = new Vector2(curMovement.MOVEMENT_NORMAL).nor().scl((float)curMovement.moveSpeed);
+        Vector2 move_vec = new Vector2(curMovement.MOVEMENT_NORMAL).nor().scl((float)curMovement.moveSpeed * 60f * deltaTime);
 
         // Move and rotate the entity
         curTransform.POSITION.add(move_vec);
