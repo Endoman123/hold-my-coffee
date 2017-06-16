@@ -181,8 +181,84 @@ public class AISystem extends IteratingSystem {
                     }
                     //endregion
                 } else {  // > 25%
-                    AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
-                    AI.TASKS.add(new BossActions.QuadLaserBallAttack(getEngine(), 0));
+                    //region > 25%
+                    // Create a base for all attacks
+                    if (MathUtils.randomBoolean(0.66f)) {
+                        if (MathUtils.randomBoolean(0.2f)) {
+                            AI.TASKS.add(new BossActions.ShiftingSpiralAttack(getEngine()));
+                        } else if (MathUtils.randomBoolean(0.1f)) {
+                            AI.TASKS.add(new BossActions.ReverseShiftingSpiralAttack(getEngine()));
+                        } else if (MathUtils.randomBoolean(0.35f)) {
+                            AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
+                        } else if (MathUtils.randomBoolean(0.4f)) {
+                            AI.TASKS.add(new BossActions.LunaticGun(getEngine()));
+                        } else if (MathUtils.randomBoolean(0.4f)) {
+                            AI.TASKS.add(new BossActions.ShiftingSpiralAttack(getEngine()));
+                            AI.TASKS.add(new BossActions.ReverseShiftingSpiralAttack(getEngine()));
+                            AI.TASKS.get(1).parallel = true;
+                        } else if (MathUtils.randomBoolean(.5f)) {
+                            AI.TASKS.add(new BossActions.SimpleSpiralAttack(getEngine()));
+                            AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
+                            AI.TASKS.get(1).parallel = true;
+                        } else if (MathUtils.randomBoolean(.5f)) {
+                            AI.TASKS.add(new BossActions.TempestBloom(getEngine()));
+                            AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
+                            AI.TASKS.get(1).parallel = true;
+                        }
+
+                        // Add some spices
+                        if (MathUtils.randomBoolean(0.1f)) { // Add some random homing stuff
+                            final BossActions.Action ACTION = new BossActions.HomingBulletCircleAttack(getEngine());
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        }
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            final BossActions.Action ACTION = new BossActions.QuadLaserBallAttack(getEngine(), 0);
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        }
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            AI.TASKS.add(new BossActions.HelixPlusAttack(getEngine(), VIEWPORT));
+                        } else if (MathUtils.randomBoolean(0.2f)) {
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                            AI.TASKS.add(new BossActions.PlusBeam(getEngine()));
+                            AI.TASKS.add(new BossActions.StarBeam(getEngine()));
+                        }
+
+                    } else if (MathUtils.randomBoolean(.75f)) {
+                        if (MathUtils.randomBoolean(0.4f))
+                            AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
+                        else if (MathUtils.randomBoolean(.5f)) {
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+
+                            Vector2 move = new Vector2();
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(3f, move.cpy()));
+                            AI.TASKS.add(new BossActions.PlusBeam(getEngine()));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(4f, move.cpy()));
+                            AI.TASKS.add(new BossActions.XBeam(getEngine()));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(5f, move.cpy()));
+                            AI.TASKS.add(new BossActions.StarBeam(getEngine()));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(6f, move.cpy()));
+                            AI.TASKS.add(new BossActions.StarBeam(getEngine()));
+
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(7f, move.cpy()));
+                            AI.TASKS.add(new BossActions.HelixLaserAttack(getEngine(), VIEWPORT));
+                            AI.TASKS.add(new BossActions.DoNothing(3f));
+                        } else
+                            AI.TASKS.add(new BossActions.AsteroidField(getEngine()));
+                        AI.TASKS.add(new BossActions.DoNothing(3f));
+                    }
 
                     if (MathUtils.randomBoolean(0.5f)) {
                         Vector2 move = new Vector2();
