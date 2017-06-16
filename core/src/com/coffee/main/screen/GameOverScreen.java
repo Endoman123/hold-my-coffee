@@ -80,20 +80,20 @@ public class GameOverScreen extends ScreenAdapter {
 
         final Label
             TITLE = new Label("GAME OVER", new Label.LabelStyle(FNT_GAME_OVER, Color.WHITE)),
-            SCORE_ID = new Label("SCORE: ", SKIN),
+            LBL_SCORE_ID = new Label("SCORE: ", SKIN),
             SCORE = new Label("" + PLAYER.score, SKIN);
 
         final TextButton CONTINUE = new TextButton("CONTINUE", SKIN);
         final int FINAL_SCORE;
         int score = PLAYER.score;
 
-        SCORE_ID.setAlignment(Align.left);
+        LBL_SCORE_ID.setAlignment(Align.left);
         SCORE.setAlignment(Align.right);
 
         TABLE.setSkin(SKIN);
         TABLE.center().pad(100).setFillParent(true);
         TABLE.add(TITLE).padBottom(20).colspan(2).row();
-        TABLE.add(SCORE_ID).padBottom(10).expandX().fillX().align(Align.left);
+        TABLE.add(LBL_SCORE_ID).padBottom(10).expandX().fillX().align(Align.left);
         TABLE.add(SCORE).padBottom(10).uniform().expandX().fillX().align(Align.right).row();
 
         if (PLAYER.lives > 0 || HEALTH.getHealthPercent() > 0) {
@@ -132,6 +132,9 @@ public class GameOverScreen extends ScreenAdapter {
             TABLE.add(LBL_ACCURACY_BONUS).expandX().fillX().align(Align.right).row();
             TABLE.add(LBL_FINAL_SCORE_ID).padTop(10).expandX().fillX().align(Align.left);
             TABLE.add(LBL_FINAL_SCORE).padTop(10).expandX().fillX().align(Align.right).row();
+        } else {
+            if (score > HighScore.getLowest().getScore())
+                LBL_SCORE_ID.setText("NEW HIGH SCORE: ");
         }
 
         FINAL_SCORE = score;
