@@ -1238,6 +1238,46 @@ public class EntityFactory {
         return E.add(TRANSFORM).add(MOVEMENT).add(SPRITE).add(LIFETIME);
     }
 
+    public static Entity createShootingStar(float x, float y, int z, float angle) {
+        final Entity E = engine.createEntity();
+        final TransformComponent TRANSFORM = engine.createComponent(TransformComponent.class);
+        final MovementComponent MOVEMENT = engine.createComponent(MovementComponent.class);
+        final SpriteComponent SPRITE = engine.createComponent(SpriteComponent.class);
+        final LifetimeComponent LIFETIME = engine.createComponent(LifetimeComponent.class);
+
+        // Clamp z between 0 and 100
+        z = MathUtils.clamp(z, 0, 100);
+
+        // Create star sprite
+        Sprite main = new Sprite(goAtlas.createSprite("shooting_star"));
+        float temp = (float)Math.pow(MathUtils.random(), 1);
+        Color tint = ColorUtils.HSVtoRGB(MathUtils.lerp(0, 300, temp), (int)MathUtils.lerp(25, 0, temp), 100);
+        float size = MathUtils.lerp(1, 4, (100 - z) / 100f);
+
+        main.setSize(size * 3.5f, size);
+        main.setOrigin(main.getWidth(), main.getHeight() / 2);
+        main.setColor(tint);
+
+        SPRITE.SPRITES.add(main);
+        SPRITE.zIndex = -100 - z;
+
+        // Initialize transform
+        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
+        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
+        TRANSFORM.rotation = angle;
+
+        // Initialize movement
+        MOVEMENT.MOVEMENT_NORMAL.set(0, -2);
+        MOVEMENT.MOVEMENT_NORMAL.setAngle(angle);
+        MOVEMENT.moveSpeed = MathUtils.lerp(7, 15, (100 - z) / 100f);
+
+        // Initialize particle lifetime
+        LIFETIME.timer = 5;
+
+        return E.add(TRANSFORM).add(MOVEMENT).add(SPRITE).add(LIFETIME);
+    }
+
     /**
      * Creates a particle generator that simulates traveling through space.
      * This also acts as a background for the game.
@@ -1272,11 +1312,20 @@ public class EntityFactory {
         SPAWNER = new SpawnerComponent(() -> {
             Array<Entity> entities = new Array<>();
 
-            float x = MathUtils.random(0, viewport.getWorldWidth());
-            float y = viewport.getWorldHeight();
-            int z = MathUtils.random(0, 100);
+            if (MathUtils.randomBoolean(.995f)) { //star
+                float x = MathUtils.random(0, viewport.getWorldWidth());
+                float y = viewport.getWorldHeight();
+                int z = MathUtils.random(0, 100);
 
-            entities.add(createStar(x, y, z));
+                entities.add(createStar(x, y, z));
+            } else { //shooting star
+                float x = (MathUtils.randomBoolean())? -50 : viewport.getWorldWidth() + 50;
+                float y = MathUtils.random(0, viewport.getWorldHeight());
+                int z = MathUtils.random(0, 100);
+                float angle = (x <= -50)? MathUtils.random(-80, 20) : MathUtils.random(170, 260);
+
+                entities.add(createShootingStar(x, y, z, angle));
+            }
 
             return entities;
         });
