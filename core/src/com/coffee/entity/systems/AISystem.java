@@ -3,6 +3,7 @@ package com.coffee.entity.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -122,7 +123,7 @@ public class AISystem extends IteratingSystem {
                 } else if (HEALTH.getHealthPercent() >= 0.25) {  // 25% - 50%
                     // region 25% - 50%
                     // Create a base for all attacks
-                    if (MathUtils.randomBoolean(.35f)) {
+                    if (MathUtils.randomBoolean(.5f)) {
                         // Fake out chance (high in this stage)
                     } else if (MathUtils.randomBoolean(0.66f)) {
                         if (MathUtils.randomBoolean(0.33f)) {
@@ -148,6 +149,10 @@ public class AISystem extends IteratingSystem {
 
                         if (MathUtils.randomBoolean(0.4f)) {
                             AI.TASKS.add(new BossActions.XBeam(getEngine()));
+                        }
+
+                        if (MathUtils.randomBoolean(0.4f)) {
+                            AI.TASKS.add(new BossActions.PlusBeam(getEngine()));
                         }
                     } else if (MathUtils.randomBoolean(.35f)) {
                         if (MathUtils.randomBoolean(0.5f))
@@ -184,11 +189,7 @@ public class AISystem extends IteratingSystem {
                     //region > 25%
                     // Create a base for all attacks
                     if (MathUtils.randomBoolean(0.66f)) {
-                        if (MathUtils.randomBoolean(0.2f)) {
-                            AI.TASKS.add(new BossActions.ShiftingSpiralAttack(getEngine()));
-                        } else if (MathUtils.randomBoolean(0.1f)) {
-                            AI.TASKS.add(new BossActions.ReverseShiftingSpiralAttack(getEngine()));
-                        } else if (MathUtils.randomBoolean(0.35f)) {
+                        if (MathUtils.randomBoolean(0.4f)) {
                             AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
                         } else if (MathUtils.randomBoolean(0.4f)) {
                             AI.TASKS.add(new BossActions.LunaticGun(getEngine()));
@@ -200,15 +201,27 @@ public class AISystem extends IteratingSystem {
                             AI.TASKS.add(new BossActions.SimpleSpiralAttack(getEngine()));
                             AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
                             AI.TASKS.get(1).parallel = true;
-                        } else if (MathUtils.randomBoolean(.5f)) {
+                        } else if (MathUtils.randomBoolean(.7f)) {
                             AI.TASKS.add(new BossActions.TempestBloom(getEngine()));
                             AI.TASKS.add(new BossActions.SpringBlossom(getEngine()));
                             AI.TASKS.get(1).parallel = true;
                         }
 
                         // Add some spices
-                        if (MathUtils.randomBoolean(0.1f)) { // Add some random homing stuff
+                        if (MathUtils.randomBoolean(0.3f)) { // Add some random homing stuff
                             final BossActions.Action ACTION = new BossActions.HomingBulletCircleAttack(getEngine());
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        }
+
+                        if (MathUtils.randomBoolean(0.5f)) {
+                            final BossActions.Action ACTION = new BossActions.XBeam(getEngine());
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        }
+
+                        if (MathUtils.randomBoolean(0.6f)) {
+                            final BossActions.Action ACTION = new BossActions.StarBeam(getEngine());
                             ACTION.parallel = true;
                             AI.TASKS.add(ACTION);
                         }
@@ -230,7 +243,7 @@ public class AISystem extends IteratingSystem {
                     } else if (MathUtils.randomBoolean(.75f)) {
                         if (MathUtils.randomBoolean(0.4f))
                             AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
-                        else if (MathUtils.randomBoolean(.5f)) {
+                        else if (MathUtils.randomBoolean(.7f)) {
                             AI.TASKS.add(new BossActions.XBeam(getEngine()));
 
                             Vector2 move = new Vector2();
@@ -260,10 +273,19 @@ public class AISystem extends IteratingSystem {
                         AI.TASKS.add(new BossActions.DoNothing(3f));
                     }
 
-                    if (MathUtils.randomBoolean(0.5f)) {
-                        Vector2 move = new Vector2();
-                        generateRandomMoveTarget(TRANSFORM, move);
-                        AI.TASKS.add(new BossActions.Move(2f, move));
+                    if (MathUtils.randomBoolean(.5f)) {
+                        if (MathUtils.randomBoolean(.2f)) {
+                            Vector2 move = new Vector2();
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(1f, move));
+                            final BossActions.Action ACTION = new BossActions.PlusBeam(getEngine());
+                            ACTION.parallel = true;
+                            AI.TASKS.add(ACTION);
+                        } else {
+                            Vector2 move = new Vector2();
+                            generateRandomMoveTarget(TRANSFORM, move);
+                            AI.TASKS.add(new BossActions.Move(2f, move));
+                        }
                     }
 
                     //endregion
@@ -290,6 +312,9 @@ public class AISystem extends IteratingSystem {
                 AI.curState = AIState.SCHEDULING;
         }
         // endregion
+
+        //color change of core
+        Mapper.SPRITE.get(entity).SPRITES.get(1).setColor(new Color(.2f, .2f, 1, 1).lerp(Color.RED, 1f - HEALTH.getHealthPercent()));
 
         if (HEALTH.health <= 0)
             getEngine().removeEntity(entity);
