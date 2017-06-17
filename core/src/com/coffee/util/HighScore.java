@@ -74,12 +74,7 @@ public class HighScore {
     };
 
     public static HighScoreEntry getLowest() {
-        for (int i = SIZE - 1; i > 0; i--) {
-            if (!HighScoreEntry.NO_NAME.equals(SCORES[i].getName()))
-                return SCORES[i];
-        }
-
-        return SCORES[0];
+        return SCORES[SIZE - 1];
     }
 
     public static void save() {

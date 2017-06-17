@@ -4,9 +4,13 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.components.SpriteComponent;
+import com.coffee.entity.components.TransformComponent;
 import com.coffee.util.Mapper;
 
 import java.util.Comparator;
@@ -41,10 +45,18 @@ public class DrawSystem extends SortedIteratingSystem {
 
     @Override
     public void processEntity(Entity e, float deltaTime) {
-        for (int i = 0; i < spriteMapper.get(e).SPRITES.size; i++) {
-            spriteMapper.get(e).SPRITES.get(i).setPosition(Mapper.TRANSFORM.get(e).POSITION.x, Mapper.TRANSFORM.get(e).POSITION.y);
-            spriteMapper.get(e).SPRITES.get(i).setRotation((float) Mapper.TRANSFORM.get(e).rotation);
-            spriteMapper.get(e).SPRITES.get(i).draw(BATCH);
+        final SpriteComponent SPRITE = Mapper.SPRITE.get(e);
+        final TransformComponent TRANSFORM = Mapper.TRANSFORM.get(e);
+
+        Array<Sprite> sprites = SPRITE.SPRITES;
+        Vector2 pos = TRANSFORM.POSITION.cpy().add(TRANSFORM.ORIGIN);
+
+        for (int i = 0; i < sprites.size; i++) {
+            Sprite s = sprites.get(i);
+
+            s.setPosition(pos.x - s.getOriginX(), pos.y - s.getOriginY());
+            s.setRotation(TRANSFORM.rotation);
+            s.draw(BATCH);
         }
     }
 

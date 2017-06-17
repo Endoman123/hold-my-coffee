@@ -1309,10 +1309,11 @@ public class EntityFactory {
         MOVEMENT.rotSpeed = 2;
 
         // Initialize SpriteComponent
-        Sprite shell = goAtlas.createSprite("enemyShell");
-        shell.setOriginCenter();
-        Sprite core = goAtlas.createSprite("enemyCore");
-        core.setOriginCenter();
+        Sprite shell = goAtlas.createSprite("enemy_shell");
+        shell.setOrigin(shell.getWidth() / 2f, shell.getHeight() / 2f);
+        Sprite core = goAtlas.createSprite("energy_ball");
+        core.setSize(32, 32);
+        core.setOrigin(16, 16);
         core.setColor(new Color(.2f, .2f, 1, 1));
 
         SPRITE.SPRITES.add(shell);

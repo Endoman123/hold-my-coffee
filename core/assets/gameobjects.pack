@@ -17,23 +17,9 @@ goodlogic
   orig: 300, 168
   offset: 0, 0
   index: -1
-enemy
+enemy_shell
   rotate: false
   xy: 259, 399
-  size: 112, 112
-  orig: 112, 112
-  offset: 0, 0
-  index: -1
-enemyCore
-  rotate: false
-  xy: 259, 285
-  size: 112, 112
-  orig: 112, 112
-  offset: 0, 0
-  index: -1
-enemyShell
-  rotate: false
-  xy: 373, 399
   size: 112, 112
   orig: 112, 112
   offset: 0, 0
@@ -61,56 +47,63 @@ upgrade_base
   index: -1
 player
   rotate: false
-  xy: 373, 360
+  xy: 259, 360
   size: 40, 37
   orig: 40, 37
   offset: 0, 0
   index: -1
 up_arrow
   rotate: false
-  xy: 51, 51
+  xy: 373, 479
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 bullet
   rotate: false
-  xy: 51, 35
+  xy: 51, 69
   size: 32, 14
   orig: 32, 14
   offset: 0, 0
   index: -1
 smoke
   rotate: false
-  xy: 259, 268
+  xy: 259, 343
   size: 17, 15
   orig: 17, 15
   offset: 0, 0
   index: 3
 smoke
   rotate: false
-  xy: 259, 255
+  xy: 301, 386
   size: 15, 11
   orig: 15, 11
   offset: 0, 0
   index: 4
+shooting_star
+  rotate: false
+  xy: 373, 473
+  size: 14, 4
+  orig: 14, 4
+  offset: 0, 0
+  index: -1
 star1
   rotate: false
-  xy: 487, 502
+  xy: 407, 502
   size: 9, 9
   orig: 9, 9
   offset: 0, 0
   index: -1
 smoke
   rotate: false
-  xy: 373, 352
+  xy: 51, 61
   size: 6, 6
   orig: 6, 6
   offset: 0, 0
   index: 2
 smoke
   rotate: false
-  xy: 415, 395
+  xy: 85, 81
   size: 2, 2
   orig: 2, 2
   offset: 0, 0
