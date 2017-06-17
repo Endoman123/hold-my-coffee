@@ -52,7 +52,7 @@ public class DebugDrawSystem extends IteratingSystem {
             RENDERER.circle(
                     transform.POSITION.x + transform.ORIGIN.x,
                     transform.POSITION.y + transform.ORIGIN.y,
-                    5
+                    3
             );
         }
 

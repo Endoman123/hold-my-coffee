@@ -16,7 +16,7 @@ import com.coffee.entity.components.ColliderComponent;
  * @author Phillip O'Reggio
  */
 public class QuadTree {
-    private final int MAX_LEVELS = 5;
+    private final int MAX_LEVELS = 6;
     private final int MAX_OBJECTS = 3;
 
     private int level;
@@ -33,7 +33,7 @@ public class QuadTree {
     public QuadTree(int pLevel, Rectangle boundary) {
         bounds = boundary;
         level = pLevel;
-        objects = new Array<Entity>();
+        objects = new Array<>();
         nodes = new QuadTree[4];
     }
 
@@ -55,10 +55,10 @@ public class QuadTree {
      * Splits the {@link QuadTree} into four quadrants/nodes.
      */
     private void split() {
-        int subWidth = (int) (bounds.getWidth() / 2f);
-        int subHeight = (int) (bounds.getHeight() / 2f);
-        int x = (int) bounds.getX();
-        int y = (int) bounds.getY();
+        float subWidth = bounds.getWidth() / 2f;
+        float subHeight = bounds.getHeight() / 2f;
+        float x = bounds.getX();
+        float y = bounds.getY();
 
         nodes[0] = new QuadTree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
         nodes[1] = new QuadTree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
@@ -76,8 +76,8 @@ public class QuadTree {
     private int getIndex(Entity entity) {
         // Initialize initial index, midpoint coordinates, and get collider BODY from entity.
         int index = -1;
-        float verticalMid = bounds.getX() + (bounds.getWidth() / 2f);
-        float horizontalMid = bounds.getY() + (bounds.getHeight() / 2f);
+        float verticalMid = bounds.getX() + bounds.getWidth() / 2f;
+        float horizontalMid = bounds.getY() + bounds.getHeight() / 2f;
         final Rectangle BODY = Mapper.COLLIDER.get(entity).BODY.getBoundingRectangle();
 
         // Check if it can fit into either the top quadrants or bottom quadrants.
@@ -85,7 +85,7 @@ public class QuadTree {
         boolean inBottomQuadrant = (BODY.getY() < horizontalMid && BODY.getY() + BODY.getHeight() < horizontalMid);
 
         // Check if it can fit into either right-side quadrants.
-        if (BODY.getX() > verticalMid && BODY.getX() + BODY.getWidth() > verticalMid) {
+        if (BODY.getX() > verticalMid) {
             if (inTopQuadrant)
                 index = 0;
             else if (inBottomQuadrant)
@@ -178,6 +178,6 @@ public class QuadTree {
     }
 
     public String toString() {
-        return "Level: " + level + " Polygons : " + objects.size;
+        return "Level: " + level + " Polygons: " + objects.size;
     }
 }

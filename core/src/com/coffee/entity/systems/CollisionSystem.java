@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
@@ -49,7 +50,10 @@ public class CollisionSystem extends IteratingSystem {
 
         // Update position of all collision bodies
         // then add them to the tree
-        for (Entity e : getEntities()) {
+        ImmutableArray<Entity> entities = getEntities();
+        int length = entities.size();
+        for (int i = 0; i < length; i++) {
+            Entity e = entities.get(i);
             ColliderComponent curCollider = Mapper.COLLIDER.get(e);
             TransformComponent curTrans = Mapper.TRANSFORM.get(e);
 
