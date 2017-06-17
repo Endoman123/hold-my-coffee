@@ -1009,7 +1009,7 @@ public class BossActions {
                     public void update(float dt) {
                         timer += dt;
 
-                        if (timesShot >= 300) {
+                        if (timesShot >= 450) {
                             ENGINE.removeEntity(BALL);
                             return;
                         }
@@ -1036,7 +1036,7 @@ public class BossActions {
                             final MovementComponent B_MOVE = Mapper.MOVEMENT.get(B);
                             final BulletComponent B_BULLET = Mapper.BULLET.get(B);
 
-                            B_SPRITE.SPRITES.first().setColor(Color.YELLOW);
+                            B_SPRITE.SPRITES.first().setColor(Color.WHITE);
                             B_SPRITE.zIndex = BALL_SPRITE.zIndex - 1;
 
                             B_MOVE.moveSpeed = 6;
@@ -1091,7 +1091,7 @@ public class BossActions {
                     public void update(float dt) {
                         timer += dt;
 
-                        if (timesShot >= 300) {
+                        if (timesShot >= 450) {
                             ENGINE.removeEntity(BALL);
                             return;
                         }
@@ -1173,7 +1173,7 @@ public class BossActions {
                     public void update(float dt) {
                         timer += dt;
 
-                        if (timesShot >= 300) {
+                        if (timesShot >= 450) {
                             ENGINE.removeEntity(BALL);
                             return;
                         }

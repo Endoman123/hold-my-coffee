@@ -108,4 +108,8 @@ public class CollisionSystem extends IteratingSystem {
             }
         }
     }
+
+    public QuadTree getTree() {
+        return TREE;
+    }
 }

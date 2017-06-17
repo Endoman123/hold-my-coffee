@@ -281,6 +281,11 @@ public class GameScreen extends ScreenAdapter {
                     ENGINE.getSystem(DebugDrawSystem.class).setProcessing(!ENGINE.getSystem(DebugDrawSystem.class).checkProcessing());
                     System.out.println("Debug View Toggled");
                     break;
+                case Input.Keys.F8: //DeBug Draw System Toggle + QuadTree
+                    ENGINE.getSystem(DebugDrawSystem.class).setProcessing(!ENGINE.getSystem(DebugDrawSystem.class).checkProcessing());
+                    ENGINE.getSystem(DebugDrawSystem.class).setDrawQuadTree(true);
+                    System.out.println("Debug View + QuadTree Toggled");
+                    break;
                 case Input.Keys.F9: //Kill player in their sleep
                     PLAY.lives = 0;
                     Mapper.HEALTH.get(PLAYER).health = 0;

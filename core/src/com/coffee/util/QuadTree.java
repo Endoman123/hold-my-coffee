@@ -166,10 +166,9 @@ public class QuadTree {
      * Debug draw method
      */
     public void draw(ShapeRenderer DEBUG) {
-        DEBUG.begin(ShapeRenderer.ShapeType.Line);
-        DEBUG.setColor(Color.CYAN);
+        DEBUG.set(ShapeRenderer.ShapeType.Line);
+        DEBUG.setColor(Color.PINK);
         DEBUG.rect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
-        DEBUG.end();
 
         if (nodes[0] != null) {
             for(QuadTree node : nodes)

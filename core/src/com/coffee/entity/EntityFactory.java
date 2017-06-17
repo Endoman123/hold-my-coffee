@@ -1309,14 +1309,18 @@ public class EntityFactory {
         MOVEMENT.rotSpeed = 2;
 
         // Initialize SpriteComponent
-        Sprite main = goAtlas.createSprite("enemy");
-        main.setOriginCenter();
+        Sprite shell = goAtlas.createSprite("enemyShell");
+        shell.setOriginCenter();
+        Sprite core = goAtlas.createSprite("enemyCore");
+        core.setOriginCenter();
+        core.setColor(new Color(.2f, .2f, 1, 1));
 
-        SPRITE.SPRITES.add(main);
+        SPRITE.SPRITES.add(shell);
+        SPRITE.SPRITES.add(core);
 
         // Initialize TransformComponent
-        TRANSFORM.SIZE.setSize(main.getWidth(), main.getHeight());
-        TRANSFORM.ORIGIN.set(main.getOriginX(), main.getOriginY());
+        TRANSFORM.SIZE.setSize(shell.getWidth(), shell.getHeight());
+        TRANSFORM.ORIGIN.set(shell.getOriginX(), shell.getOriginY());
         TRANSFORM.POSITION.set(x - TRANSFORM.ORIGIN.x, y - TRANSFORM.ORIGIN.y);
 
         // Initialize ColliderComponent

@@ -18,6 +18,7 @@ import com.coffee.util.Mapper;
  * @author Jared Tulayan
  */
 public class DebugDrawSystem extends IteratingSystem {
+    private boolean drawQuadTree;
     private final ShapeRenderer RENDERER;
     private final Camera CAMERA;
 
@@ -72,6 +73,12 @@ public class DebugDrawSystem extends IteratingSystem {
 
         super.update(dt);
 
+        if (drawQuadTree)
+            getEngine().getSystem(CollisionSystem.class).getTree().draw(RENDERER);
         RENDERER.end();
+    }
+
+    public void setDrawQuadTree(boolean draw) {
+        drawQuadTree = draw;
     }
 }
