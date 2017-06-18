@@ -20,7 +20,7 @@ public class PlayerComponent implements Component, Pool.Poolable {
     public int upFireRate = 0, upBulletDamage = 0, upSpeed = 0;
 
     // Life stuff that does not belong in the HealthComponent class
-    public int lives = 3;
+    public int lives = 3, timeAlive = 0;
     public boolean revive = false;
 
     // Player statisitics

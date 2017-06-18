@@ -135,62 +135,107 @@ public class EntityFactory {
 
         // Initialize InputComponent
         InputProcessor ip = new InputAdapter() {
+            private boolean
+                    pressW, pressUp,
+                    pressA, pressLeft,
+                    pressS, pressDown,
+                    pressD, pressRight,
+                    pressSpace, pressShiftLeft, pressShiftRight;
+
             @Override
             public boolean keyDown(int keycode) {
                 switch (keycode) {
                     case Input.Keys.W:
+                        pressW = true;
+                        break;
                     case Input.Keys.UP:
-                        PLAYER.up = 1;
+                        pressUp = true;
                         break;
                     case Input.Keys.A:
+                        pressA = true;
+                        break;
                     case Input.Keys.LEFT:
-                        PLAYER.left = 1;
+                        pressLeft = true;
                         break;
                     case Input.Keys.S:
+                        pressS = true;
+                        break;
                     case Input.Keys.DOWN:
-                        PLAYER.down = 1;
+                        pressDown = true;
                         break;
                     case Input.Keys.D:
+                        pressD = true;
+                        break;
                     case Input.Keys.RIGHT:
-                        PLAYER.right = 1;
+                        pressRight = true;
                         break;
                     case Input.Keys.SPACE:
+                        pressSpace = true;
+                        break;
                     case Input.Keys.SHIFT_LEFT:
+                        pressShiftLeft = true;
+                        break;
                     case Input.Keys.SHIFT_RIGHT:
-                        PLAYER.shoot = true;
+                        pressShiftRight = true;
                         break;
                     default:
                         return false;
                 }
+
+                PLAYER.up = pressW || pressUp ? 1 : 0;
+                PLAYER.down = pressS || pressDown ? 1 : 0;
+                PLAYER.left = pressA || pressLeft ? 1 : 0;
+                PLAYER.right = pressD || pressRight ? 1 : 0;
+                PLAYER.shoot = pressSpace || pressShiftRight || pressShiftLeft;
+
                 return true;
             }
 
             public boolean keyUp(int keycode) {
                 switch (keycode) {
                     case Input.Keys.W:
+                        pressW = false;
+                        break;
                     case Input.Keys.UP:
-                        PLAYER.up = 0;
+                        pressUp = false;
                         break;
                     case Input.Keys.A:
+                        pressA = false;
+                        break;
                     case Input.Keys.LEFT:
-                        PLAYER.left = 0;
+                        pressLeft = false;
                         break;
                     case Input.Keys.S:
+                        pressS = false;
+                        break;
                     case Input.Keys.DOWN:
-                        PLAYER.down = 0;
+                        pressDown = false;
                         break;
                     case Input.Keys.D:
+                        pressD = false;
+                        break;
                     case Input.Keys.RIGHT:
-                        PLAYER.right = 0;
+                        pressRight = false;
                         break;
                     case Input.Keys.SPACE:
+                        pressSpace = false;
+                        break;
                     case Input.Keys.SHIFT_LEFT:
+                        pressShiftLeft = false;
+                        break;
                     case Input.Keys.SHIFT_RIGHT:
-                        PLAYER.shoot = false;
+                        pressShiftRight = false;
                         break;
                     default:
                         return false;
                 }
+
+                PLAYER.up = !pressW && !pressUp ? 0 : PLAYER.up;
+                PLAYER.down = !pressS && !pressDown ? 0 : PLAYER.down;
+                PLAYER.left = !pressA && !pressLeft ? 0 : PLAYER.left;
+                PLAYER.right = !pressD && !pressRight ? 0 : PLAYER.right;
+                PLAYER.shoot = pressSpace || pressShiftRight || pressShiftLeft;
+
                 return true;
             }
         };
@@ -224,7 +269,8 @@ public class EntityFactory {
             FIRE_RATE_ID = new Label("Fire Rate:", uiSkin),
             BULLET_DAMAGE_ID = new Label("Damage:", uiSkin),
             LIFE_COUNTER = new Label("", uiSkin),
-            SCORE = new Label("", uiSkin);
+            SCORE = new Label("", uiSkin),
+            TIMER = new Label("", uiSkin);
 
         final Image
                 CONTAINER = new Image(uiSkin.getDrawable("bar_container")),
@@ -237,6 +283,9 @@ public class EntityFactory {
         final NinePatchDrawable BACK = new NinePatchDrawable(uiSkin.getAtlas().createPatch("button_up"));
 
         BACK.getPatch().setColor(Color.DARK_GRAY);
+
+        TIMER.setAlignment(Align.top);
+        SCORE.setAlignment(Align.topRight);
 
         TABLE.addAction(new Action() {
             @Override
@@ -258,7 +307,10 @@ public class EntityFactory {
 
                 FILL.setBounds(4, 4, (CONTAINER.getWidth() - 9) * HEALTH.getHealthPercent(), CONTAINER.getHeight() - 9);
 
-                SCORE.setText(String.format("%010d", PLAYER.score));
+                TIMER.setText("TIME\n" + String.format("%02d", PLAYER.timeAlive / 60) + ":" + String.format("%02d", PLAYER.timeAlive % 60));
+                SCORE.setText(
+                        "SCORE TO BEAT: " + String.format("%010d", HighScore.getLowest().getScore()) + "\nYOUR SCORE: " + String.format("%010d", PLAYER.score));
+
                 return false;
             }
         });
@@ -269,9 +321,11 @@ public class EntityFactory {
 
         TABLE.setSkin(uiSkin);
         TABLE.setBackground(BACK);
-        TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 64);
-        TABLE.add(HEALTH_STATS).expand().align(Align.left).width(160);
-        TABLE.add(SCORE);
+        TABLE.bottom().pad(10).setSize(viewport.getWorldWidth(), 70);
+        TABLE.add(HEALTH_STATS).expand().fill().align(Align.left).uniform();
+        TABLE.add(TIMER).expandX().fillX().pad(0, 50, 0, 50).align(Align.top);
+        TABLE.add(SCORE).expandX().fillX().uniform().align(Align.topLeft);
+        //GUI.canvas.setDebugAll(true);
 
         GUI.canvas.addActor(TABLE);
 

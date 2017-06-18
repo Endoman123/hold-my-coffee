@@ -19,11 +19,22 @@ import java.awt.*;
  */
 public class PlayerSystem extends IteratingSystem {
     private final Dimension GAME_SIZE;
+    private float timer;
 
     public PlayerSystem(Viewport viewport) {
         super(Family.all(PlayerComponent.class).get());
 
         GAME_SIZE = new Dimension((int)viewport.getWorldWidth(), (int)viewport.getWorldHeight());
+        timer = 0;
+    }
+
+    @Override
+    public void update(float deltaTime) {
+        timer += deltaTime;
+        super.update(deltaTime);
+
+        if (timer >= 1)
+            timer = 0;
     }
 
     @Override
@@ -33,6 +44,9 @@ public class PlayerSystem extends IteratingSystem {
         MovementComponent move = Mapper.MOVEMENT.get(entity);
         TransformComponent transform = Mapper.TRANSFORM.get(entity);
         HealthComponent health = Mapper.HEALTH.get(entity);
+
+        if (timer >= 1)
+            player.timeAlive++;
 
         if (health.getHealthPercent() > 0) {
             // Update the shoot timer
