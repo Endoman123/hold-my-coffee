@@ -3,9 +3,11 @@ package com.coffee.main.screen;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
@@ -23,11 +25,19 @@ import com.coffee.util.OptionsManager;
 public class OptionsScreen extends ScreenAdapter {
     private final PooledEngine ENGINE;
     private final Entity GUIEntity;
+    private final Screen LAST_SCREEN;
+    private final Application APP;
 
     public OptionsScreen() {
-        final Application APP = (Application) Gdx.app.getApplicationListener();
+        this(null);
+    }
+
+    public OptionsScreen(Screen s) {
+        APP = (Application) Gdx.app.getApplicationListener();
 
         ENGINE = new PooledEngine();
+
+        LAST_SCREEN = s;
 
         // region Menu entity
         final Skin SKIN = Assets.MANAGER.get(Assets.UI.SKIN);
@@ -48,11 +58,13 @@ public class OptionsScreen extends ScreenAdapter {
                 OPTIONS = new Table();
         final Label
                 TITLE = new Label("OPTIONS", SKIN, "title"),
-                RES_ID = new Label("Resolution", SKIN);
+                RES_ID = new Label("Resolution", SKIN),
+                VOL_ID = new Label("Volume", SKIN);
         final TextButton
                 CANCEL = new TextButton("CANCEL", SKIN),
                 SAVE = new TextButton("SAVE", SKIN);
         final SelectBox<String> RES = new SelectBox<String>(SKIN);
+        final Slider VOL = new Slider(0, 1, 0.01f, false, SKIN);
 
         TABLE.setSkin(SKIN);
         TITLE.setAlignment(Align.center);
@@ -65,6 +77,7 @@ public class OptionsScreen extends ScreenAdapter {
         );
 
         RES.setSelected(OptionsManager.resolution);
+        VOL.setValue(OptionsManager.volume);
 
         TABLE.center().pad(50).setFillParent(true);
         TABLE.add(TITLE).expandX().fillX().colspan(2).row();
@@ -73,15 +86,18 @@ public class OptionsScreen extends ScreenAdapter {
         TABLE.add(CANCEL).expandX().fillX().padLeft(5).colspan(1).uniform();
 
         OPTIONS.top();
-        OPTIONS.add(RES_ID).colspan(1).expandX().fill().align(Align.left);
-        OPTIONS.add(RES).colspan(1).expandX().fill().align(Align.right);
+        OPTIONS.add(RES_ID).colspan(1).expandX().fill().padBottom(10).align(Align.left);
+        OPTIONS.add(RES).colspan(1).expandX().fill().padBottom(10).align(Align.right).row();
+        OPTIONS.add(VOL_ID).colspan(1).expandX().fill().padBottom(10).align(Align.left);
+        OPTIONS.add(VOL).colspan(1).expandX().fill().padBottom(10).align(Align.right);
 
         CANCEL.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (((Button)actor).isPressed()) {
-                    APP.setScreen(new MainMenu());
-                    APP.getScreen().dispose();
+                    APP.getTheme().setVolume(OptionsManager.volume);
+
+                    changeScreen();
                 }
             }
         });
@@ -91,11 +107,20 @@ public class OptionsScreen extends ScreenAdapter {
             public void changed(ChangeEvent event, Actor actor) {
                 if (((Button)actor).isPressed()) {
                     OptionsManager.resolution = RES.getSelected();
+                    OptionsManager.volume = VOL.getValue();
 
                     OptionsManager.update();
 
-                    APP.setScreen(new MainMenu());
-                    APP.getScreen().dispose();
+                    changeScreen();
+                }
+            }
+        });
+
+        VOL.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (VOL.isDragging()) {
+                    APP.getTheme().setVolume(VOL.getValue());
                 }
             }
         });
@@ -108,6 +133,14 @@ public class OptionsScreen extends ScreenAdapter {
         // ENGINE.addEntity(EntityFactory.createParticleGenerator());
     }
 
+    private void changeScreen() {
+        APP.getScreen().dispose();
+        if (LAST_SCREEN != null)
+            APP.setScreen(LAST_SCREEN);
+        else
+            APP.setScreen(new MainMenu());
+    }
+
     @Override
     public void render(float deltaTime) {
         ENGINE.update(deltaTime);
@@ -115,17 +148,13 @@ public class OptionsScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        Application app = (Application) Gdx.app.getApplicationListener();
-
-        app.getInputMultiplexer().addProcessor(Mapper.GUI.get(GUIEntity).canvas);
+        APP.getInputMultiplexer().addProcessor(Mapper.GUI.get(GUIEntity).canvas);
         EntityFactory.setEngine(ENGINE);
     }
 
     @Override
     public void hide() {
-        Application app = (Application) Gdx.app.getApplicationListener();
-
-        app.getInputMultiplexer().removeProcessor(Mapper.GUI.get(GUIEntity).canvas);
+        APP.getInputMultiplexer().removeProcessor(Mapper.GUI.get(GUIEntity).canvas);
     }
 
     @Override

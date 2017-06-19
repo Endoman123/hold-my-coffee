@@ -81,7 +81,7 @@ public class Application extends Game {
 				EntityFactory.init();
 
 				theme = Assets.MANAGER.get(Assets.AUDIO.THEME);
-				theme.setVolume(0.05f);
+				theme.setVolume(OptionsManager.volume);
 				theme.setLooping(true);
 				theme.play();
 

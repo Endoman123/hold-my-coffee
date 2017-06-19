@@ -75,12 +75,14 @@ public class GameScreen extends ScreenAdapter {
         final Label PAUSE_ID = new Label("PAUSED", SKIN, "title");
         final Button
                 RESUME = new TextButton("RESUME", SKIN),
+                OPTIONS = new TextButton("OPTIONS", SKIN),
                 QUIT = new TextButton("QUIT", SKIN);
 
         UI.canvas = new Stage(VIEWPORT, BATCH);
 
         PAUSE_ID.setAlignment(Align.center);
 
+        final Screen ME = this;
         PAUSE_DISPLAY.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -90,6 +92,12 @@ public class GameScreen extends ScreenAdapter {
                 if (QUIT.isPressed()) {
                     APP.getScreen().dispose();
                     APP.setScreen(new MainMenu());
+                }
+
+                if (OPTIONS.isPressed()) {
+                    if (ME == null)
+                        System.out.println("shit");
+                    APP.setScreen(new OptionsScreen(ME));
                 }
             }
         });
@@ -107,6 +115,7 @@ public class GameScreen extends ScreenAdapter {
         PAUSE_DISPLAY.setSkin(SKIN);
         PAUSE_DISPLAY.add(PAUSE_ID).expandX().fillX().row();
         PAUSE_DISPLAY.add(RESUME).expandX().fillX().padTop(10).row();
+        PAUSE_DISPLAY.add(OPTIONS).expandX().fillX().padTop(10).row();
         PAUSE_DISPLAY.add(QUIT).expandX().fillX().padTop(10).row();
 
         UI.canvas.addActor(PAUSE_DISPLAY);
@@ -205,6 +214,7 @@ public class GameScreen extends ScreenAdapter {
         pause = !pause;
 
         Gdx.input.setCursorCatched(!pause);
+
         ENGINE.getSystem(AISystem.class).setProcessing(!pause);
         ENGINE.getSystem(BulletSystem.class).setProcessing(!pause);
         ENGINE.getSystem(CollisionSystem.class).setProcessing(!pause);

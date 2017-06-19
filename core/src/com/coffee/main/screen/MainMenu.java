@@ -3,6 +3,7 @@ package com.coffee.main.screen;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -61,21 +62,22 @@ public class MainMenu extends ScreenAdapter {
         TABLE.add(OPTIONS).fillX().pad(10, 10, 10, 5).uniform();
         TABLE.add(EXIT).fillX().pad(10, 5, 10, 10).uniform().row();
 
+        final Screen ME = this;
 
         GUI.canvas.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (((Button) actor).isPressed()) {
-                    APP.getScreen().dispose();
                     if (actor == START) {
+                        APP.getScreen().dispose();
                         APP.setScreen(new GameScreen());
                     } else if (actor == OPTIONS) {
-                        APP.setScreen(new OptionsScreen());
+                        APP.setScreen(new OptionsScreen(ME));
                     } else if (actor == EXIT) {
                         Gdx.app.exit();
                     } else if (actor == HIGHSCORE) {
+                        APP.getScreen().dispose();
                         APP.setScreen(new HighScoreScreen());
-                        //APP.setScreen(new GameOverScreen(MathUtils.random(1000, 10000)));
                     }
                 }
             }
