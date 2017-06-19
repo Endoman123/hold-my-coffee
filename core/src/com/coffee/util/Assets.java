@@ -3,6 +3,7 @@ package com.coffee.util;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
@@ -36,5 +37,12 @@ public class Assets {
     public static class UI {
         public static AssetDescriptor<TextureAtlas> ATLAS = new AssetDescriptor<>("uiskin.atlas", TextureAtlas.class);
         public static AssetDescriptor<Skin> SKIN = new AssetDescriptor<>("uiskin.json", Skin.class);
+    }
+
+    /**
+     * Subclass containing {@link AssetDescriptor}s for music and sfx
+     */
+    public static class AUDIO {
+        public static AssetDescriptor<Music> THEME = new AssetDescriptor<>("theme.ogg", Music.class);
     }
 }

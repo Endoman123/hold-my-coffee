@@ -52,7 +52,7 @@ public class HighScore {
         int score = e.getScore();
 
         // Don't even attempt if it isn't higher than the lowest score
-        if (score < getLowest().getScore())
+        if (score < SCORES[SIZE - 1].getScore())
             return;
 
         // Pull down entries until it can be placed.
@@ -73,8 +73,17 @@ public class HighScore {
         return SCORES[i];
     };
 
-    public static HighScoreEntry getLowest() {
-        return SCORES[SIZE - 1];
+    /**
+     * Gets the lowest non-zero score in the table
+     * @return the lowest non-zero score entry, or the first entry if all the scores up to the first entry are 0
+     */
+    public static HighScoreEntry getLowestNonZero() {
+        for (int i = SIZE - 1; i > 0; i--) {
+            if (!HighScoreEntry.NO_NAME.equals(SCORES[i].getName()))
+                return SCORES[i];
+        }
+        
+        return SCORES[0];
     }
 
     public static void save() {

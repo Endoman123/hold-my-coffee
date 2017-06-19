@@ -309,7 +309,7 @@ public class EntityFactory {
 
                 TIMER.setText("TIME\n" + String.format("%02d", PLAYER.timeAlive / 60) + ":" + String.format("%02d", PLAYER.timeAlive % 60));
                 SCORE.setText(
-                        "SCORE TO BEAT: " + String.format("%010d", HighScore.getLowest().getScore()) + "\nYOUR SCORE: " + String.format("%010d", PLAYER.score));
+                        "HIGH SCORE: " + String.format("%010d", HighScore.getLowestNonZero().getScore()) + "\nYOUR SCORE: " + String.format("%010d", PLAYER.score));
 
                 return false;
             }
