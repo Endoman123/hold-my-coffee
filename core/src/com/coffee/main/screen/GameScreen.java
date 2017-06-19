@@ -184,7 +184,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         EntityFactory.setEngine(ENGINE);
         APP.getInputMultiplexer().addProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
-        //APP.getInputMultiplexer().addProcessor(DEBUG);
+        APP.getInputMultiplexer().addProcessor(DEBUG);
 
     }
 

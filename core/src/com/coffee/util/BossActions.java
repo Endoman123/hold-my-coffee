@@ -488,6 +488,7 @@ public class BossActions {
 
                     SPRITE.SPRITES.first().setColor(221 / 255f, 66f / 255f, 121f / 255f, 1);
 
+                    BULLET.damage = 6;
                     BULLET.handler = (float dt) -> {
                         SPRITE.SPRITES.get(0).setColor(
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r - dt / 20f, 0, 1),
@@ -542,6 +543,7 @@ public class BossActions {
 
                     MOVE.moveSpeed = 0;
 
+                    BULLET.damage = 6;
                     BULLET.handler = (float dt) -> {
                         SPRITE.SPRITES.get(0).setColor(
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r - dt / 20f, 0, 1),
@@ -651,6 +653,7 @@ public class BossActions {
                     final TransformComponent TRANS = Mapper.TRANSFORM.get(B);
 
                     BULLET.despawnTime = -1;
+                    BULLET.damage = 3;
                     MOVE.moveSpeed = 7;
 
                     BULLET.handler = new BulletHandler() {
@@ -893,7 +896,7 @@ public class BossActions {
 
                     MOVE.moveSpeed = MathUtils.lerp(7, 4, i / 6.0f);
 
-                    BULLET.damage = 4;
+                    BULLET.damage = 3;
 
                     BULLET.handler = (float dt) -> {
                         if (MOVE.moveSpeed > 4) {
@@ -1041,6 +1044,8 @@ public class BossActions {
 
                             B_MOVE.moveSpeed = 6;
 
+                            B_BULLET.damage = 3;
+
                             ENGINE.addEntity(B);
                             timer = explodeTime;
                             deg++;
@@ -1123,6 +1128,8 @@ public class BossActions {
 
                             B_MOVE.moveSpeed = 6;
 
+                            B_BULLET.damage = 3;
+
                             ENGINE.addEntity(B);
                             timer = explodeTime;
                             deg++;
@@ -1204,6 +1211,8 @@ public class BossActions {
                             B_SPRITE.zIndex = BALL_SPRITE.zIndex - 1;
 
                             B_MOVE.moveSpeed = 5;
+
+                            B_BULLET.damage = 3;
 
                             ENGINE.addEntity(B);
                             timer = explodeTime;

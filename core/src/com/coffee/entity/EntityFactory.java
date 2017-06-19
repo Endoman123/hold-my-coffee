@@ -1106,9 +1106,9 @@ public class EntityFactory {
         // Set up ColliderComponent pt 1
         COLLIDER.BODY.setVertices(new float[] {
                 0, 0,
-                TRANSFORM.SIZE.width, 0,
-                TRANSFORM.SIZE.width, TRANSFORM.SIZE.height,
-                0, TRANSFORM.SIZE.height
+                TRANSFORM.SIZE.width + 10, -0,
+                TRANSFORM.SIZE.width + 10, TRANSFORM.SIZE.height + 10,
+                0, TRANSFORM.SIZE.height + 10
         });
         COLLIDER.solid = false;
         COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
@@ -1306,7 +1306,7 @@ public class EntityFactory {
         Sprite main = new Sprite(goAtlas.createSprite("shooting_star"));
         float temp = (float)Math.pow(MathUtils.random(), 1);
         Color tint = ColorUtils.HSVtoRGB(MathUtils.lerp(0, 300, temp), (int)MathUtils.lerp(25, 0, temp), 100);
-        float size = MathUtils.lerp(1, 4, (100 - z) / 100f);
+        float size = MathUtils.lerp(1, 10, (100 - z) / 100f);
 
         main.setSize(size * 3.5f, size);
         main.setOrigin(main.getWidth(), main.getHeight() / 2);
