@@ -102,20 +102,35 @@ public class GameOverScreen extends ScreenAdapter {
                 LBL_HEALTH_BONUS = new Label("", SKIN),
                 LBL_ACCURACY_BONUS_ID = new Label("ACCURACY BONUS: ", SKIN),
                 LBL_ACCURACY_BONUS = new Label("", SKIN),
+                LBL_TIME_BONUS_ID = new Label("TIME BONUS: ", SKIN),
+                LBL_TIME_BONUS = new Label("", SKIN),
                 LBL_FINAL_SCORE_ID = new Label("FINAL SCORE: ", SKIN),
                 LBL_FINAL_SCORE = new Label("", SKIN);
 
             final int HEALTH_BONUS_SCORE = PLAYER.lives * 100 + HEALTH.health;
             final float ACCURACY_BONUS_FACTOR = 1 + PLAYER.getAccuracy();
+            final int TIME_BONUS;
+
+            if (PLAYER.timeAlive <= 360)
+                TIME_BONUS = 3000;
+            else if (PLAYER.timeAlive <= 480)
+                TIME_BONUS = 2000;
+            else if (PLAYER.timeAlive <= 540)
+                TIME_BONUS = 1000;
+            else
+                TIME_BONUS = 0;
 
             LBL_HEALTH_BONUS.setText("+" + HEALTH_BONUS_SCORE);
             LBL_ACCURACY_BONUS.setText(String.format("%.2f", PLAYER.getAccuracy() * 100f) + "% | x" + String.format("%.2f", ACCURACY_BONUS_FACTOR));
+            LBL_TIME_BONUS.setText(String.format("%02d", PLAYER.timeAlive / 60) + ":" + String.format("%02d", PLAYER.timeAlive % 60) + " | +" + TIME_BONUS);
 
             LBL_HEALTH_BONUS_ID.setAlignment(Align.left);
             LBL_ACCURACY_BONUS_ID.setAlignment(Align.left);
+            LBL_TIME_BONUS_ID.setAlignment(Align.left);
             LBL_FINAL_SCORE_ID.setAlignment(Align.left);
             LBL_HEALTH_BONUS.setAlignment(Align.right);
             LBL_ACCURACY_BONUS.setAlignment(Align.right);
+            LBL_TIME_BONUS.setAlignment(Align.right);
             LBL_FINAL_SCORE.setAlignment(Align.right);
 
             score += HEALTH_BONUS_SCORE;
@@ -130,6 +145,8 @@ public class GameOverScreen extends ScreenAdapter {
             TABLE.add(LBL_HEALTH_BONUS).expandX().fillX().align(Align.right).row();
             TABLE.add(LBL_ACCURACY_BONUS_ID).expandX().fillX().align(Align.left);
             TABLE.add(LBL_ACCURACY_BONUS).expandX().fillX().align(Align.right).row();
+            TABLE.add(LBL_TIME_BONUS_ID).expandX().fillX().align(Align.left);
+            TABLE.add(LBL_TIME_BONUS).expandX().fillX().align(Align.right).row();
             TABLE.add(LBL_FINAL_SCORE_ID).padTop(10).expandX().fillX().align(Align.left);
             TABLE.add(LBL_FINAL_SCORE).padTop(10).expandX().fillX().align(Align.right).row();
         } else {

@@ -308,8 +308,7 @@ public class EntityFactory {
                 FILL.setBounds(4, 4, (CONTAINER.getWidth() - 9) * HEALTH.getHealthPercent(), CONTAINER.getHeight() - 9);
 
                 TIMER.setText("TIME\n" + String.format("%02d", PLAYER.timeAlive / 60) + ":" + String.format("%02d", PLAYER.timeAlive % 60));
-                SCORE.setText(
-                        "HIGH SCORE: " + String.format("%010d", HighScore.getLowestNonZero().getScore()) + "\nYOUR SCORE: " + String.format("%010d", PLAYER.score));
+                SCORE.setText("HIGH SCORE: " + String.format("%010d", HighScore.getLowestNonZero().getScore()) + "\nYOUR SCORE: " + String.format("%010d", PLAYER.score));
 
                 return false;
             }
