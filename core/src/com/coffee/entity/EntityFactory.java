@@ -1105,10 +1105,10 @@ public class EntityFactory {
 
         // Set up ColliderComponent pt 1
         COLLIDER.BODY.setVertices(new float[] {
-                0, 0,
-                TRANSFORM.SIZE.width + 10, -0,
-                TRANSFORM.SIZE.width + 10, TRANSFORM.SIZE.height + 10,
-                0, TRANSFORM.SIZE.height + 10
+                -5, -5,
+                TRANSFORM.SIZE.width + 5, -5,
+                TRANSFORM.SIZE.width + 5, TRANSFORM.SIZE.height + 5,
+                -5, TRANSFORM.SIZE.height + 5
         });
         COLLIDER.solid = false;
         COLLIDER.BODY.setOrigin(TRANSFORM.ORIGIN.x, TRANSFORM.ORIGIN.y);
