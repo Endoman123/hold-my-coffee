@@ -2,6 +2,7 @@ package com.coffee.main;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -25,6 +26,7 @@ public class Application extends Game {
 	private Viewport viewport;
 	private InputMultiplexer inputMultiplexer;
 	private Array<Screen> testScreens;
+	private Music theme;
 	private int curTest = 0;
 
 	private boolean assetsLoaded = false;
@@ -45,6 +47,7 @@ public class Application extends Game {
 		Assets.MANAGER.load(Assets.UI.SKIN);
 		Assets.MANAGER.load(Assets.UI.ATLAS);
 		Assets.MANAGER.load(Assets.GameObjects.ATLAS);
+		Assets.MANAGER.load(Assets.AUDIO.THEME);
 
 		// An input listener to exit the game and toggle fullscreen
 		inputMultiplexer.addProcessor(new InputAdapter() {
@@ -77,6 +80,11 @@ public class Application extends Game {
 			if (assetsLoaded) {
 				EntityFactory.init();
 
+				theme = Assets.MANAGER.get(Assets.AUDIO.THEME);
+				theme.setVolume(0.05f);
+				theme.setLooping(true);
+				theme.play();
+
 				if (testScreens.size == 0) {
 					testScreens.addAll(
 							new MainMenu(),
@@ -106,6 +114,8 @@ public class Application extends Game {
 	@Override
 	public void dispose () {
 		batch.dispose();
+		shapeRenderer.dispose();
+		theme.dispose();
 	}
 
 	public SpriteBatch getBatch() {
@@ -122,6 +132,10 @@ public class Application extends Game {
 
 	public InputMultiplexer getInputMultiplexer() {
 		return inputMultiplexer;
+	}
+
+	public Music getTheme() {
+		return theme;
 	}
 
 	@Override

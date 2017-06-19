@@ -192,7 +192,9 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         Gdx.input.setCursorCatched(false);
         APP.getInputMultiplexer().removeProcessor(Mapper.INPUT.get(PLAYER).PROCESSOR);
-        //APP.getInputMultiplexer().removeProcessor(DEBUG);
+
+        if (pause)
+            APP.getTheme().setVolume(APP.getTheme().getVolume() + 0.025f);
     }
 
     /**
@@ -213,11 +215,15 @@ public class GameScreen extends ScreenAdapter {
         ENGINE.getSystem(SpawnerSystem.class).setProcessing(!pause);
 
         final InputProcessor INPUT = Mapper.GUI.get(PAUSE_UI).canvas;
+        final float VOL = APP.getTheme().getVolume();
 
-        if (pause)
+        if (pause) {
             APP.getInputMultiplexer().addProcessor(INPUT);
-        else
+            APP.getTheme().setVolume(VOL - 0.025f);
+        } else {
             APP.getInputMultiplexer().removeProcessor(INPUT);
+            APP.getTheme().setVolume(VOL + 0.025f);
+        }
     }
 
     /**
