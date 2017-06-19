@@ -577,7 +577,7 @@ public class EntityFactory {
 
                             final Entity E = EntityFactory.createEnemyBullet(xPlace, yPlace, deg);
                             final MovementComponent MOVE = Mapper.MOVEMENT.get(E);
-
+                            Mapper.BULLET.get(E).damage = 7;
                             MOVE.moveSpeed = 10;
 
                             engine.addEntity(E);
