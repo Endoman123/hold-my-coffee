@@ -121,7 +121,7 @@ public class GameOverScreen extends ScreenAdapter {
             score += HEALTH_BONUS_SCORE;
             score *= ACCURACY_BONUS_FACTOR;
 
-            if (score > HighScore.getLowest().getScore())
+            if (score > HighScore.get(HighScore.SIZE - 1).getScore())
                 LBL_FINAL_SCORE_ID.setText("NEW HIGH SCORE: ");
 
             LBL_FINAL_SCORE.setText("" + score);
@@ -133,13 +133,13 @@ public class GameOverScreen extends ScreenAdapter {
             TABLE.add(LBL_FINAL_SCORE_ID).padTop(10).expandX().fillX().align(Align.left);
             TABLE.add(LBL_FINAL_SCORE).padTop(10).expandX().fillX().align(Align.right).row();
         } else {
-            if (score > HighScore.getLowest().getScore())
+            if (score > HighScore.getLowestNonZero().getScore())
                 LBL_SCORE_ID.setText("NEW HIGH SCORE: ");
         }
 
         FINAL_SCORE = score;
 
-        if (FINAL_SCORE > HighScore.getLowest().getScore()) {
+        if (FINAL_SCORE > HighScore.getLowestNonZero().getScore()) {
             final Label LBL_NAME_ID = new Label("ENTER NAME: ", new Label.LabelStyle(FNT_SCORE, Color.WHITE));
             final TextField NAME = new TextField("", SKIN);
 
