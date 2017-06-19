@@ -214,25 +214,25 @@ public class AISystem extends IteratingSystem {
                             AI.TASKS.add(ACTION);
                         }
 
-                        if (MathUtils.randomBoolean(0.5f)) {
+                        if (MathUtils.randomBoolean(0.3f)) {
                             final BossActions.Action ACTION = new BossActions.XBeam(getEngine());
                             ACTION.parallel = true;
                             AI.TASKS.add(ACTION);
                         }
 
-                        if (MathUtils.randomBoolean(0.6f)) {
+                        if (MathUtils.randomBoolean(0.3f)) {
                             final BossActions.Action ACTION = new BossActions.StarBeam(getEngine());
                             ACTION.parallel = true;
                             AI.TASKS.add(ACTION);
                         }
 
-                        if (MathUtils.randomBoolean(0.5f)) {
+                        if (MathUtils.randomBoolean(0.4f)) {
                             final BossActions.Action ACTION = new BossActions.QuadLaserBallAttack(getEngine(), 0);
                             ACTION.parallel = true;
                             AI.TASKS.add(ACTION);
                         }
 
-                        if (MathUtils.randomBoolean(0.5f)) {
+                        if (MathUtils.randomBoolean(0.3f)) {
                             AI.TASKS.add(new BossActions.HelixPlusAttack(getEngine(), VIEWPORT));
                         } else if (MathUtils.randomBoolean(0.2f)) {
                             AI.TASKS.add(new BossActions.XBeam(getEngine()));
@@ -240,7 +240,7 @@ public class AISystem extends IteratingSystem {
                             AI.TASKS.add(new BossActions.StarBeam(getEngine()));
                         }
 
-                    } else if (MathUtils.randomBoolean(.75f)) {
+                    } else if (MathUtils.randomBoolean(.5f)) {
                         if (MathUtils.randomBoolean(0.4f))
                             AI.TASKS.add(new BossActions.ImperishableNight(getEngine()));
                         else if (MathUtils.randomBoolean(.7f)) {
