@@ -94,11 +94,8 @@ public class GameScreen extends ScreenAdapter {
                     APP.setScreen(new MainMenu());
                 }
 
-                if (OPTIONS.isPressed()) {
-                    if (ME == null)
-                        System.out.println("shit");
+                if (OPTIONS.isPressed())
                     APP.setScreen(new OptionsScreen(ME));
-                }
             }
         });
 

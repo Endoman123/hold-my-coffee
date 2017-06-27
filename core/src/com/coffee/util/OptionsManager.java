@@ -11,7 +11,8 @@ public class OptionsManager {
     private static Preferences opts;
     public static boolean fullscreen = false;
     public static String resolution = "450x800";
-    public static float volume = 0.05f;
+    public static float musicVolume = 0.05f;
+    public static float sfxVolume = 0.05f;
 
     /**
      * Initializes the options by getting the prefs file and
@@ -23,7 +24,8 @@ public class OptionsManager {
 
             fullscreen = opts.getBoolean("fullscreen", false);
             resolution = opts.getString("resolution", "450x800");
-            volume = opts.getFloat("volume", 0.05f);
+            musicVolume = opts.getFloat("musicVolume", 0.05f);
+            sfxVolume = opts.getFloat("sfxVolume", 0.05f);
 
             update();
         }
@@ -32,7 +34,8 @@ public class OptionsManager {
     public static void update() {
         opts.putBoolean("fullscreen", fullscreen);
         opts.putString("resolution", resolution);
-        opts.putFloat("volume", volume);
+        opts.putFloat("musicVolume", musicVolume);
+        opts.putFloat("sfxVolume", sfxVolume);
 
         if (fullscreen) {
             Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();

@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -59,12 +60,15 @@ public class OptionsScreen extends ScreenAdapter {
         final Label
                 TITLE = new Label("OPTIONS", SKIN, "title"),
                 RES_ID = new Label("Resolution", SKIN),
-                VOL_ID = new Label("Volume", SKIN);
+                MUSIC_VOL_ID = new Label("Music Volume", SKIN),
+                SFX_VOL_ID = new Label("SFX Volume", SKIN);
         final TextButton
                 CANCEL = new TextButton("CANCEL", SKIN),
                 SAVE = new TextButton("SAVE", SKIN);
         final SelectBox<String> RES = new SelectBox<String>(SKIN);
-        final Slider VOL = new Slider(0, 1, 0.01f, false, SKIN);
+        final Slider
+                MUSIC_VOL = new Slider(0, 1, 0.01f, false, SKIN),
+                SFX_VOL = new Slider(0, 1, 0.01f, false, SKIN);
 
         TABLE.setSkin(SKIN);
         TITLE.setAlignment(Align.center);
@@ -77,7 +81,9 @@ public class OptionsScreen extends ScreenAdapter {
         );
 
         RES.setSelected(OptionsManager.resolution);
-        VOL.setValue(OptionsManager.volume);
+        MUSIC_VOL.setValue(OptionsManager.musicVolume);
+        SFX_VOL.setValue(OptionsManager.sfxVolume);
+
 
         TABLE.center().pad(50).setFillParent(true);
         TABLE.add(TITLE).expandX().fillX().colspan(2).row();
@@ -88,14 +94,16 @@ public class OptionsScreen extends ScreenAdapter {
         OPTIONS.top();
         OPTIONS.add(RES_ID).colspan(1).expandX().fill().padBottom(10).align(Align.left);
         OPTIONS.add(RES).colspan(1).expandX().fill().padBottom(10).align(Align.right).row();
-        OPTIONS.add(VOL_ID).colspan(1).expandX().fill().padBottom(10).align(Align.left);
-        OPTIONS.add(VOL).colspan(1).expandX().fill().padBottom(10).align(Align.right);
+        OPTIONS.add(MUSIC_VOL_ID).colspan(1).expandX().fill().padBottom(10).align(Align.left);
+        OPTIONS.add(MUSIC_VOL).colspan(1).expandX().fill().padBottom(10).align(Align.right).row();
+        OPTIONS.add(SFX_VOL_ID).colspan(1).expandX().fill().padBottom(10).align(Align.left);
+        OPTIONS.add(SFX_VOL).colspan(1).expandX().fill().padBottom(10).align(Align.right);
 
         CANCEL.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (((Button)actor).isPressed()) {
-                    APP.getTheme().setVolume(OptionsManager.volume);
+                    APP.getTheme().setVolume(OptionsManager.musicVolume);
 
                     changeScreen();
                 }
@@ -107,7 +115,8 @@ public class OptionsScreen extends ScreenAdapter {
             public void changed(ChangeEvent event, Actor actor) {
                 if (((Button)actor).isPressed()) {
                     OptionsManager.resolution = RES.getSelected();
-                    OptionsManager.volume = VOL.getValue();
+                    OptionsManager.musicVolume = MUSIC_VOL.getValue();
+                    OptionsManager.sfxVolume = SFX_VOL.getValue();
 
                     OptionsManager.update();
 
@@ -116,11 +125,20 @@ public class OptionsScreen extends ScreenAdapter {
             }
         });
 
-        VOL.addListener(new ChangeListener() {
+        MUSIC_VOL.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (VOL.isDragging()) {
-                    APP.getTheme().setVolume(VOL.getValue());
+                if (MUSIC_VOL.isDragging())
+                    APP.getTheme().setVolume(MUSIC_VOL.getValue());
+            }
+        });
+
+        SFX_VOL.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (!SFX_VOL.isDragging()) {
+                    Sound sound = Assets.MANAGER.get(Assets.Audio.POWERUP_SOUND);
+                    sound.play(SFX_VOL.getValue());
                 }
             }
         });

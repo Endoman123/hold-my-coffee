@@ -111,7 +111,9 @@ public class GameOverScreen extends ScreenAdapter {
             final float ACCURACY_BONUS_FACTOR = 1 + PLAYER.getAccuracy();
             final int TIME_BONUS;
 
-            if (PLAYER.timeAlive <= 360)
+            if (PLAYER.timeAlive <= 240)
+                TIME_BONUS = 4000;
+            else if (PLAYER.timeAlive <= 360)
                 TIME_BONUS = 3000;
             else if (PLAYER.timeAlive <= 480)
                 TIME_BONUS = 2000;
@@ -150,7 +152,7 @@ public class GameOverScreen extends ScreenAdapter {
             TABLE.add(LBL_FINAL_SCORE_ID).padTop(10).expandX().fillX().align(Align.left);
             TABLE.add(LBL_FINAL_SCORE).padTop(10).expandX().fillX().align(Align.right).row();
         } else {
-            if (score > HighScore.getLowestNonZero().getScore())
+            if (score > HighScore.get(HighScore.SIZE - 1).getScore())
                 LBL_SCORE_ID.setText("NEW HIGH SCORE: ");
         }
 

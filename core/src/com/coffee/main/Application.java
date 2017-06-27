@@ -47,7 +47,9 @@ public class Application extends Game {
 		Assets.MANAGER.load(Assets.UI.SKIN);
 		Assets.MANAGER.load(Assets.UI.ATLAS);
 		Assets.MANAGER.load(Assets.GameObjects.ATLAS);
-		Assets.MANAGER.load(Assets.AUDIO.THEME);
+		Assets.MANAGER.load(Assets.Audio.THEME);
+		Assets.MANAGER.load(Assets.Audio.LASER_SHOOT);
+		Assets.MANAGER.load(Assets.Audio.POWERUP_SOUND);
 
 		// An input listener to exit the game and toggle fullscreen
 		inputMultiplexer.addProcessor(new InputAdapter() {
@@ -80,8 +82,8 @@ public class Application extends Game {
 			if (assetsLoaded) {
 				EntityFactory.init();
 
-				theme = Assets.MANAGER.get(Assets.AUDIO.THEME);
-				theme.setVolume(OptionsManager.volume);
+				theme = Assets.MANAGER.get(Assets.Audio.THEME);
+				theme.setVolume(OptionsManager.musicVolume);
 				theme.setLooping(true);
 				theme.play();
 

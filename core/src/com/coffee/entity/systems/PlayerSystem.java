@@ -3,11 +3,14 @@ package com.coffee.entity.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.coffee.entity.EntityFactory;
 import com.coffee.entity.components.*;
+import com.coffee.util.Assets;
 import com.coffee.util.Mapper;
+import com.coffee.util.OptionsManager;
 
 import java.awt.*;
 
@@ -67,6 +70,8 @@ public class PlayerSystem extends IteratingSystem {
 
             // Shoot if we can
             if (player.shoot && player.shootTimer == 0) {
+                Sound shoot = Assets.MANAGER.get(Assets.Audio.LASER_SHOOT);
+                shoot.play(OptionsManager.sfxVolume);
                 switch (player.upBulletDamage) {
                     case 1:
                         getEngine().addEntity(EntityFactory.createPlayerBullet(

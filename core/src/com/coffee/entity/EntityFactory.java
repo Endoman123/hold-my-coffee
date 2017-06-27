@@ -3,6 +3,7 @@ package com.coffee.entity;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -1139,6 +1140,9 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity) && Mapper.HEALTH.get(entity).getHealthPercent() > 0) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
+                    Sound sound = Assets.MANAGER.get(Assets.Audio.POWERUP_SOUND);
+
+                    sound.play(OptionsManager.sfxVolume);
                     if (player.upBulletDamage < 4) {
                         player.upBulletDamage++;
                         player.score += 100;
@@ -1179,6 +1183,9 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity) && Mapper.HEALTH.get(entity).getHealthPercent() > 0) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
+                    Sound sound = Assets.MANAGER.get(Assets.Audio.POWERUP_SOUND);
+
+                    sound.play(OptionsManager.sfxVolume);
                     if (player.upFireRate < 4) {
                         player.upFireRate++;
                         player.score += 100;
@@ -1219,7 +1226,9 @@ public class EntityFactory {
             public void enterCollision(Entity entity) {
                 if (Mapper.PLAYER.has(entity) && Mapper.HEALTH.get(entity).getHealthPercent() > 0) {
                     PlayerComponent player = Mapper.PLAYER.get(entity);
+                    Sound sound = Assets.MANAGER.get(Assets.Audio.POWERUP_SOUND);
 
+                    sound.play(OptionsManager.sfxVolume);
                     if (player.upSpeed < 4) {
                         player.upSpeed++;
                         player.score += 100;

@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
@@ -42,7 +43,9 @@ public class Assets {
     /**
      * Subclass containing {@link AssetDescriptor}s for music and sfx
      */
-    public static class AUDIO {
+    public static class Audio {
         public static AssetDescriptor<Music> THEME = new AssetDescriptor<>("theme.ogg", Music.class);
+        public static AssetDescriptor<Sound> LASER_SHOOT = new AssetDescriptor<Sound>("laser.ogg", Sound.class);
+        public static AssetDescriptor<Sound> POWERUP_SOUND = new AssetDescriptor<Sound>("powerup.ogg", Sound.class);
     }
 }
