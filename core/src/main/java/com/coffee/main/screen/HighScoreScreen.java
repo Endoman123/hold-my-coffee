@@ -29,7 +29,7 @@ public class HighScoreScreen extends ScreenAdapter {
     private final Entity GUIEntity;
 
     public HighScoreScreen() {
-        final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fff.ttf"));
+        final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("ui/fff.ttf"));
         final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
         final Application APP = (Application) Gdx.app.getApplicationListener();
 

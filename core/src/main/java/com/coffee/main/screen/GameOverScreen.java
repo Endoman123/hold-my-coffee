@@ -57,7 +57,7 @@ public class GameOverScreen extends ScreenAdapter {
         final GUIComponent GUI = new GUIComponent();
         final Table TABLE = new Table();
         final BitmapFont FNT_GAME_OVER, FNT_SCORE;
-        final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fff.ttf"));
+        final FreeTypeFontGenerator fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("ui/fff.ttf"));
         final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
         final PlayerComponent PLAYER = Mapper.PLAYER.get(PLAYER_ENTITY);
         final HealthComponent HEALTH = Mapper.HEALTH.get(PLAYER_ENTITY);
