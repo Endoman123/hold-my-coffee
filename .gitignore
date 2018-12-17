@@ -63,5 +63,27 @@ nb-configuration.xml
 ## OS Specific
 .DS_Store
 
+## iOS Specific
+build/
+DerivedData/
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## Xcode User Settings 
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
 ## Project Specific
 */build/

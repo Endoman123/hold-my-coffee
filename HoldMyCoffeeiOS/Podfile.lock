@@ -1,0 +1,28 @@
+PODS:
+  - Hero (1.4.0)
+  - SnapKit (4.2.0)
+  - SwiftyJSON (4.2.0)
+  - SwiftySound (1.0.0)
+
+DEPENDENCIES:
+  - Hero
+  - SnapKit
+  - SwiftyJSON
+  - SwiftySound
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Hero
+    - SnapKit
+    - SwiftyJSON
+    - SwiftySound
+
+SPEC CHECKSUMS:
+  Hero: bac92350d7201a1a940003e0767c7b52ce7c99a1
+  SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
+  SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
+  SwiftySound: b9c3370956fd4ed65ed79d45563070077a50a2cd
+
+PODFILE CHECKSUM: 96f3139daece119222c5a8d3cc07fe2703e53050
+
+COCOAPODS: 1.5.3
