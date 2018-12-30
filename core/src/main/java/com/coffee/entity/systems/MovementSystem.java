@@ -60,7 +60,7 @@ public class MovementSystem extends IteratingSystem {
 
         // Move and rotate the entity
         curTransform.POSITION.add(move_vec);
-        curTransform.rotation += curMovement.rotSpeed;
+        curTransform.rotation += curMovement.rotSpeed * deltaTime;
 
         // Limit rotation to [0, 360) for easy printouts.
         if (curTransform.rotation >= 360)
