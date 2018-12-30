@@ -812,7 +812,7 @@ public class EntityFactory {
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().r + dt, 0, 1),
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().g - dt, 0, 1),
                                 MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().b - dt, 0, 1),
-                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().a, 0, 1)
+                                MathUtils.clamp(SPRITE.SPRITES.get(0).getColor().a - dt * 0.01f, 0, 1)
                         );
                         break;
                 }
