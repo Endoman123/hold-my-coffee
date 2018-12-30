@@ -1416,7 +1416,7 @@ public class EntityFactory {
         final GUIComponent GUI = new GUIComponent();
 
         // Initialize MovmementComponent
-        MOVEMENT.rotSpeed = 40;
+        MOVEMENT.rotSpeed = 2;
 
         // Initialize SpriteComponent
         Sprite shell = goAtlas.createSprite("enemy_shell");
