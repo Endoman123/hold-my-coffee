@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -33,9 +34,6 @@ public class Application extends Game {
 
 	@Override
 	public void create () {
-		OptionsManager.init();
-		HighScore.init();
-
 		// Initialize global stuff before all the Screen stuff
 		batch = new SpriteBatch(3000);
 		viewport = new FitViewport(600, 800);
@@ -50,6 +48,9 @@ public class Application extends Game {
 		Assets.MANAGER.load(Assets.Audio.THEME);
 		Assets.MANAGER.load(Assets.Audio.LASER_SHOOT);
 		Assets.MANAGER.load(Assets.Audio.POWERUP_SOUND);
+
+		OptionsManager.init();
+		HighScore.init();
 
 		// An input listener to exit the game and toggle fullscreen
 		inputMultiplexer.addProcessor(new InputAdapter() {
@@ -109,7 +110,9 @@ public class Application extends Game {
 			Gdx.gl.glClearColor(0, 0, 0, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-			getScreen().render(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60F));
+			getScreen().render(Gdx.graphics.getDeltaTime());
+
+			System.out.println(Gdx.graphics.getDeltaTime());
 		}
 	}
 	
@@ -146,8 +149,7 @@ public class Application extends Game {
 	public void resize(int width, int height) {
 		super.resize(width, height);
 
-		if (viewport != null)
-			viewport.update(width, height, true);
+		viewport.update(width, height, true);
 	}
 
 	/**
