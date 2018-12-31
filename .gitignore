@@ -60,8 +60,39 @@ nbdist/
 nbactions.xml
 nb-configuration.xml
 
+## VSCode
+.vscode/
+
 ## OS Specific
 .DS_Store
 
 ## Project Specific
 */build/
+
+## iOS Specific
+build/
+DerivedData/
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## Xcode User Settings 
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+## Project Specific
+*/build/
+
+## High scores 
+lwjgl3/hold_my_coffee_highscores.json

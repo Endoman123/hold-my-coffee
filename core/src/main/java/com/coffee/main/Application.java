@@ -112,7 +112,7 @@ public class Application extends Game {
 
 			getScreen().render(Gdx.graphics.getDeltaTime());
 
-			System.out.println(Gdx.graphics.getDeltaTime());
+			//System.out.println(Gdx.graphics.getDeltaTime());
 		}
 	}
 	

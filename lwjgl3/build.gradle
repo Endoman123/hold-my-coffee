@@ -21,7 +21,6 @@ jar {
   }
 }
 
-apply plugin: 'application'
 //your code
 applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 
